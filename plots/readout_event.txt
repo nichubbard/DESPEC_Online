@@ -1,0 +1,33 @@
+1) Event number 39968 | fired Plas QDC channel 0 | PLAS_QDCID 0 | Plastic Energy  102
+1) Event number 39968 | fired Plas QDC channel 2 | PLAS_QDCID 1 | Plastic Energy  263
+1) Event number 39968 | fired Plas QDC channel 26 | PLAS_QDCID 13 | Plastic Energy  680
+1) Event number 39968 | fired Plas QDC channel 28 | PLAS_QDCID 14 | Plastic Energy  825
+1) Event number 39968 | fired Plas QDC channel 30 | PLAS_QDCID 15 | Plastic Energy  250
+
+2) Event number 39968 | fired loop 3 | PLAS_TDCID 0 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 119599 | tdc_diff_Plas: 0
+2) Event number 39968 | fired loop 4 | PLAS_TDCID 3 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114407 | tdc_diff_Plas: 5192
+2) Event number 39968 | fired loop 5 | PLAS_TDCID 6 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114339 | tdc_diff_Plas: 5260
+2) Event number 39968 | fired loop 6 | PLAS_TDCID 7 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 121228 | tdc_diff_Plas: -1629
+2) Event number 39968 | fired loop 7 | PLAS_TDCID 8 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114273 | tdc_diff_Plas: 5326
+2) Event number 39968 | fired loop 8 | PLAS_TDCID 10 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114052 | tdc_diff_Plas: 5547
+2) Event number 39968 | fired loop 9 | PLAS_TDCID 13 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114064 | tdc_diff_Plas: 5535
+2) Event number 39968 | fired loop 10 | PLAS_TDCID 14 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 113852 | tdc_diff_Plas: 5747
+2) Event number 39968 | fired loop 11 | PLAS_TDCID 9 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114230 | tdc_diff_Plas: 5369
+2) Event number 39968 | fired loop 12 | PLAS_TDCID 11 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 114116 | tdc_diff_Plas: 5483
+2) Event number 39968 | fired loop 13 | PLAS_TDCID 15 | PLAS_TDC[0] 119599 | PLAS_TDC[PLAS_TDCID] 113982 | tdc_diff_Plas: 5617
+
+5) Event number 39968 | FAT_QDCID 17 | FATIMA E 73.6891
+3) Event number 39968 | FAT_TDCID 17 | TFAT[40] 120466 | TFAT[FAT_TDCID] 116448 | tdc_diff_fat[k] 4018 | tdc_diff_fat_correct[k]4387.51
+
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 3 | tdc_diff_PlasCalib 5193 | dt3[PLAS_TDCID] -804.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 6 | tdc_diff_PlasCalib 5261 | dt3[PLAS_TDCID] -872.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 7 | tdc_diff_PlasCalib -1628 | dt3[PLAS_TDCID] 6016.51
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 8 | tdc_diff_PlasCalib 5327 | dt3[PLAS_TDCID] -938.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 10 | tdc_diff_PlasCalib 5548 | dt3[PLAS_TDCID] -1159.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 13 | tdc_diff_PlasCalib 5536 | dt3[PLAS_TDCID] -1147.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 14 | tdc_diff_PlasCalib 5748 | dt3[PLAS_TDCID] -1359.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 9 | tdc_diff_PlasCalib 5370 | dt3[PLAS_TDCID] -981.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 11 | tdc_diff_PlasCalib 5484 | dt3[PLAS_TDCID] -1095.49
+4) Event number: 39968 | FAT_TDCID: 17 | tdc_diff_fat_correct[k]: 4387.51 | PLAS_TDCID 15 | tdc_diff_PlasCalib 5618 | dt3[PLAS_TDCID] -1229.49
+
+

@@ -1,0 +1,253 @@
+%!PS-Adobe-2.0
+%%Title:  ( A 4)
+%%Pages: (atend)
+%%Creator: ROOT Version 6.12/06
+%%CreationDate: Thu Mar 28 18:45:47 2019
+%%Orientation: Landscape
+%%DocumentNeededResources: ProcSet (FontSetInit)
+%%EndComments
+%%BeginProlog
+/s {stroke} def /l {lineto} def /m {moveto} def /t {translate} def
+/r {rotate} def /rl {roll}  def /R {repeat} def
+/d {rlineto} def /rm {rmoveto} def /gr {grestore} def /f {eofill} def
+/c {setrgbcolor} def /black {0 setgray} def /sd {setdash} def
+/cl {closepath} def /sf {scalefont setfont} def /lw {setlinewidth} def
+/box {m dup 0 exch d exch 0 d 0 exch neg d cl} def
+/NC{systemdict begin initclip end}def/C{NC box clip newpath}def
+/bl {box s} def /bf {gsave box gsave f grestore 1 lw [] 0 sd s grestore} def /Y { 0 exch d} def /X { 0 d} def 
+/K {{pop pop 0 moveto} exch kshow} bind def
+/ita {/ang 15 def gsave [1 0 ang dup sin exch cos div 1 0 0] concat} def 
+/mp {newpath /y exch def /x exch def} def
+/side {[w .77 mul w .23 mul] .385 w mul sd w 0 l currentpoint t -144 r} def
+/mr {mp x y w2 0 360 arc} def /m24 {mr s} def /m20 {mr f} def
+/mb {mp x y w2 add m w2 neg 0 d 0 w neg d w 0 d 0 w d cl} def
+/mt {mp x y w2 add m w2 neg w neg d w 0 d cl} def
+/w4 {w 4 div} def
+/w6 {w 6 div} def
+/w8 {w 8 div} def
+/m21 {mb f} def /m25 {mb s} def /m22 {mt f} def /m26{mt s} def
+/m23 {mp x y w2 sub m w2 w d w neg 0 d cl f} def
+/m27 {mp x y w2 add m w3 neg w2 neg d w3 w2 neg d w3 w2 d cl s} def
+/m28 {mp x w2 sub y w2 sub w3 add m w3 0 d  0 w3 neg d w3 0 d 0 w3 d w3 0 d  0 w3 d w3 neg 0 d 0 w3 d w3 neg 0 d 0 w3 neg d w3 neg 0 d cl s } def
+/m29 {mp gsave x w2 sub y w2 add w3 sub m currentpoint t 4 {side} repeat cl fill gr} def
+/m30 {mp gsave x w2 sub y w2 add w3 sub m currentpoint t 4 {side} repeat cl s gr} def
+/m31 {mp x y w2 sub m 0 w d x w2 sub y m w 0 d x w2 sub y w2 add m w w neg d x w2 sub y w2 sub m w w d s} def
+/m32 {mp x y w2 sub m w2 w d w neg 0 d cl s} def
+/m33 {mp x y w2 add m w3 neg w2 neg d w3 w2 neg d w3 w2 d cl f} def
+/m34 {mp x w2 sub y w2 sub w3 add m w3 0 d  0 w3 neg d w3 0 d 0 w3 d w3 0 d  0 w3 d w3 neg 0 d 0 w3 d w3 neg 0 d 0 w3 neg d w3 neg 0 d cl f } def
+/m35 {mp x y w2 add m w2 neg w2 neg d w2 w2 neg d w2 w2 d w2 neg w2 d x y w2 sub m 0 w d x w2 sub y m w 0 d s} def
+/m36 {mb x w2 sub y w2 add m w w neg d x w2 sub y w2 sub m w w d s} def
+/m37 {mp x y m w4 neg w2 d w4 neg w2 neg d w2 0 d  w4 neg w2 neg d w2 0 d w4 neg w2 d w2 0 d w4 neg w2 d w4 neg w2 neg d cl s} def
+/m38 {mp x w4 sub y w2 add m w4 neg w4 neg d 0 w2 neg d w4 w4 neg d w2 0 d w4 w4 d 0 w2 d w4 neg w4 d w2 neg 0 d x y w2 sub m 0 w d x w2 sub y m w 0 d cl s} def
+/m39 {mp x y m w4 neg w2 d w4 neg w2 neg d w2 0 d  w4 neg w2 neg d w2 0 d w4 neg w2 d w2 0 d w4 neg w2 d w4 neg w2 neg d cl f} def
+/m40 {mp x y m w4 w2 d w4 w4 neg d w2 neg w4 neg d w2 w4 neg d w4 neg w4 neg d w4 neg w2 d w4 neg w2 neg d w4 neg w4 d w2 w4 d w2 neg w4 d w4 w4 d w4 w2 neg d cl s} def
+/m41 {mp x y m w4 w2 d w4 w4 neg d w2 neg w4 neg d w2 w4 neg d w4 neg w4 neg d w4 neg w2 d w4 neg w2 neg d w4 neg w4 d w2 w4 d w2 neg w4 d w4 w4 d w4 w2 neg d cl f} def
+/m42 {mp x y w2 add m w8 neg w2 -3 4 div mul d w2 -3 4 div mul w8 neg d w2 3 4 div mul w8 neg d w8 w2 -3 4 div mul d w8 w2 3 4 div mul d w2 3 4 div mul w8 d w2 -3 4 div mul w8 d w8 neg w2 3 4 div mul d cl s} def
+/m43 {mp x y w2 add m w8 neg w2 -3 4 div mul d w2 -3 4 div mul w8 neg d w2 3 4 div mul w8 neg d w8 w2 -3 4 div mul d w8 w2 3 4 div mul d w2 3 4 div mul w8 d w2 -3 4 div mul w8 d w8 neg w2 3 4 div mul d cl f} def
+/m44 {mp x y m w6 neg w2 d w2 2 3 div mul 0 d w6 neg w2 neg d w2 w6 d 0 w2 -2 3 div mul d w2 neg w6 d w6 w2 neg d w2 -2 3 div mul 0 d w6 w2 d w2 neg w6 neg d 0 w2 2 3 div mul d w2 w6 neg d cl s} def
+/m45 {mp x y m w6 neg w2 d w2 2 3 div mul 0 d w6 neg w2 neg d w2 w6 d 0 w2 -2 3 div mul d w2 neg w6 d w6 w2 neg d w2 -2 3 div mul 0 d w6 w2 d w2 neg w6 neg d 0 w2 2 3 div mul d w2 w6 neg d cl f} def
+/m46 {mp x y w4 add m w4 neg w4 d w4 neg w4 neg d  w4 w4 neg d w4 neg w4 neg d w4 w4 neg d w4 w4 d w4 w4 neg d w4 w4 d w4 neg w4 d w4 w4 d w4 neg w4 d w4 neg w4 neg d cl s} def
+/m47 {mp x y w4 add m w4 neg w4 d w4 neg w4 neg d w4 w4 neg d w4 neg w4 neg d  w4 w4 neg d w4 w4 d w4 w4 neg d w4 w4 d w4 neg w4 d w4 w4 d w4 neg w4 d w4 neg w4 neg d cl f} def
+/m48 {mp x y w4 add m w4 neg w4 d w4 neg w4 neg d w4 w4 neg d  w4 neg w4 neg d w4 w4 neg d w4 w4 d w4 w4 neg d w4 w4 d w4 neg w4 d w4 w4 d w4 neg w4 d w4 neg w4 neg d  w4 w4 neg d w4 neg w4 neg d w4 neg w4 d w4 w4 d cl f} def
+/m49 {mp x w2 sub w3 add y w2 sub w3 add m  0 w3 neg d w3 0 d 0 w3 d w3 0 d 0 w3 d w3 neg 0 d 0 w3 d w3 neg 0 d 0 w3 neg d w3 neg 0 d 0 w3 neg d w3 0 d 0 w3 d w3 0 d 0 w3 neg d w3 neg 0 d cl f } def
+/m2 {mp x y w2 sub m 0 w d x w2 sub y m w 0 d s} def
+/m5 {mp x w2 sub y w2 sub m w w d x w2 sub y w2 add m w w neg d s} def
+%%IncludeResource: ProcSet (FontSetInit)
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Times-Italic
+%%IncludeResource: font Times-Bold
+%%IncludeResource: font Times-BoldItalic
+%%IncludeResource: font Helvetica
+%%IncludeResource: font Helvetica-Oblique
+%%IncludeResource: font Helvetica-Bold
+%%IncludeResource: font Helvetica-BoldOblique
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier-BoldOblique
+%%IncludeResource: font Symbol
+%%IncludeResource: font ZapfDingbats
+/reEncode {exch findfont dup length dict begin {1 index /FID eq  {pop pop} {def} ifelse } forall /Encoding exch def currentdict end dup /FontName get exch definefont pop } def [/Times-Bold /Times-Italic /Times-BoldItalic /Helvetica /Helvetica-Oblique
+ /Helvetica-Bold /Helvetica-BoldOblique /Courier /Courier-Oblique /Courier-Bold /Courier-BoldOblique /Times-Roman /AvantGarde-Book /AvantGarde-BookOblique /AvantGarde-Demi /AvantGarde-DemiOblique /Bookman-Demi /Bookman-DemiItalic /Bookman-Light
+ /Bookman-LightItalic /Helvetica-Narrow /Helvetica-Narrow-Bold /Helvetica-Narrow-BoldOblique /Helvetica-Narrow-Oblique /NewCenturySchlbk-Roman /NewCenturySchlbk-Bold /NewCenturySchlbk-BoldItalic /NewCenturySchlbk-Italic /Palatino-Bold
+ /Palatino-BoldItalic /Palatino-Italic /Palatino-Roman ] {ISOLatin1Encoding reEncode } forall/Zone {/iy exch def /ix exch def  ix 1 sub  3144 mul  1 iy sub  2224 mul t} def
+%%EndProlog
+%%BeginSetup
+%%EndSetup
+newpath  gsave  90 r 0 -594 t  28 20 t .25 .25 scale  gsave 
+%%Page: 1 1
+ gsave  gsave 
+ 1 1 Zone
+ gsave  0 0 t black[  ] 0 sd 3 lw 1 1 1 c 2948 1863 0 0 bf black 0.999 0.999 0.999 c 2358 1491 295 186 bf black 2358 1491 295 186 bl 0.999 0.999 0.999 c 2358 1491 295 186 bf black 2358 1491 295 186 bl 0 0 0.6 c 1 1 1 c black 0 0 0.6 c 295 186 m 2358
+ X s black 295 186 m 2358 X s 458 231 m -45 Y s 544 209 m -23 Y s 629 209 m -23 Y s 714 209 m -23 Y s 799 231 m -45 Y s 884 209 m -23 Y s 970 209 m -23 Y s 1055 209 m -23 Y s 1140 231 m -45 Y s 1225 209 m -23 Y s 1310 209 m -23 Y s 1396 209 m -23 Y s
+ 1481 231 m -45 Y s 1566 209 m -23 Y s 1651 209 m -23 Y s 1736 209 m -23 Y s 1822 231 m -45 Y s 1907 209 m -23 Y s 1992 209 m -23 Y s 2077 209 m -23 Y s 2162 231 m -45 Y s 2248 209 m -23 Y s 2333 209 m -23 Y s 2418 209 m -23 Y s 2503 231 m -45 Y s
+ 458 231 m -45 Y s 373 209 m -23 Y s 2503 231 m -45 Y s 2588 209 m -23 Y s
+ gsave  2948 1863 0 0 C 403.964 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (4000) show NC gr 
+ gsave  2948 1863 0 0 C 372.192 127.09 t 0 r /Symbol findfont 61.2755 sf 0 0 m (-) show NC gr 
+ gsave  2948 1863 0 0 C 746.653 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (2000) show NC gr 
+ gsave  2948 1863 0 0 C 714.881 127.09 t 0 r /Symbol findfont 61.2755 sf 0 0 m (-) show NC gr 
+ gsave  2948 1863 0 0 C 1123.38 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (0) show NC gr 
+ gsave  2948 1863 0 0 C 1411.61 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (2000) show NC gr 
+ gsave  2948 1863 0 0 C 1752.02 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (4000) show NC gr 
+ gsave  2948 1863 0 0 C 2092.44 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (6000) show NC gr 
+ gsave  2948 1863 0 0 C 2435.13 127.09 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (8000) show NC gr 
+ gsave  2948 1863 0 0 C 2376.13 61.2755 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (1/FATIMA) show NC gr  295 186 m 1491 Y s 366 186 m -71 X s 330 228 m -35 X s 330 270 m -35 X s 330 312 m -35 X s 366 354 m -71 X s 330 396 m -35 X s 330 438 m -35 X s
+ 330 480 m -35 X s 366 522 m -71 X s 330 563 m -35 X s 330 605 m -35 X s 330 647 m -35 X s 366 689 m -71 X s 330 731 m -35 X s 330 773 m -35 X s 330 815 m -35 X s 366 857 m -71 X s 330 899 m -35 X s 330 941 m -35 X s 330 982 m -35 X s 366 1024 m -71
+ X s 330 1066 m -35 X s 330 1108 m -35 X s 330 1150 m -35 X s 366 1192 m -71 X s 330 1234 m -35 X s 330 1276 m -35 X s 330 1318 m -35 X s 366 1360 m -71 X s 330 1401 m -35 X s 330 1443 m -35 X s 330 1485 m -35 X s 366 1527 m -71 X s 366 1527 m -71 X
+ s 330 1569 m -35 X s 330 1611 m -35 X s 330 1653 m -35 X s
+ gsave  2948 1863 0 0 C 247.371 165.671 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (0) show NC gr 
+ gsave  2948 1863 0 0 C 179.288 331.341 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (200) show NC gr 
+ gsave  2948 1863 0 0 C 179.288 499.282 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (400) show NC gr 
+ gsave  2948 1863 0 0 C 179.288 667.222 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (600) show NC gr 
+ gsave  2948 1863 0 0 C 179.288 835.162 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (800) show NC gr 
+ gsave  2948 1863 0 0 C 145.246 1003.1 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (1000) show NC gr 
+ gsave  2948 1863 0 0 C 145.246 1171.04 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (1200) show NC gr 
+ gsave  2948 1863 0 0 C 145.246 1338.98 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (1400) show NC gr 
+ gsave  2948 1863 0 0 C 145.246 1504.65 t 0 r /Helvetica findfont 61.2755 sf 0 0 m (1600) show NC gr 
+ gsave  2948 1863 0 0 C 72.6228 1445.65 t 90 r /Helvetica findfont 61.2755 sf 0 0 m (1/Timing) show NC gr  1 1 1 c black 295 186 m 9 X 1 Y -1 Y 10 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 9 X 1 Y 1 X -1 Y 3 X
+ 1 Y -1 Y 8 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 12 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 12 X 1 Y -1 Y 11 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 9 X 1 Y 1 X -1 Y 12 X 1 Y 1 X -1 Y 19 X 1 Y -1 Y 10 X 1 Y 1 X -1 Y
+ 4 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 4 X 1 Y -1 Y 5 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 9 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 1 Y 1 X 1 Y 1 X -2 Y 2 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 1
+ X 1 Y -1 Y 2 X 4 Y 1 X -2 Y 1 X -2 Y 1 Y 2 X 2 Y 1 X -3 Y 1 X 1 Y 3 X 2 Y 1 X -1 Y 1 X -1 Y 2 X 3 Y -4 Y 1 X 4 Y 1 X -2 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 1 X 4 Y 1 X -1 Y 1 X -3 Y 2 Y 1 X -1 Y 1 X 1 Y 1 X -3 Y 2 X 3 Y -2 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 1 X 1
+ Y -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 4 Y 1 X -4 Y 1 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 4 X 1 Y 2 X -1 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 7 X 1 Y -1 Y 2 X 1 Y 2 X -1 Y 1 X 1 Y -1 Y 2
+ X 1 Y -1 Y 14 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 3 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 13 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 4 X 1 Y -1 Y 4 X 1 Y -1 Y 7 X 1 Y -1 Y 9 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 15 X 1 Y
+ 1 X -1 Y 1 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 12 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 5 X 1 Y -1 Y 13 X 1
+ Y 1 X -1 Y 11 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 13 X 1 Y 2 X -1 Y 10 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 15 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 11 X 1 Y 1 X -1 Y 5 X 1 Y -1 Y 7 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 4 X 2 Y -2 Y 37 X 1 Y 1 X -1 Y 9 X 1 Y -1
+ Y 12 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 12 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 13 X 1 Y -1 Y 16 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 17 X 1 Y 1 X -1 Y 12 X 1 Y -1 Y 7 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 17 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 7
+ X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 14 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 43 X 1 Y -1 Y 3 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 5 X 1 Y -1 Y 21 X 1 Y -1 Y 10 X 1 Y 1 X -1 Y 11 X 2 Y
+ -2 Y 21 X 2 Y -2 Y 1 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 12 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 5 X 1 Y -1 Y 31 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 14 X 1 Y -1 Y 2 X 1 Y -1 Y 10 X 1 Y -1 Y 8 X 1
+ Y 1 X -1 Y 31 X 1 Y 2 X 3 Y 1 X -1 Y 1 Y 1 X -2 Y 1 X 2 Y -2 Y 2 X 2 Y 1 X -3 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X 2 Y -4 Y 1 X -1 Y 1 X 1 Y -1 Y 5 X 2 Y 1 X -2 Y 4 X 1 Y 1 X 1 Y -1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 2 Y 1 X -2
+ Y 5 X 1 Y -1 Y 9 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 10 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 6 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X 1 Y 1 X -2 Y 9 X 1 Y -1 Y 8 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 Y 2 X -1 Y 5 X 1 Y 1 X -1
+ Y 3 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 2 X 1 Y -1 Y 8 X 1 Y 1 X -1 Y 11 X 1 Y -1 Y 6 X 2 Y -2 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 4 X 4 Y 1 X 29 Y 1 X 17 Y -9 Y 1 X -21 Y 1 X 6 Y -1 Y 1 X -10
+ Y 1 X 8 Y -6 Y 1 X 1 Y 1 X 9 Y 1 X 5 Y 1 X -4 Y 23 Y 1 X 7 Y 1 X -57 Y 1 X 1 Y 1 X 2 Y 1 X 5 Y 1 X -5 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 1 X 6 Y 1 X 3 Y -3 Y 2 X -1 Y 1 X 5 Y 1 X 1 Y -5 Y 1 X 2 Y 1 X -2 Y 2 Y 1 X 1 Y 1 X -2 Y 1 X 8 Y 2 X -1 Y 1 Y 1 X 3
+ Y 1 X 8 Y 1 X -11 Y 1 X 16 Y 1 X -6 Y 1 X 13 Y 1 X 4 Y 1 X 11 Y 1 X 7 Y 1 X -4 Y 9 Y 1 X 5 Y 1 X 8 Y 1 X 5 Y 1 X 2 Y 1 X -27 Y 1 X 10 Y 1 X -5 Y 3 Y 1 X -21 Y 1 X -3 Y 9 Y 1 X -9 Y 1 X -11 Y 1 Y 1 X 4 Y 1 X -18 Y 1 X -1 Y 1 X 5 Y 1 X 9 Y 1 X -11 Y 1
+ X -4 Y 5 Y 1 X -7 Y 1 X -3 Y 1 X -1 Y 1 X -2 Y 1 X -1 Y 1 X 3 Y -1 Y 1 X -5 Y 1 X 2 Y 1 X -5 Y 1 X 5 Y -2 Y 1 X -3 Y 1 X 8 Y 1 X -7 Y 1 X -2 Y 1 X 6 Y 1 X -5 Y 1 X 5 Y -5 Y 2 X -2 Y 5 Y 1 X -1 Y 1 X -3 Y 1 X 5 Y 1 X -5 Y 5 Y 1 X 1 Y 1 X -4 Y 4 Y 1 X
+ -4 Y 1 X 4 Y -3 Y 1 X -2 Y 1 X 4 Y 1 X -2 Y 1 X 4 Y 1 X -1 Y 5 Y 1 X -4 Y 1 X -1 Y 1 X -4 Y 1 X 12 Y 1 X -11 Y 1 X -3 Y 1 X 7 Y 1 X -5 Y 4 Y 1 X -3 Y 1 X 1 Y -1 Y 2 X 3 Y -1 Y 1 X -1 Y 1 X -4 Y 1 X 4 Y -6 Y 1 X 6 Y 1 X -3 Y 1 X -2 Y 1 X 4 Y 1 X -2 Y
+ 1 X -3 Y 1 X 2 Y 1 X -3 Y 1 X 4 Y 1 X -2 Y 1 X -3 Y 1 X 8 Y 1 X -1 Y 1 X -4 Y 1 X -2 Y 1 Y 2 X 3 Y 2 X -4 Y 4 Y 1 X -3 Y 1 X 3 Y -1 Y 1 X -3 Y 1 X -1 Y 3 Y 1 X 3 Y 1 X -5 Y 1 Y 1 X 2 Y 1 X -2 Y 1 Y 2 X -1 Y 1 X 3 Y -3 Y 1 X 1 Y 2 X -3 Y 1 X 5 Y 2 X
+ -3 Y 2 X 1 Y 1 X 1 Y 1 X -3 Y 1 X 1 Y 1 X -2 Y 5 Y 2 X -1 Y 1 X -4 Y 1 X 3 Y 1 X -1 Y 1 X -1 Y 1 X 1 Y 1 X 3 Y 1 X -4 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X 3 Y -2 Y 1 X 1 Y 1 X -1 Y 1 X -1 Y 2 X 1 Y -2 Y 1 X 2 Y 1 X 2 Y -3 Y 1 X 1 Y 1 X -2 Y 3 Y 1 X -3 Y 1 X 3
+ Y 2 X -3 Y 1 Y 1 X -1 Y 1 X 2 Y 1 X 2 Y 1 X 3 Y -2 Y 2 X -5 Y 1 X 7 Y 1 X -1 Y 1 X 7 Y -4 Y 2 X 6 Y -6 Y 1 X 12 Y 1 X -4 Y 4 Y 1 X 7 Y 1 X 11 Y 1 X -2 Y 1 X 22 Y 1 X 5 Y 1 X -6 Y 21 Y 1 X 2 Y 1 X 11 Y 1 X -6 Y 11 Y 1 X 13 Y 1 X 33 Y -14 Y 1 X -3 Y 1
+ X 43 Y 1 X 6 Y 1 X 15 Y 1 X 21 Y 1 X 20 Y 1 X 41 Y 1 X -10 Y 45 Y 1 X 12 Y 1 X -15 Y 40 Y 1 X 73 Y 1 X 13 Y 1 X 125 Y 1 X 106 Y 1 X 137 Y 1 X 92 Y 1 X 197 Y 1 X 83 Y 1 X 137 Y 1 X 43 Y 1 X 69 Y -68 Y 1 X -39 Y 1 X -141 Y 1 X -69 Y 1 X -142 Y 1 X -47
+ Y 1 X -65 Y 1 X -120 Y 1 X -129 Y 1 X -67 Y 1 X -50 Y 1 X -91 Y 1 X -77 Y 1 X 8 Y -40 Y 1 X -35 Y 1 X 1 Y -6 Y 1 X -36 Y 1 X -29 Y 8 Y 1 X -31 Y 1 X 28 Y 1 X -39 Y 1 X -10 Y 1 X -22 Y 8 Y 1 X -1 Y 1 X -16 Y 1 X -7 Y 1 X 3 Y -16 Y 1 X 17 Y 1 X -21 Y
+ 1 X -5 Y 1 X 27 Y -26 Y 1 X -4 Y 1 X 6 Y -3 Y 1 X -19 Y 1 X 25 Y 1 X -4 Y 1 X 14 Y -1 Y 1 X 1 Y 1 X 6 Y 1 X 24 Y 1 X 1 Y 1 X -18 Y 1 X 14 Y 1 X 21 Y -2 Y 1 X -4 Y 1 X 33 Y 1 X -27 Y 1 X 24 Y 1 X -24 Y 1 X 40 Y -51 Y 1 X 21 Y 1 X -19 Y 1 X 2 Y 1 X 23
+ Y 1 X -46 Y 2 Y 1 X 3 Y 1 X -6 Y 3 Y 1 X 2 Y 1 X -21 Y 1 X -4 Y 1 X -20 Y 1 X -3 Y 1 X -7 Y 1 X -2 Y 1 X 1 Y -20 Y 1 X 8 Y 1 X 2 Y 1 X 7 Y 1 X -15 Y 1 X 8 Y 1 X -6 Y 1 X -14 Y 1 X 5 Y 1 X -6 Y 1 X 3 Y 1 X 2 Y -9 Y 1 X 5 Y 1 X -3 Y 2 Y 1 X -5 Y 1 X
+ 14 Y 1 X -2 Y 1 X -10 Y 8 Y 1 X -10 Y 1 X -1 Y 1 X -6 Y 11 Y 1 X -2 Y 1 X 5 Y -11 Y 1 X 8 Y 1 X 6 Y -7 Y 1 X -3 Y 1 X 8 Y 1 X -4 Y 1 X 1 Y 1 X 3 Y 1 X -11 Y 1 X 2 Y 1 X 6 Y -7 Y 1 X -1 Y 1 X 12 Y 1 X -8 Y 1 X 2 Y 1 X 2 Y -12 Y 1 X 7 Y 1 X -3 Y 6 Y 1
+ X -2 Y 1 X -10 Y 1 X 7 Y 1 X -3 Y 2 X 5 Y -10 Y 1 X 5 Y 2 X -1 Y 1 X 1 Y 1 X -5 Y 1 X 5 Y 1 X 1 Y -3 Y 1 X -3 Y 1 X 8 Y -5 Y 1 X 1 Y 1 X 2 Y 1 X -1 Y 1 X 1 Y 1 X 4 Y 1 X -8 Y 4 Y 1 X -6 Y 1 X 8 Y -11 Y 2 X 3 Y 3 X 2 Y -2 Y 1 X -5 Y 1 X 6 Y 1 X -1 Y
+ 1 X 2 Y -6 Y 1 X 4 Y 1 X -2 Y 3 Y 1 X -4 Y 1 X 3 Y -5 Y 2 X 4 Y -5 Y 1 X 6 Y 2 X -3 Y 1 X -1 Y 1 X 4 Y 2 X -4 Y 1 Y 1 X 5 Y 1 X 2 Y -9 Y 1 X 5 Y 1 X -2 Y 2 Y 1 X 1 Y 1 X -6 Y 2 Y 1 X 3 Y 1 X -1 Y 1 X -3 Y 1 X 5 Y 1 X -2 Y 2 X 1 Y -1 Y 1 X -1 Y 1 X
+ -5 Y 1 X 4 Y 1 X -2 Y 1 Y 1 X -2 Y 1 X 6 Y -6 Y 1 X 4 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 3 Y -2 Y 2 X -3 Y 1 X 6 Y 1 X -1 Y 1 X -2 Y 2 Y 1 X -4 Y 1 X 7 Y -7 Y 1 X 1 Y 1 X -2 Y 4 Y 1 X -5 Y 1 X 6 Y -2 Y 1 X -4 Y 1 X 5 Y 1 X -5 Y 1 X 2 Y -1 Y 1 X 1 Y 1 X -2
+ Y 1 X 4 Y 1 X -1 Y 1 X 3 Y 1 X 2 Y 1 X -7 Y 1 X 2 Y 1 X -4 Y 7 Y 1 X -2 Y 1 X -3 Y 2 X 5 Y -2 Y 1 X 1 Y 1 X 4 Y 1 X -9 Y 1 X 4 Y -3 Y 1 X 3 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -3 Y 2 Y 1 X -3 Y 1 X -1 Y 4 X -1 Y 7 Y 1 X -2 Y 1 X -3 Y 2 Y 1 X -3 Y 1 X -2
+ Y 7 Y 1 X -1 Y 1 X -6 Y 1 X 7 Y -3 Y 1 X -2 Y 1 X 4 Y 1 X 6 Y 1 X -6 Y 1 X -6 Y 1 X 2 Y 1 X 3 Y 1 X -3 Y 2 Y 1 X -1 Y 1 X -1 Y 1 X 4 Y 1 X -4 Y 2 X 2 Y 1 X 2 Y 1 X -4 Y 1 X -1 Y 1 X 1 Y 1 X 3 Y -2 Y 1 X -1 Y 1 X 4 Y 1 X -4 Y 1 X -1 Y 3 Y 1 X 4 Y 1 X
+ -4 Y 2 Y 1 X -1 Y 1 X -5 Y 1 X 6 Y 1 X -4 Y 1 X 1 Y -1 Y 3 X 2 Y 1 X 2 Y -4 Y 2 X 7 Y -6 Y 1 X -1 Y 1 X 1 Y -1 Y 1 X 7 Y 1 X -4 Y 1 Y 1 X 1 Y 1 X -4 Y 3 Y 1 X -4 Y 1 X 3 Y 1 X 3 Y 1 X -1 Y 1 X 1 Y -3 Y 1 X -1 Y 1 X -2 Y 1 X 1 Y 1 X 5 Y -7 Y 1 X 6 Y
+ 1 X 3 Y -7 Y 2 X -1 Y 2 Y 2 X -2 Y 1 X 2 Y 1 X -2 Y 1 X 5 Y 2 X -2 Y 1 Y 1 X -2 Y 1 X -2 Y 1 Y 1 X -1 Y 2 X 5 Y 1 X -3 Y 1 X -4 Y 1 X 4 Y 1 X 3 Y 1 X -8 Y 1 X 5 Y 1 X -3 Y 1 X 8 Y -9 Y 1 X 1 Y 1 X 1 Y 1 X 7 Y 1 X -7 Y 3 Y 1 X -2 Y 1 X -2 Y 1 Y 2 X
+ -1 Y 1 X 4 Y 1 X -1 Y 3 Y 1 X -7 Y 1 X 3 Y -2 Y 1 X 1 Y 2 X -1 Y 3 Y 1 X -2 Y 1 X -2 Y 3 Y 1 X -3 Y 1 X 3 Y -3 Y 1 X 4 Y 1 X -5 Y 1 X 3 Y 1 X -2 Y 1 Y 1 X 1 Y 1 X 2 Y 1 X -4 Y 1 X 2 Y -1 Y 1 X -1 Y 1 X 3 Y 1 X -2 Y 1 X -1 Y 1 X 4 Y 1 X -2 Y 1 X 2 Y
+ -2 Y 2 X 1 Y 1 X -5 Y 1 X 3 Y 1 X 2 Y 1 X -1 Y 1 X 2 Y 1 X -5 Y 1 X 5 Y 1 X -2 Y 1 X 2 Y -2 Y 1 X -1 Y 1 X 1 Y -2 Y 2 X 4 Y -3 Y 2 X 5 Y -2 Y 1 X 1 Y 1 X -5 Y 3 Y 1 X -5 Y 1 X 6 Y 2 X 3 Y -5 Y 1 X 1 Y 1 X -1 Y 1 X -2 Y 1 X 5 Y 1 X -4 Y 1 Y 1 X 2 Y 1
+ X 1 Y -1 Y 1 X -5 Y 1 X 4 Y -1 Y 2 X 1 Y -4 Y 1 X 3 Y 1 X -2 Y 1 X 2 Y 1 X 6 Y 1 X -3 Y 1 X -4 Y 1 X 2 Y 1 X 3 Y 1 X -3 Y 1 Y 1 X -1 Y 1 X -2 Y 1 X 1 Y 1 X -2 Y 2 Y 2 X 1 Y 1 X -1 Y 3 X -2 Y 1 X -2 Y 1 X 8 Y -4 Y 1 X 1 Y 1 X -1 Y 1 X -2 Y 2 Y 1 X 2
+ Y 1 X -3 Y 5 Y 1 X -3 Y 1 X 4 Y -6 Y 1 X -4 Y 1 X 5 Y 1 X -1 Y 1 X -1 Y 1 X 7 Y 1 X -8 Y 5 Y 1 X -2 Y 1 X -1 Y 2 X 1 Y 1 X -2 Y 1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X -4 Y 1 X 2 Y 1 X -2 Y 2 X 2 Y 1 X -2 Y 6 X 1 Y 1 X 1 Y 1 X -2 Y 8 X 1 Y -1 Y 1 X 1
+ Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 10 X 2 Y -2 Y 1 X 1 Y 1 X -1 Y 4 X 1 Y 2 X -1 Y 1 Y 1 X -1 Y 21 X 1 Y -1 Y 20 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 31 X 1 Y -1 Y 9 X 1 Y 1 X -1 Y 3 X 2 Y 1 X -2 Y 1 X 1 Y 1 X
+ -1 Y 6 X 1 Y -1 Y 2 X 1 Y -1 Y 15 X 1 Y 1 X -1 Y 12 X 1 Y -1 Y 8 X 1 Y -1 Y 2 X 1 Y -1 Y 37 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 14 X 1 Y -1 Y 4 X 1 Y -1 Y 15 X 1 Y -1 Y 9 X 1 Y -1 Y 49 X 1 Y 1 X -1 Y 21 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 6 X 1 Y -1 Y 8 X 1 Y 1 X
+ -1 Y 4 X 1 Y -1 Y 8 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 1 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 11 X s 1 0 0 c 1 1 1 c black 1 0 0 c 295 186 m 18 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 51 X 1 Y -1 Y 24 X 1 Y 1 X -1 Y 24 X 1 Y
+ -1 Y 9 X 1 Y -1 Y 23 X 1 Y 1 X -1 Y 18 X 1 Y 1 X -1 Y 60 X 1 Y -1 Y 10 X 1 Y 1 X -1 Y 23 X 1 Y 1 X -1 Y 63 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 8 X 1 Y -1 Y 6 X 1 Y -1 Y 7 X 1 Y 1 X -1 Y 21 X 1 Y 1 X -1 Y 20 X 1 Y -1 Y 24 X 1 Y 1 X -1 Y 7 X 1 Y -1 Y 57 X
+ 1 Y 1 X -1 Y 13 X 1 Y 1 X -1 Y 24 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 42 X 1 Y -1 Y 7 X 1 Y -1 Y 19 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 6 X 1 Y -1 Y 11 X 1 Y -1 Y 3 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 31 X 1 Y -1 Y 13 X 1 Y 2 X -1 Y 5 X 1 Y 1 X -1 Y 20
+ X 1 Y -1 Y 30 X 1 Y -1 Y 9 X 1 Y -1 Y 36 X 1 Y 1 X -1 Y 31 X 1 Y -1 Y 11 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 23 X 1 Y -1 Y 11 X 1 Y -1 Y 13 X 1 Y -1 Y 34 X 1 Y -1 Y 17 X 1 Y -1 Y 55 X 1 Y 1 X -1 Y 42 X 1 Y 1 X -1 Y 48 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 6 X 1 Y
+ 1 X -1 Y 46 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 30 X 1 Y 1 X -1 Y 13 X 1 Y 1 X -1 Y 22 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 3 X 1 Y 1 X 1 Y 1 X -2 Y 21 X 1 Y -1 Y 17 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 2 Y 1 X -2 Y 2 X 2 Y 1 X
+ -2 Y 6 X 1 Y 2 X -1 Y 1 X 1 Y 2 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 3 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 6 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 3 X 2 Y 1 X -1 Y 1 X -1 Y 2 X 2 Y -1 Y 3 X -1 Y 1 Y 1 X -1 Y 1 X 3 Y 1 X -1 Y 1 X -1 Y 1 X -1 Y 1 X
+ 3 Y -3 Y 2 X 1 Y 2 X -1 Y 1 Y 2 X -1 Y 2 Y 1 X -1 Y 2 X -1 Y 1 X 3 Y 1 X -3 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 2 X -1 Y 2 X 2 Y 1 X -2 Y 1 X 1 Y -1 Y 5 X 2 Y 1 X -1 Y 1 X -1 Y 2 X 1 Y 2 X 2 Y -3 Y 1 X 4 Y 1 X -4 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 4 Y 1
+ X -4 Y 1 X 2 Y 1 X -2 Y 1 X 1 Y -1 Y 1 X 1 Y 3 X 2 Y 1 X -1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X -1 Y 1 X 2 Y -2 Y 1 X 2 Y 1 X -1 Y 1 X -1 Y 1 X 3 Y -2 Y 1 X 1 Y 1 X 1 Y -3 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X 4 Y -4 Y 2 X -1 Y 3 Y 1 X -2 Y 1 X 2 Y -1 Y 1 X -1 Y 1
+ X 5 Y 1 X -4 Y 1 X 3 Y 1 X -5 Y 3 Y 1 X -2 Y 1 X 4 Y 1 X -4 Y 1 X 6 Y -6 Y 1 X 2 Y 1 X 3 Y -5 Y 1 X 3 Y 1 X -3 Y 1 X 4 Y 1 X -5 Y 1 X 2 Y 2 X 2 Y -1 Y 1 X 1 Y 1 X -1 Y 1 X -2 Y 1 X 4 Y 2 X -3 Y 2 Y 1 X 1 Y 1 X -3 Y 1 X 6 Y 1 X -7 Y 1 X 4 Y 1 X -4 Y
+ 1 X 4 Y 1 X -4 Y 1 X 4 Y 1 X -3 Y 1 X 2 Y 1 X 1 Y 1 X -3 Y 2 Y 1 X 1 Y 1 X -1 Y 3 X -1 Y 1 X 1 Y 1 X -3 Y 1 X 4 Y -3 Y 1 X 2 Y 1 X -3 Y 1 X 4 Y 1 X -2 Y 1 X 2 Y -2 Y 1 X 2 Y 1 X -2 Y 1 X -2 Y 1 X 4 Y -1 Y 1 X 3 Y 1 X -6 Y 1 X 1 Y 1 X 6 Y 1 X -4 Y 1
+ X 1 Y 1 X -3 Y 1 X 3 Y 1 X -4 Y 1 X 7 Y 1 X 1 Y -4 Y 2 X -3 Y 2 Y 1 X 1 Y 1 X 2 Y -2 Y 1 X 4 Y 1 X -4 Y 2 X 5 Y 1 X -3 Y 1 X -2 Y 1 Y 1 X 2 Y 1 X -3 Y 1 X 3 Y -1 Y 1 X -1 Y 2 X -4 Y 1 X 4 Y 1 X 2 Y 1 X 1 Y -4 Y 1 X 4 Y 1 X -3 Y 1 X -1 Y 1 X 5 Y 1 X
+ -4 Y 1 X 2 Y -2 Y 1 X 2 Y 1 X 3 Y 1 X 1 Y -6 Y 1 X 1 Y 1 X 1 Y -1 Y 1 X 7 Y 1 X -6 Y 1 X 2 Y 1 X 1 Y -6 Y 1 X 4 Y 1 X 1 Y 1 X -3 Y 1 X 9 Y 2 X -4 Y 3 Y 1 X 1 Y 1 X -3 Y 1 X -3 Y 1 X 2 Y 1 X -4 Y 1 X 3 Y 1 X 1 Y 1 X 3 Y 1 X -3 Y 1 X 2 Y 1 X -10 Y 9 Y
+ 1 X -6 Y 1 X 1 Y -2 Y 1 X 7 Y 1 X -3 Y 1 X 1 Y 1 X 4 Y 1 X -5 Y 4 Y 2 X 1 Y 1 X -1 Y 1 X -8 Y 4 Y 1 X 10 Y 1 X -10 Y 5 Y 1 X 3 Y 1 X -4 Y 4 Y 1 X -3 Y 1 X 4 Y -4 Y 1 X 6 Y 1 X -8 Y 1 X 4 Y 1 X -1 Y 1 X 8 Y -4 Y 1 X -5 Y 1 X -2 Y 7 Y 1 X -2 Y 1 X 6 Y
+ -9 Y 1 X 5 Y 1 X 2 Y -4 Y 1 X 3 Y 1 X -5 Y 1 Y 1 X 2 Y 1 X 7 Y -9 Y 1 X 3 Y 1 X -3 Y 5 Y 1 X -7 Y 1 X 7 Y 1 X -6 Y 1 X 4 Y 1 X 4 Y 1 X 2 Y 1 X -9 Y 9 Y 1 X -6 Y 1 X -1 Y 6 Y 1 X -4 Y 1 X 7 Y -3 Y 1 X 1 Y 1 X -1 Y 4 Y 1 X -2 Y 1 X -2 Y 4 Y 1 X -3 Y 1
+ X 7 Y -10 Y 1 X 1 Y 1 X 1 Y 1 X 10 Y 1 X -9 Y 1 X -4 Y 11 Y 1 X -3 Y 1 X -3 Y 1 X 6 Y 1 X -12 Y 1 X 4 Y 1 X 8 Y -6 Y 1 X 1 Y 1 X 3 Y -5 Y 1 X 10 Y 1 X -4 Y 11 Y 1 X -11 Y 1 X -7 Y 1 X 10 Y -2 Y 1 X -3 Y 1 X 6 Y 1 X -6 Y 1 X 4 Y 1 X 3 Y 1 X -5 Y 4 Y
+ 1 X 2 Y 1 X -6 Y 9 Y 1 X -15 Y 1 X 14 Y -5 Y 1 X 7 Y 1 X 16 Y 1 X -17 Y 1 X 6 Y 1 X 1 Y -10 Y 1 X 1 Y 1 X 4 Y 1 X -18 Y 1 X 19 Y -9 Y 1 X 15 Y 1 X -14 Y 20 Y 1 X -19 Y 1 X 14 Y -6 Y 1 X -16 Y 1 X 17 Y 1 X -3 Y 1 X 7 Y 2 X 11 Y 1 X -14 Y 1 X 5 Y 1 X
+ -6 Y 7 Y 1 X -7 Y 1 X 6 Y 1 X -4 Y 1 X 7 Y 1 X -2 Y 2 X 3 Y 1 X 1 Y -5 Y 1 X 9 Y 1 X -2 Y 2 Y 1 X -15 Y 1 X 18 Y 1 X -9 Y 6 Y 2 X 16 Y 1 X -15 Y 1 X 5 Y -16 Y 1 X 10 Y 1 X 4 Y -6 Y 1 X 1 Y 1 X -10 Y 1 X -3 Y 1 X 24 Y -7 Y 1 X -4 Y 1 X -9 Y 9 Y 1 X
+ 10 Y 1 X -9 Y 1 X 6 Y -6 Y 1 X 7 Y 1 X -19 Y 16 Y 1 X 5 Y 1 X -18 Y 20 Y 1 X -5 Y 1 X -16 Y 23 Y 1 X -28 Y 1 X 23 Y -4 Y 1 X 10 Y 1 X 7 Y -20 Y 1 X -1 Y 1 X 9 Y 2 X -8 Y 1 X 5 Y 1 X 13 Y 1 X -25 Y 8 Y 1 X -8 Y 1 X 7 Y -2 Y 1 X 10 Y 1 X 4 Y -13 Y 1 X
+ 1 Y 1 X 8 Y -9 Y 1 X 2 Y 1 X -6 Y 10 Y 1 X -6 Y 1 X 9 Y 1 X 11 Y 1 X 1 Y 1 X -6 Y 1 X 6 Y 1 X 5 Y -23 Y 2 X 6 Y -3 Y 1 X 10 Y 1 X -5 Y 10 Y 1 X -11 Y 1 X 19 Y 1 X 1 Y 1 X -6 Y 3 Y 1 X -7 Y 1 X 12 Y -21 Y 1 X 21 Y 1 X 5 Y 1 X -5 Y 1 X -3 Y 1 X 14 Y
+ -27 Y 1 X 21 Y 1 X -23 Y 1 X 23 Y 1 X 9 Y -10 Y 1 X 4 Y 1 X 15 Y -6 Y 1 X -6 Y 1 X 3 Y -9 Y 1 X 6 Y 1 X -6 Y 1 X 10 Y 1 X 12 Y 1 X -23 Y 1 X 40 Y 1 X -13 Y 6 Y 1 X -5 Y 1 X -12 Y 12 Y 1 X -7 Y 1 X 1 Y -5 Y 1 X 8 Y 1 X 6 Y 1 X -18 Y 1 X 33 Y -18 Y 1
+ X 14 Y 1 X -20 Y 26 Y 1 X 4 Y 1 X -12 Y 1 X -8 Y 10 Y 1 X -6 Y 1 X 29 Y -23 Y 1 X 47 Y 1 X -16 Y 28 Y 1 X -10 Y 1 X 20 Y -36 Y 1 X 62 Y 1 X 9 Y -18 Y 1 X 30 Y 1 X -7 Y 4 Y 1 X 11 Y 1 X 3 Y 1 X 6 Y 1 X 20 Y 1 X 27 Y 1 X -48 Y 1 X 50 Y 1 X 22 Y 1 X
+ -12 Y 23 Y 1 X -24 Y 1 X 37 Y -16 Y 1 X -13 Y 1 X -5 Y 18 Y 1 X -20 Y 1 X 36 Y 1 X -16 Y 1 X 21 Y -37 Y 1 X 10 Y 1 X 104 Y 1 X -23 Y 1 X 7 Y 1 X 48 Y 1 X -4 Y 1 X 77 Y 1 X 29 Y 1 X -14 Y 68 Y 1 X 14 Y 1 X 51 Y -16 Y 1 X 59 Y 1 X 56 Y 1 X 38 Y 1 X
+ -65 Y 104 Y 1 X -40 Y 1 X 20 Y -20 Y 1 X 82 Y 1 X -5 Y 1 X -25 Y 35 Y 1 X 22 Y 1 X -89 Y 1 X 45 Y 1 X 59 Y -9 Y 1 X -40 Y 1 X 48 Y -40 Y 1 X 35 Y 1 X 42 Y 1 X -9 Y 1 X 75 Y -106 Y 1 X 85 Y 1 X -68 Y 5 Y 1 X -31 Y 1 X -24 Y 1 X -80 Y 44 Y 1 X -44 Y 1
+ X -65 Y 1 X 45 Y 1 X -108 Y 1 X -61 Y 1 X -49 Y 1 X 2 Y 1 X -42 Y 1 X -32 Y 1 X 21 Y 1 X -41 Y 1 X -34 Y 1 X -11 Y 1 X 33 Y 1 X -54 Y 14 Y 1 X -29 Y 1 X 29 Y -50 Y 1 X 9 Y 1 X -50 Y 4 Y 1 X 26 Y 1 X -27 Y 1 X -26 Y 1 X 35 Y -26 Y 1 X 4 Y 1 X -23 Y
+ 33 Y 1 X -63 Y 1 X 34 Y -16 Y 1 X -10 Y 1 X 2 Y 1 X -22 Y 13 Y 1 X 7 Y 1 X 6 Y -9 Y 1 X -16 Y 1 X -16 Y 1 X -44 Y 1 X 17 Y -9 Y 1 X -24 Y 1 X 24 Y -18 Y 1 X -19 Y 1 X 18 Y -28 Y 1 X -17 Y 1 X -10 Y 1 X 4 Y 1 X -16 Y 1 X 14 Y -39 Y 1 X 1 Y 1 X -3 Y 1
+ X -18 Y 1 X -15 Y 2 X -31 Y 1 X 18 Y 1 X -6 Y 1 X -3 Y 1 X -11 Y 10 Y 1 X -13 Y 1 X -11 Y 8 Y 2 X 5 Y 1 X -14 Y 1 X 11 Y 1 X -15 Y 3 Y 1 X -5 Y 1 X 15 Y 1 X -16 Y 1 X -8 Y 8 Y 1 X 3 Y 1 X -15 Y 3 Y 1 X -4 Y 1 X -7 Y 8 Y 1 X 1 Y 1 X -9 Y 5 Y 1 X -10
+ Y 1 X 1 Y 1 X 14 Y -13 Y 1 X -1 Y 1 X 3 Y -5 Y 1 X -2 Y 1 X 4 Y -6 Y 1 X 4 Y 1 X -4 Y 1 X -8 Y 1 X 7 Y 1 X 1 Y 1 X -3 Y 1 Y 1 X 2 Y 1 X -9 Y 13 Y 1 X -4 Y 1 X -1 Y 1 X 1 Y 1 X -2 Y 1 X -2 Y 4 Y 1 X -2 Y 1 X -1 Y 1 X 3 Y 1 X -1 Y 1 X -7 Y 1 X 8 Y 1 X
+ -7 Y 1 X 12 Y -2 Y 1 X -3 Y 1 X 4 Y -4 Y 2 X 2 Y 1 X -7 Y 1 X 7 Y 1 X -2 Y 3 Y 1 X -1 Y 1 X -7 Y 1 X 2 Y 1 X -2 Y 1 X 5 Y 1 X 3 Y -6 Y 2 X -7 Y 10 Y 1 X -5 Y 1 X 2 Y -2 Y 1 X 3 Y 1 X 2 Y -5 Y 1 X 2 Y 1 X 3 Y 1 X 7 Y 1 X -12 Y 1 X 2 Y 1 X 2 Y 1 X -7
+ Y 1 X 7 Y 1 X -9 Y 1 X 3 Y 1 X 7 Y -6 Y 1 X 5 Y 1 X -3 Y 3 Y 1 X 1 Y 1 X -3 Y 2 X 3 Y 1 X -5 Y 1 X 5 Y 1 X -9 Y 1 X 6 Y 1 X 3 Y -2 Y 1 X -3 Y 1 X 3 Y 1 X -7 Y 1 X -1 Y 4 Y 1 X 1 Y 1 X -3 Y 1 X 3 Y 2 X 6 Y 1 X -6 Y 1 X 5 Y -6 Y 1 X 3 Y 1 X -3 Y 1 Y 3
+ X -5 Y 1 X 5 Y 1 X 5 Y 1 X -9 Y 1 X 4 Y 1 X 5 Y -5 Y 1 X -3 Y 1 X 8 Y 1 X -10 Y 1 X 7 Y 1 X -4 Y 1 X 1 Y 1 X -5 Y 5 Y 1 X -3 Y 1 X 4 Y 1 X -2 Y 1 X 3 Y -1 Y 1 X -5 Y 1 X 5 Y 1 X -1 Y 1 X 4 Y -4 Y 1 X -2 Y 1 X 8 Y 1 X -5 Y 1 X 3 Y 1 X -3 Y 1 Y 1 X -2
+ Y 1 X 2 Y -1 Y 2 X -6 Y 10 Y 1 X -3 Y 1 X -5 Y 1 X 8 Y 1 X -6 Y 1 X 1 Y 1 X 1 Y 1 X 5 Y 1 X -4 Y 2 Y 1 X -5 Y 1 X 2 Y 1 X 8 Y -7 Y 1 X -1 Y 2 X -1 Y 1 X -1 Y 7 Y 1 X -6 Y 1 X 11 Y 1 X -6 Y 1 X -6 Y 2 X 2 Y 2 X 4 Y -5 Y 1 X 6 Y 1 X -1 Y 1 X -5 Y 1 X
+ 8 Y 1 X -5 Y 2 Y 1 X 1 Y 1 X -5 Y 4 Y 1 X -4 Y 1 X 4 Y 1 X -1 Y 1 X -5 Y 1 X 7 Y 1 X -5 Y 2 X 5 Y -2 Y 2 X 1 Y 1 X -3 Y 1 X 4 Y 1 X -1 Y 1 X 4 Y 1 X -4 Y 1 Y 1 X -5 Y 1 X 8 Y -7 Y 1 X -1 Y 1 X 2 Y -2 Y 1 X 2 Y 1 X 1 Y -3 Y 1 X 4 Y 1 X -5 Y 1 X 3 Y 1
+ X 3 Y 1 X -5 Y 9 Y 1 X -9 Y 1 X -3 Y 1 X 9 Y 1 X -8 Y 1 X 2 Y 1 X 6 Y -6 Y 1 X 8 Y 1 X -5 Y 1 X -4 Y 1 X 5 Y -4 Y 1 X 1 Y 1 X 8 Y 1 X -5 Y 1 X 1 Y 1 X -5 Y 2 X 1 Y 1 X 6 Y 1 X -2 Y 2 X -6 Y 5 Y 1 X 1 Y 1 X -5 Y 1 X 5 Y 1 X -5 Y 5 Y 1 X -2 Y 1 X 2 Y
+ -6 Y 1 X -1 Y 1 X 3 Y 1 X 4 Y 1 X -7 Y 1 X 2 Y 1 X 2 Y 1 X -1 Y 9 Y 1 X -8 Y 1 X 5 Y -4 Y 1 X 3 Y 1 X -3 Y 7 Y 1 X -13 Y 1 X 8 Y -1 Y 1 X -5 Y 1 X 8 Y 1 X -7 Y 1 X 8 Y 1 X -7 Y 1 X -1 Y 1 X -1 Y 6 Y 1 X -5 Y 1 X 3 Y -4 Y 1 X 6 Y 1 X 3 Y -12 Y 1 X 1
+ Y 1 X 8 Y 1 X -5 Y 1 X 7 Y -5 Y 1 X 1 Y 1 X 6 Y -10 Y 1 X 12 Y 1 X -10 Y 1 X 1 Y 1 X -2 Y 1 X 1 Y 2 X -4 Y 1 X 5 Y 1 X 1 Y -1 Y 1 X -7 Y 1 X 7 Y 1 X -2 Y 1 X 1 Y -3 Y 1 X -2 Y 1 X 5 Y 1 X 3 Y 1 X -5 Y 6 Y 2 X -5 Y 1 X -2 Y 1 X 3 Y 1 X 8 Y -10 Y 1 X
+ 1 Y 1 X -5 Y 1 X 5 Y 1 X -2 Y 2 X 2 Y 1 X -5 Y 1 X 5 Y 2 X 1 Y -4 Y 1 X 3 Y 1 X 2 Y 1 X -3 Y 1 Y 1 X 1 Y 1 X -3 Y 1 X 1 Y 1 X 3 Y -3 Y 1 X -4 Y 1 X 4 Y 2 X -4 Y 2 X 5 Y -3 Y 1 X 1 Y 1 X 5 Y -5 Y 1 X 2 Y 2 X -2 Y 1 X 1 Y 1 X -2 Y 3 Y 4 X -3 Y 4 Y 1 X
+ -4 Y 1 X 3 Y 2 X 3 Y 1 X -4 Y 1 X -4 Y 6 Y 2 X -3 Y 1 X 2 Y -1 Y 1 X -1 Y 1 X 3 Y -1 Y 1 X 4 Y 1 X -8 Y 1 X 10 Y 1 X -6 Y 1 X 1 Y 1 X 4 Y -6 Y 2 X 3 Y 1 X -7 Y 1 X 5 Y 2 X -1 Y 1 X -3 Y 1 Y 1 X 1 Y 1 X -3 Y 1 X 2 Y 1 X -1 Y 2 X -5 Y 9 Y 1 X -5 Y 1 X
+ -1 Y 4 Y 1 X -2 Y 1 X -2 Y 3 Y 1 X 3 Y 1 X -5 Y 2 X 3 Y 1 X -3 Y 5 Y 1 X -4 Y 1 X 1 Y -4 Y 1 X 3 Y 1 X -1 Y 2 Y 1 X -4 Y 1 X -2 Y 3 Y 2 X -1 Y 4 Y 1 X -3 Y 1 X 3 Y -2 Y 1 X 1 Y 1 X -1 Y 3 X 2 Y -2 Y 1 X -1 Y 1 X -3 Y 4 Y 1 X -2 Y 1 X 2 Y 1 X 2 Y 1 X
+ -7 Y 5 Y 1 X -3 Y 1 X 6 Y -7 Y 1 X 2 Y 1 X 4 Y -6 Y 1 X 2 Y 1 X -1 Y 1 X 2 Y 1 X -3 Y 1 Y 1 X 4 Y 1 X -6 Y 1 X 3 Y -3 Y 1 X 5 Y 1 X -4 Y 1 X 1 Y 1 X 1 Y -3 Y 1 X 2 Y 1 X -2 Y 1 Y 1 X -1 Y 2 X 3 Y 1 X -1 Y 3 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 2
+ Y -2 Y 1 X 1 Y 1 X -2 Y 1 Y 2 X -1 Y 1 X 2 Y 1 X -1 Y 2 Y 1 X -2 Y 1 X -1 Y 1 X 3 Y 1 X -3 Y 3 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 Y 1 X -2 Y 1 X 2 Y 2 X -1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 1 X 1 Y 2 X -1 Y 1 Y 1 X -1 Y 5 X 1 Y 1
+ X -1 Y 1 X 2 Y -2 Y 2 X 1 Y 1 X 1 Y 1 X -2 Y 3 X 2 Y -1 Y 1 X -1 Y 3 X 1 Y -1 Y 4 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 29 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 7 X 1 Y -1 Y 15 X 1 Y -1 Y 7 X s 0 1 0
+ c 1 1 1 c black 0 1 0 c 295 186 m 1 Y -1 Y 2 X 2 Y 1 X -2 Y 2 X 1 Y -1 Y 6 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 1 Y 2 X -1 Y 4 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 4 X 2 Y -2 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 2
+ Y -1 Y 1 X -1 Y 1 X 2 Y -1 Y 2 X -1 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 8 X 1 Y 1 X -1 Y 2 Y 1 X -2 Y 7 X 1 Y 1 X -1 Y 1 Y 2 X 1 Y -1 Y 1 X -1 Y 3 X 1 Y -1 Y 4 X 1 Y -1 Y 5 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y 2 X -1 Y 1
+ X 1 Y 2 X -1 Y 2 X 1 Y 1 X -1 Y 3 X 3 Y -2 Y 2 X 2 Y -2 Y 2 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 6 X 1 Y 2 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 3 X 3 Y -2 Y 3 X -1 Y 4 X 1 Y 1 X -1 Y 3 X 1 Y 2 X -1 Y 2 X 2 Y -1 Y 2 X -1 Y 1 X 1 Y 1
+ X -1 Y 1 X 1 Y -1 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 3 X 2 Y 1 X -2 Y 3 X 1 Y -1 Y 1 X 1 Y 1 X 1 Y -1 Y 2 X -1 Y 2 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 1 X 3 Y -2 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 2 X 2 Y -2 Y 1 X 2 Y 1
+ X -2 Y 1 X 1 Y 1 X 1 Y -2 Y 2 X 1 Y 1 X 1 Y 1 X 2 Y -2 Y 1 X -1 Y 1 X 1 Y 1 X -2 Y 2 X 2 Y -1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 1 X 2 Y 1 X -1 Y 1 X -1 Y 2 Y 1 X -1 Y 1 X 2 Y -3 Y 1 X 2 Y 1 X -1 Y 1 X 1 Y 1 X -2 Y 1 X 1 Y 4 X -1 Y 1 X 1 Y
+ 2 X 1 Y 1 X -2 Y 2 X 2 Y 1 X -2 Y 2 X 1 Y 2 X 1 Y 1 X -2 Y 1 X 3 Y 1 X -2 Y 2 X -1 Y 1 X 3 Y -3 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 X 2 Y 2 X -1 Y 4 X 1 Y 1 X 1 Y 1 X -1 Y 1 X -2 Y 1 X 3 Y 1 X -3 Y 2 Y 1 X -1 Y 1 X 1 Y -2 Y 1 X 1 Y 1 X 1 Y 1 X -2 Y 1
+ Y 1 X 1 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 1 X 1 Y 3 X 3 Y 1 X -3 Y 1 X -1 Y 2 Y 1 X -2 Y 1 X 2 Y -1 Y 1 X -1 Y 2 X 2 Y -1 Y 2 X 2 Y -3 Y 1 X 2 Y 1 X -1 Y 1 X -1 Y 1 X 1 Y 1 X 2 Y 1 X -3 Y 1 Y 2 X 2 Y 1 X -3 Y 2 X 2 Y 1 X -1 Y 1 X -1 Y 1 X
+ 2 Y 1 X -2 Y 1 Y 1 X 1 Y 1 X -1 Y 1 X 3 Y 1 X -4 Y 2 X 1 Y 1 X -1 Y 2 X 1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -2 Y 1 X 1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 2 Y 1 X -3 Y 2 X 3 Y 1 X -1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 2 Y 1 X -2 Y 1 X -1 Y 1
+ Y 1 X 4 Y 1 X -3 Y 2 X 1 Y 1 X -3 Y 1 X 6 Y 1 X -4 Y 1 X 1 Y 1 X -1 Y 2 X -1 Y 2 Y 1 X -1 Y 1 X -1 Y 1 Y 1 X 3 Y 1 X -4 Y 1 Y 1 X 1 Y 1 X -2 Y 1 Y 1 X -1 Y 1 X 4 Y 1 X -1 Y 1 X -3 Y 1 Y 1 X 3 Y 1 X -5 Y 1 X 3 Y 1 X 3 Y 1 X -5 Y 4 Y 1 X -2 Y 1 X 1 Y
+ 1 X -2 Y 1 X 2 Y 2 X 3 Y -4 Y 1 X 2 Y 3 X 1 Y -3 Y 1 X 3 Y 1 X 3 Y 1 X 2 Y 1 X -6 Y 1 X 4 Y 1 X 4 Y 1 X -9 Y 8 Y 1 X 3 Y 1 X -3 Y 3 Y 1 X 1 Y 1 X -3 Y 1 X 6 Y 1 X -4 Y 2 Y 1 X -1 Y 1 X -1 Y 2 Y 1 X 3 Y 1 X -10 Y 1 X 3 Y 1 X 5 Y 1 X -3 Y 5 Y 1 X -5 Y
+ 1 X -1 Y 7 Y 1 X -1 Y 1 X -5 Y 1 X 10 Y 1 X -8 Y 1 X 2 Y 1 X -2 Y 1 Y 1 X 7 Y 1 X -5 Y 1 X 6 Y 1 X -6 Y 1 X 2 Y 1 X -2 Y 1 X 10 Y 1 X -6 Y 1 X 1 Y 1 X -7 Y 1 X 7 Y -3 Y 1 X 10 Y 1 X -11 Y 1 X 6 Y 1 X 11 Y 1 X -8 Y 1 X 4 Y 1 X -6 Y 1 X 6 Y 1 X -4 Y 1
+ X 11 Y 1 X 6 Y -17 Y 1 X 3 Y 1 X 13 Y -2 Y 1 X -11 Y 1 X 8 Y 1 X 3 Y 1 X -4 Y 2 Y 2 X 11 Y -8 Y 1 X -1 Y 1 X 3 Y -3 Y 1 X 6 Y 1 X -11 Y 7 Y 1 X 5 Y 1 X 5 Y 1 X -10 Y 1 X 5 Y 1 X -13 Y 1 X 19 Y 1 X -17 Y 1 X -4 Y 1 X 8 Y 1 X -4 Y 1 X -8 Y 1 X -1 Y 1
+ X 10 Y 1 X -6 Y 1 X -5 Y 1 X 4 Y 1 X -6 Y 2 Y 1 X 5 Y 1 X -7 Y 1 X 1 Y -9 Y 1 X 2 Y 1 X 7 Y 1 X -6 Y 1 X 7 Y -8 Y 1 X 2 Y 1 X 1 Y -7 Y 1 X -2 Y 1 X 4 Y 1 X -1 Y 1 X -4 Y 1 Y 1 X -1 Y 1 X 5 Y -1 Y 1 X -5 Y 1 X 1 Y 1 X 1 Y -2 Y 1 X -7 Y 1 X 13 Y 1 X
+ -11 Y 1 X 8 Y -10 Y 1 X 2 Y 1 X 6 Y 1 X -2 Y 1 X -3 Y 2 Y 1 X -1 Y 1 X -1 Y 2 X 3 Y 1 X 1 Y 1 X -4 Y 1 X 1 Y -1 Y 2 X -5 Y 4 Y 1 X 1 Y 1 X -5 Y 1 X 9 Y 1 X -6 Y 1 X 1 Y 1 X 1 Y 1 X 2 Y 1 X -7 Y 3 Y 1 X 1 Y 2 X -3 Y 1 X 2 Y 1 X 1 Y -1 Y 1 X -2 Y 1 X
+ 4 Y -5 Y 1 X 6 Y 1 X -3 Y 2 X 2 Y 1 X 2 Y 1 X 3 Y 1 X -4 Y 1 X 5 Y 1 X -8 Y 1 X 11 Y -9 Y 1 X 3 Y 1 X 2 Y 1 X -1 Y 3 Y 1 X -2 Y 2 X 1 Y 1 X -1 Y 8 Y 1 X -6 Y 1 X 3 Y 1 X -9 Y 1 X 15 Y -12 Y 1 X 6 Y 1 X -10 Y 1 X 10 Y 1 X -1 Y 1 X -2 Y 2 X 8 Y 2 X -8
+ Y 1 X 3 Y 1 X 8 Y -3 Y 2 X 2 Y -9 Y 1 X 12 Y 1 X -8 Y 1 Y 1 X -2 Y 1 X 9 Y 2 X 8 Y -2 Y 2 X 5 Y 1 X 10 Y 1 X 9 Y 1 X 6 Y 1 X 17 Y 1 X 4 Y 1 X 13 Y 1 X 33 Y 1 X 7 Y 1 X 26 Y 1 X -11 Y 1 X 36 Y 1 X -19 Y 1 X 30 Y 1 X 4 Y 1 X 27 Y 1 X -19 Y 27 Y 1 X -5
+ Y 1 X 14 Y 1 X -22 Y 1 X 40 Y 1 X 15 Y 1 X 44 Y 1 X -28 Y 1 X -22 Y 42 Y 1 X -22 Y 1 X -23 Y 1 X 77 Y 1 X -36 Y 29 Y 1 X 2 Y 1 X -15 Y 1 X -15 Y 15 Y 1 X 11 Y 1 X -18 Y 60 Y 1 X -22 Y 1 X 15 Y -19 Y 1 X 46 Y 1 X -15 Y 1 X -11 Y 1 X 23 Y -29 Y 1 X 49
+ Y 1 X -24 Y 1 X 48 Y 1 X -12 Y 48 Y 1 X -30 Y 1 X -19 Y 1 X 54 Y 1 X -4 Y 1 X 38 Y 1 X -14 Y 1 X 68 Y -16 Y 1 X 31 Y 1 X -10 Y 38 Y 1 X 26 Y 1 X -23 Y 57 Y 1 X -46 Y 1 X 62 Y 1 X 17 Y 1 X 89 Y 1 X -21 Y 1 X 28 Y 1 X -30 Y 1 X 67 Y 1 X -44 Y 52 Y 1 X
+ -45 Y 1 X 47 Y -31 Y 1 X -5 Y 1 X -21 Y 3 Y 1 X 23 Y 1 X -31 Y 10 Y 1 X 11 Y 1 X -62 Y 1 X 48 Y 1 X -72 Y 1 X 40 Y 1 X -30 Y 1 X -21 Y 1 X 8 Y 1 X -46 Y 24 Y 1 X -66 Y 1 X -26 Y 1 X -12 Y 1 X -23 Y 15 Y 1 X -22 Y 1 X -58 Y 1 X -23 Y 1 X -16 Y 1 X
+ -40 Y 1 X -28 Y 1 X -24 Y 1 X 14 Y -30 Y 1 X 5 Y 1 X 9 Y 1 X -56 Y 1 X 6 Y 1 X -47 Y 15 Y 1 X -28 Y 1 X 18 Y 1 X 9 Y 1 X -40 Y 20 Y 1 X -2 Y 1 X -23 Y 10 Y 1 X -15 Y 1 X -21 Y 39 Y 1 X -12 Y 1 X -27 Y 1 Y 1 X 2 Y 1 X -10 Y 1 X -12 Y 28 Y 1 X -53 Y 1
+ X 34 Y 1 X -32 Y 1 X -10 Y 1 X 23 Y 1 X -31 Y 1 X -23 Y 1 X 21 Y -2 Y 1 X -4 Y 1 X -30 Y 10 Y 1 X -19 Y 1 X 9 Y -12 Y 1 X 4 Y 1 X 4 Y 1 X -7 Y 1 X 6 Y 1 X -15 Y 1 X 4 Y 1 X -12 Y 12 Y 1 X -21 Y 1 X 13 Y -14 Y 1 X 17 Y 1 X -3 Y 1 X -14 Y 1 X -4 Y 13
+ Y 1 X -2 Y 1 X -17 Y 13 Y 1 X 6 Y 1 X -13 Y 1 X 7 Y 1 X 4 Y 1 X -6 Y 14 Y 1 X -12 Y 1 X -9 Y 9 Y 1 X 9 Y 1 X -16 Y 1 X 14 Y 1 X -19 Y 1 X 7 Y 1 X -28 Y 21 Y 1 X -10 Y 1 X 15 Y 2 X -2 Y 1 X 1 Y -22 Y 1 X 14 Y 1 X -6 Y 1 X -6 Y 1 X 16 Y -2 Y 1 X 4 Y 1
+ X -25 Y 1 X 7 Y 1 X 7 Y 1 X 1 Y 1 X 2 Y -4 Y 1 X 2 Y 1 X -15 Y 5 Y 1 X -3 Y 1 X 26 Y 1 X -31 Y 1 X 1 Y 1 X 13 Y -14 Y 1 X 11 Y 1 X -1 Y 1 X 1 Y 1 X -14 Y 1 X 8 Y 1 X -7 Y 7 Y 1 X -3 Y 1 X -6 Y 14 Y 1 X -5 Y 1 X -2 Y 1 X 2 Y 1 X -3 Y 1 X 4 Y 1 X -6 Y
+ 1 X 12 Y -2 Y 1 X -10 Y 1 X 12 Y -2 Y 1 X -10 Y 1 X 2 Y -3 Y 1 X 1 Y 1 X 10 Y 2 X -9 Y 1 X 11 Y 1 X -26 Y 1 X 12 Y 1 X 7 Y 1 X -2 Y 2 Y 1 X -12 Y 1 X 11 Y -9 Y 1 X -5 Y 1 X 5 Y -8 Y 1 X 8 Y 1 X 7 Y -9 Y 1 X 2 Y 1 X 7 Y -7 Y 1 X 9 Y 1 X 4 Y -10 Y 1 X
+ 3 Y 1 X -12 Y 1 X 11 Y 1 X 6 Y 1 X -11 Y 1 X -5 Y 1 X 7 Y -1 Y 1 X -6 Y 1 X 5 Y 1 X -5 Y 1 X -5 Y 9 Y 2 X 6 Y -17 Y 1 X 4 Y 1 X 9 Y -12 Y 1 X 6 Y 1 X -4 Y 5 Y 1 X -1 Y 1 X -6 Y 4 Y 1 X -1 Y 1 X -3 Y 1 X -3 Y 7 Y 1 X 2 Y 1 X -9 Y 7 Y 1 X -1 Y 1 X -9
+ Y 2 X 8 Y -7 Y 1 X -5 Y 1 X 5 Y 1 X 1 Y 1 X 10 Y 1 X -14 Y 1 X 9 Y -1 Y 1 X -7 Y 1 X -3 Y 1 X 9 Y 1 X -13 Y 1 X 5 Y -1 Y 1 X 11 Y 1 X -9 Y 1 X -2 Y 3 X 11 Y -12 Y 1 X 6 Y 1 X 2 Y -12 Y 1 X 6 Y 1 X -5 Y 1 X 5 Y 1 X -11 Y 1 X 10 Y 1 X -9 Y 1 X 12 Y 1
+ X -8 Y 1 X -5 Y 10 Y 1 X -4 Y 1 X 5 Y -6 Y 1 X -1 Y 1 X -1 Y 7 Y 1 X -3 Y 1 X -9 Y 1 X 6 Y 1 X 1 Y -6 Y 1 X 3 Y 1 X -1 Y 1 X -1 Y 3 Y 1 X 2 Y 1 X -10 Y 1 X 13 Y 1 X -8 Y 5 Y 1 X -5 Y 1 X 5 Y -6 Y 1 X 3 Y 1 X -2 Y 3 Y 1 X -1 Y 1 X 9 Y -11 Y 1 X 5 Y 1
+ X -4 Y 1 X -2 Y 1 X -1 Y 1 X 7 Y -5 Y 1 X 1 Y 1 X 1 Y 1 X -2 Y 1 X 1 Y -6 Y 1 X 9 Y 1 X -5 Y 1 X 2 Y 1 X -1 Y 1 Y 1 X -3 Y 1 X 6 Y -7 Y 2 X 4 Y -7 Y 1 X 5 Y 1 X 1 Y 1 X -5 Y 5 Y 1 X -6 Y 1 X 6 Y -7 Y 1 X 4 Y 1 X -1 Y 4 Y 1 X -2 Y 1 X 1 Y 1 X 1 Y 1 X
+ -5 Y 5 Y 1 X 1 Y 1 X -8 Y 2 Y 1 X -1 Y 1 X -2 Y 12 Y 1 X -5 Y 1 X 1 Y 1 X -5 Y 1 X -4 Y 1 X 7 Y 1 X -1 Y 1 X -4 Y 2 Y 1 X -5 Y 1 X 4 Y 1 X 2 Y 1 X -6 Y 5 Y 1 X -2 Y 1 X 3 Y -2 Y 1 X -1 Y 1 X 1 Y -3 Y 1 X 4 Y 1 X -5 Y 1 X 3 Y 1 X 2 Y 2 X -4 Y 1 X 3 Y
+ -1 Y 1 X -2 Y 1 X 2 Y -1 Y 1 X 2 Y 1 X 1 Y -2 Y 1 X 3 Y 1 X 1 Y -5 Y 2 X 2 Y 1 X -2 Y 1 X -3 Y 1 X 6 Y 1 X -5 Y 2 X -1 Y 1 X 3 Y 1 X -2 Y 1 X 2 Y -2 Y 1 X 1 Y 1 X 1 Y -4 Y 1 X 3 Y 1 X -4 Y 1 X -1 Y 1 X 7 Y -4 Y 1 X 3 Y 1 X -4 Y 1 X 4 Y 1 X 1 Y 1 X
+ -3 Y 3 X -1 Y 1 X 1 Y 1 X -2 Y 1 X 2 Y 1 X -1 Y 1 X -1 Y 1 X 3 Y 1 X -2 Y 2 Y 1 X -1 Y 1 X -2 Y 1 X 1 Y -1 Y 1 X 3 Y 1 X -1 Y 2 Y 1 X -3 Y 1 X 2 Y -1 Y 1 X -3 Y 1 X 3 Y 3 X -2 Y 1 X -1 Y 1 Y 1 X -2 Y 1 X 3 Y 1 X -2 Y 1 X 3 Y -1 Y 1 X 1 Y 1 X -2 Y 1
+ X -2 Y 2 Y 1 X 1 Y 1 X -1 Y 2 Y 1 X -2 Y 1 X -3 Y 3 Y 1 X 2 Y 1 X -1 Y 1 Y 2 X -4 Y 5 Y 1 X -2 Y 1 X 1 Y -4 Y 1 X 1 Y 1 X 1 Y -2 Y 1 X 2 Y 2 X -1 Y 3 Y 1 X -2 Y 1 X 4 Y -3 Y 1 X -3 Y 1 X 2 Y 1 X -1 Y 1 X 3 Y -4 Y 1 X 3 Y 1 X -2 Y 2 X 2 Y -2 Y 1 X 5
+ Y 1 X -4 Y 2 X -1 Y 1 X 4 Y -2 Y 1 X -2 Y 1 X 1 Y 4 X -3 Y 1 X 5 Y 1 X -4 Y 2 Y 1 X -1 Y 1 X -1 Y 1 X 1 Y 1 X 2 Y -4 Y 1 X 1 Y 1 X 4 Y 1 X -4 Y 1 X 2 Y 1 X 1 Y 1 X -2 Y 1 X -2 Y 1 X 2 Y 1 X -1 Y 2 Y 1 X -2 Y 2 X 1 Y 1 X 3 Y -3 Y 2 X 1 Y -1 Y 1 X -2
+ Y 1 X 2 Y 1 X -1 Y 1 X 1 Y 1 X 1 Y -2 Y 1 X 1 Y 1 X -1 Y 2 X 2 Y -2 Y 2 X 3 Y 1 X -3 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 3 X 4 Y -4 Y 2 X 2 Y 1 X -2 Y 1 X 2 Y -1 Y 2 X -1 Y 2 X 1 Y 2 X -1 Y 1 X 3 Y 1 X -2 Y 1 X -1 Y 1 X 1 Y 1 X 1 Y -1 Y 1 X
+ -1 Y 1 X 3 Y -3 Y 1 X 1 Y 2 X -1 Y 1 X 2 Y 2 X -2 Y 3 Y 1 X -3 Y 1 X 1 Y 1 X 2 Y 1 X -3 Y 1 X 2 Y 1 X -2 Y 1 X 2 Y -2 Y 1 X 1 Y 1 X -1 Y 2 Y 1 X -1 Y 1 X 3 Y -3 Y 1 X -1 Y 1 X 3 Y -3 Y 1 X 2 Y 1 X -2 Y 2 X 2 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 2 X 1 Y 1 X
+ -1 Y 1 X 2 Y -1 Y 1 X -1 Y 1 X 4 Y -4 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 2 Y -2 Y 1 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y -2 Y 2 X 1 Y 2 X 1 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y 3 X 2 Y 1 X -2 Y 1 X 2 Y 1 X -2 Y
+ 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 1 X 1 Y -1 Y 5 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 6 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 2 X 2 Y 1 X -2 Y 6 X 1 Y 2 X -1 Y 4 X 1 Y -1 Y 6 X 2 Y 1 X -2
+ Y 1 Y 1 X -1 Y 16 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 5 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 8 X 2 Y -2 Y 9 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y 2 X -1 Y 2 X 1 Y 1 X -1 Y 3 X 1 Y 1 X 1 Y 1 X -2 Y 1 Y 1 X 1 Y 1 X -2 Y 4 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y
+ 1 X 1 Y 1 X -1 Y 11 X 1 Y 1 X -1 Y 4 X 1 Y -1 Y 5 X 1 Y -1 Y 6 X 1 Y -1 Y 3 X 1 Y 1 X -1 Y 9 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 12 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 13 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1
+ Y 5 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 25 X 1 Y -1 Y 2 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 2 Y 1 X -2 Y 2 X 1 Y -1 Y 2 X 1 Y -1 Y 2 X 1 Y -1 Y 4 X 2 Y -2 Y 2 X 1 Y -1 Y 10 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 17 X 1 Y 1 X -1 Y 1 X
+ 1 Y 1 X -1 Y 1 Y 2 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X 1 Y 1 X -2 Y 6 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 2 X -1 Y 4 X 1 Y 1 X -1 Y 7 X 2 Y 1 X -2 Y 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 5
+ X 1 Y -1 Y 8 X 2 Y -2 Y 3 X 1 Y 1 X -1 Y 11 X 1 Y -1 Y 7 X 1 Y -1 Y 5 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 9 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 18 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 9 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y
+ 11 X 1 Y 1 X -1 Y 12 X 1 Y 1 X -1 Y 4 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 5 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 4 X 1 Y -1 Y 8 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 12 X 1 Y 1 X
+ -1 Y 5 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 2 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 10 X 1 Y -1 Y 11 X 1 Y -1 Y 9 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 10 X 1 Y 2 X -1 Y 4 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 4 X 1
+ Y 1 X -1 Y 1 X 1 Y -1 Y 15 X 1 Y -1 Y 2 X 1 Y 2 X -1 Y 2 X 1 Y 1 X -1 Y 7 X 1 Y 2 X -1 Y 6 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 1 X 1 Y 2 X -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 14 X 1 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 7 X 1 Y -1 Y 1 X 1 Y 1
+ X -1 Y 5 X 1 Y 1 X -1 Y 3 X 2 Y 1 X -2 Y 9 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 3 Y 1 X -3 Y 2 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 4 X 1 Y -1 Y 4 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 5 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 1 X
+ 1 Y -1 Y 2 X 2 Y 1 X -2 Y 8 X 1 Y 1 X -1 Y 3 X 1 Y -1 Y 5 X 1 Y -1 Y 15 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 3 X 1 Y 2 X -1 Y 5 X 1 Y -1 Y 10 X 1 Y -1 Y 4 X 1 Y 1 X -1 Y 2 X 1 Y 2 X -1 Y 8 X 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y
+ 11 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 4 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 8 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 29 X
+ 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 5 X 1 Y -1 Y 9 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 6 X 1 Y -1 Y 5 X 1 Y -1 Y 22 X 1 Y 1 X -1 Y 2 X 1 Y -1 Y 2 X 1 Y -1 Y 3 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 1 Y 1 X -1 Y 3 X
+ 1 Y 2 X -1 Y 8 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 22 X 1 Y 1 X -1 Y 9 X 1 Y -1 Y 3 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 10 X 1 Y 1 X -1 Y 1 X 1 Y -1 Y 9 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 6 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 2 X
+ 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 4 X 1 Y -1 Y 2 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 3 X 1 Y 1 X -1 Y 2 X 1 Y 1 X -1 Y 7 X 1 Y 1 X -1 Y 11 X 1 Y -1 Y 18 X 1 Y 1 X -1 Y 1 X 1 Y 1 X -1 Y 7 X 1 Y -1 Y 6 X 1 Y 1 X -1 Y s black
+ 295 186 m 2358 X s 458 231 m -45 Y s 544 209 m -23 Y s 629 209 m -23 Y s 714 209 m -23 Y s 799 231 m -45 Y s 884 209 m -23 Y s 970 209 m -23 Y s 1055 209 m -23 Y s 1140 231 m -45 Y s 1225 209 m -23 Y s 1310 209 m -23 Y s 1396 209 m -23 Y s 1481 231
+ m -45 Y s 1566 209 m -23 Y s 1651 209 m -23 Y s 1736 209 m -23 Y s 1822 231 m -45 Y s 1907 209 m -23 Y s 1992 209 m -23 Y s 2077 209 m -23 Y s 2162 231 m -45 Y s 2248 209 m -23 Y s 2333 209 m -23 Y s 2418 209 m -23 Y s 2503 231 m -45 Y s 458 231 m
+ -45 Y s 373 209 m -23 Y s 2503 231 m -45 Y s 2588 209 m -23 Y s 295 186 m 1491 Y s 366 186 m -71 X s 330 228 m -35 X s 330 270 m -35 X s 330 312 m -35 X s 366 354 m -71 X s 330 396 m -35 X s 330 438 m -35 X s 330 480 m -35 X s 366 522 m -71 X s 330
+ 563 m -35 X s 330 605 m -35 X s 330 647 m -35 X s 366 689 m -71 X s 330 731 m -35 X s 330 773 m -35 X s 330 815 m -35 X s 366 857 m -71 X s 330 899 m -35 X s 330 941 m -35 X s 330 982 m -35 X s 366 1024 m -71 X s 330 1066 m -35 X s 330 1108 m -35 X
+ s 330 1150 m -35 X s 366 1192 m -71 X s 330 1234 m -35 X s 330 1276 m -35 X s 330 1318 m -35 X s 366 1360 m -71 X s 330 1401 m -35 X s 330 1443 m -35 X s 330 1485 m -35 X s 366 1527 m -71 X s 366 1527 m -71 X s 330 1569 m -35 X s 330 1611 m -35 X s
+ 330 1653 m -35 X s 1 1 1 c black
+ gsave  2948 1863 0 0 C 510.629 1781.53 t 0 r /Helvetica findfont 56.7366 sf 0 0 m (TDC dt LaBr40 LaBr16  18:42:33  2019\25503\25528  11_3testing6.root/Histograms) show NC gr  1 1 1 c 1032 205 1769 1640 bf black 1776 1640 m -5 Y 1029 X 203 Y -4 X
+ -198 Y f 1769 1640 m 205 Y 1032 X -205 Y -1032 X cl s
+ gsave  2948 1863 0 0 C 2026.63 1806.49 t 0 r /Helvetica findfont 13.6168 sf 0 0 m (11_3testing6.root/Histograms;1/FATIMA;1/Timing;1/TDCdt_ref40;1/Calib;1/TDCdt_LaBr40_LaBr16_calib;1) show NC gr  1808 1810 m 180 X s
+ gsave  2948 1863 0 0 C 2026.63 1738.41 t 0 r /Helvetica findfont 13.6168 sf 0 0 m (11_3testing6.root/Histograms;1/Plastic;1/Timing;1/TDCdt_plas;1/TimeDiffPlas12;1) show NC gr  1 0 0 c 1808 1742 m 180 X s black
+ gsave  2948 1863 0 0 C 2026.63 1670.32 t 0 r /Helvetica findfont 13.6168 sf 0 0 m (11_3testing6.root/Histograms;1/Correlations;1/FATIMA_PLASTIC_General;1/Fat\255Plas_Tdiff;1/Fat\255bPlas_Tdiff12;1) show NC gr  0 1 0 c 1808 1674 m 180 X s gr showpage
+ gr 
+%%Trailer
+%%Pages:  1
+ gr  gr  gr 
+%%EOF
