@@ -44,14 +44,16 @@ void  EventUnpackStore::Clear(Option_t *t)
 //         fFRS_ID_brho[i] = 0;
 //         fFRS_ID_rho[i] = 0;
 //     }
-//     for(int l=0;l<12;++l){
-//         fFRS_sci_l[l] = 0;
-//         fFRS_sci_r[l] = 0;
-//         fFRS_sci_e[l] = 0;
-//         fFRS_sci_tx[l] = 0;
-//         fFRS_sci_x[l] = 0;
-//     }
-    for(int l=0;l<12;++l) fFRS_sci_e[l] = 0;
+    
+    for(int l=0;l<12;++l){
+        fFRS_sci_l[l] = 0;
+        fFRS_sci_r[l] = 0;
+        fFRS_sci_e[l] = 0;
+        fFRS_sci_tx[l] = 0;
+        fFRS_sci_x[l] = 0;
+        
+    }
+    //for(int l=0;l<12;++l) 
     
 //    fFRS_sci_tofll2 = 0;
 //    fFRS_sci_tofll3  = 0;
@@ -106,8 +108,8 @@ void  EventUnpackStore::Clear(Option_t *t)
          fUsed_Systems[i] = 0;
          }
         
-        fbPlas_VME_firedQDC = -1;    
-        fbPlas_VME_firedTDC = -1;
+        fbPlas_VME_firedQDC = 0;    
+        fbPlas_VME_firedTDC = 0;
         fbPlas_VME_QDC_Multiplicity = 0;
 
         fScalar_fired = -1;
@@ -142,19 +144,21 @@ void  EventUnpackStore::Clear(Option_t *t)
                 }
             }
                   
-            fFat_firedQDC = -1;
-            fFat_firedTDC = -1;
+            fFat_firedQDC = 0;
+            fFat_firedTDC = 0;
             fFat_WR = 0;
             fFat_QDC_Multiplicity = 0;
       
-            fGal_Pileup = -1;
-            fGal_fired = -1;
+//             fGal_Pileup = 0;
+            fGal_fired = 0;
             fGal_WR = 0;
             
                 for (int i=0; i<32; i++){
                     fGal_ID[i] = 0;
                     fGal_E[i] = 0;
                     fGal_T[i] = 0;
+                    fGal_Pileup[i]=0;
+                    fGal_Overflow[i]=0;
        }        
        
         //FINGER 
@@ -245,18 +249,15 @@ void  EventUnpackStore::ClearEvent()
 //         fFRS_ID_brho[i] = 0;
 //         fFRS_ID_rho[i] = 0;
 //     }
-//     for(int l=0;l<12;++l){
-//         fFRS_sci_l[l] = 0;
-//         fFRS_sci_r[l] = 0;
-//         fFRS_sci_e[l] = 0;
-//         fFRS_sci_tx[l] = 0;
-//         fFRS_sci_x[l] = 0;
-//     }
+   
     for(int l=0;l<12;++l){
-       
+        fFRS_sci_l[l] = 0;
+        fFRS_sci_r[l] = 0;
         fFRS_sci_e[l] = 0;
-        
+        fFRS_sci_tx[l] = 0;
+        fFRS_sci_x[l] = 0;
     }
+   
     
 //    fFRS_sci_tofll2 = 0;
 //    fFRS_sci_tofll3  = 0;
@@ -305,8 +306,8 @@ void  EventUnpackStore::ClearEvent()
          fUsed_Systems[i] = 0;
          }
         
-        fbPlas_VME_firedQDC = -1;    
-        fbPlas_VME_firedTDC = -1;
+        fbPlas_VME_firedQDC = 0;    
+        fbPlas_VME_firedTDC = 0;
         fbPlas_VME_QDC_Multiplicity = 0;
         
         fScalar_fired = -1;
@@ -345,13 +346,15 @@ void  EventUnpackStore::ClearEvent()
         fFat_QDC_Multiplicity = 0;
         fFat_WR = 0;
       
-        fGal_Pileup = -1;
+       
         fGal_fired = -1;
         fGal_WR = 0;
        for (int i=0; i<32; i++){
         fGal_ID[i] = 0;
         fGal_E[i] = 0;
         fGal_T[i] = 0;
+        fGal_Pileup[i]=0;
+        fGal_Overflow[i]=0;
        }
          //FINGER 
          

@@ -33,6 +33,7 @@ void AidaHit::Zero() {
   Time = 0;
   TimeFront = 0;
   TimeBack = 0;
+  Stopped = false;
 }
 
 void AidaCluster::Zero()

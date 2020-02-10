@@ -150,7 +150,7 @@ void FATIMA_Detector_System::load_board_channel_file(){
 
     if(file.fail()){
         cerr << "Could not find QDC_FATIMA Board_Channel to DetNum File!" << endl;
-        exit(0);
+      //  exit(0);
     }
 
     string line;
@@ -178,7 +178,7 @@ void FATIMA_Detector_System::load_det_angles(){
 
     if(file.fail()){
         cerr << "Could not find FATIMA Detector Positions File!" << endl;
-        exit(0);
+      //  exit(0);
     }
 
     string line;
@@ -206,7 +206,7 @@ void FATIMA_Detector_System::load_pos_correction(){
 
     if(file.fail()){
         cerr << "Could not find FATIMA Source Position File!" << endl;
-        exit(0);
+      //  exit(0);
     }
 
     string line;
@@ -594,8 +594,8 @@ void FATIMA_Detector_System::Check_TDC_DATA(){
 
         if(loop_counter > 100){
             cerr << "FATIMA TDC loop not reaching trailer! pdata iteration problem possible" << endl;
-            cerr << "Exiting Program!" << endl;
-            exit(0);
+       //     cerr << "Exiting Program!" << endl;
+            //exit(0);
         }
         
     }
@@ -667,7 +667,7 @@ void FATIMA_Detector_System::read_config_variables(string config_filename){
 
     if(file.fail()){
         cerr << "Could not find File for setup parameters!" << endl;
-        exit(0);
+       // exit(0);
     }
 
     string line;

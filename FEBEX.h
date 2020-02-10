@@ -127,7 +127,11 @@ struct FEBEX_TS
 struct FEBEX_En
 {
 
-	unsigned int chan_en		:24;
+	unsigned int chan_en		 :24;
+    unsigned int cf              :6;
+    unsigned int pileup          :1;
+    unsigned int overflow        :1;
+    
   
 };
 

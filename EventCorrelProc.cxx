@@ -36,11 +36,6 @@
 
 #include "TAidaConfiguration.h"
 
-//#include "BrentMethod.c"
-//#include "Linearizator.h" //pos reconstruction
-//#include "GoldenMethod.c"
-
-#define range 6
 
 
 //-----------------------------------------------------------

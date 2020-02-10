@@ -16,7 +16,7 @@ public:
 
  Double_t AplasQDC[32], BplasQDC[32];
  Double_t AplasTDC_Chref_dT[32],BplasTDC_SC41dT[32];
- Double_t Abplas_TAMEX[32], Bbplas_TAMEX[32];
+ Double_t Abplas_TAMEX[48], Bbplas_TAMEX[48];
  Int_t DetIDPlas_TAMEX;
  Double_t Afat[50], Bfat[50], Cfat[50], Dfat[50], Extra1fat[50], TFatTDC_Chref_dT[50], TFatTDC_SC41dT[50];
  Double_t Afat_TAMEX[50], Bfat_TAMEX[50], Cfat_TAMEX[50], Dfat_TAMEX[50], Extra1fat_TAMEX[50];

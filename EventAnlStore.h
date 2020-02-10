@@ -52,6 +52,12 @@ class EventAnlStore : public TGo4EventElement {
       Float_t pFRS_ID_x4;
       Float_t pFRS_z;
       Float_t pFRS_z2;
+      Int_t   pSci_num;
+      Float_t pFRS_sci_l[12];
+      Float_t pFRS_sci_r[12];
+      Float_t pFRS_sci_e[12];
+      Float_t pFRS_sci_tx[12];
+      Float_t pFRS_sci_x[12];
       
       Bool_t pFRS_ZAoQ_pass;
       Bool_t pFRS_x2AoQ_pass;
@@ -70,8 +76,8 @@ class EventAnlStore : public TGo4EventElement {
       Int_t    pbPlas_TDC_Multiplicity[32]; 
       Int_t    pbPlas_TDCID[50];
       Double_t pbPlasTDC_T[32];
-      Double_t pbPlas_SC41_dT[32];
-      Double_t pbPlas_SiPM_dT_Calib[32];
+//       Double_t pbPlas_SC41_dT[32];
+//       Double_t pbPlas_SiPM_dT_Calib[32];
      
      
       Int_t    pFat_QDCFired;
@@ -79,11 +85,11 @@ class EventAnlStore : public TGo4EventElement {
       Double_t pFat_QDCGainMatch[50];
       Int_t    pFat_TDCFired;
       Int_t    pFat_TDCID[50];
-      Double_t pFat_TDC_T[50];
-      Double_t pFat_SC41_dT_Calib[50];
+      Long64_t pFat_TDC_T[50];
+      //Double_t pFat_SC41_dT_Calib[50];
       Int_t    pFat_TDC_Multipl_perCh[50];
-      Double_t pFat_Ch_dT[50];
-      Double_t pFat_Ch0_TDC;
+      //Double_t pFat_Ch_dT[50];
+    //  Double_t pFat_Ch0_TDC;
       
       
       

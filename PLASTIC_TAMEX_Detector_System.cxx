@@ -11,7 +11,7 @@ PLASTIC_TAMEX_Detector_System::PLASTIC_TAMEX_Detector_System(){
     cal_count = 0;
 
     Calibration_Done = false;
-
+    Error =false;
     PLASTIC_TAMEX_Calibration = new PLASTIC_TAMEX_Calibrator(CALIBRATE);
 
     // different codes for PLASTIC_TAMEX MBS words
@@ -159,9 +159,10 @@ void PLASTIC_TAMEX_Detector_System::Process_TAMEX(){
 
     if(am_fired[tamex_iter] < 0){
         cerr << "NEGATIVE TAMEX FIRED AMOUNT ENCOUNTERED!" << endl;
-        exit(0);
+        //exit(0);
+          Error=true;
     }
-
+     else Error=false;
 
     //next word
     pdata++;
@@ -171,8 +172,11 @@ void PLASTIC_TAMEX_Detector_System::Process_TAMEX(){
     if(begin->aa != aa){
         cerr << "error in TAMEX format! 0xaa...... word not found after fired amount!" << endl;
         cerr << "TAMEX WORD: " << hex << *pdata << endl;
+        Error=true;
+       
      //   exit(0);
     }
+    else Error=false;
 
     //next word
     pdata++;
@@ -218,11 +222,12 @@ void PLASTIC_TAMEX_Detector_System::get_trigger(){
 
     //extract data
     TAMEX_DATA* data = (TAMEX_DATA*) pdata;
+    if(Error==false){
     coarse_T[tamex_iter] = (double) data->coarse_T;
     fine_T[tamex_iter] = (double) data->fine_T;
     ch_ID[tamex_iter] = (data->ch_ID);
  //  cout<<"1) fine_T[tamex_iter] " << fine_T[tamex_iter]<< " tamex_iter " << tamex_iter << " ch_ID[tamex_iter]  " <<ch_ID[tamex_iter]  <<endl;
- 
+}
     //next word
     pdata++;
 }
@@ -277,6 +282,7 @@ void PLASTIC_TAMEX_Detector_System::get_edges(){
         //extract data
         TAMEX_DATA* data = (TAMEX_DATA*) pdata;
        if(iterator[tamex_iter]>100) break;
+        if(Error==true) break;
         edge_coarse[tamex_iter][iterator[tamex_iter]] = (double) data->coarse_T;
         
        
@@ -328,11 +334,11 @@ void PLASTIC_TAMEX_Detector_System::check_error(){
 
     if(error->error != error_code){
         cerr << "wrong error header in TAMEX @ word " << hex << *pdata << endl;
-        exit(0);
+      //  exit(0);
     }
     if(error->err_code != 0){
         cerr << "Error (not known) in TAMEX occured -> TAMEX WORD: " << hex << *pdata << endl;
-        exit(0);
+      //  exit(0);
     }
 }
 
@@ -408,7 +414,7 @@ void PLASTIC_TAMEX_Detector_System::get_Calib_type(){
     ifstream data("Configuration_Files/PLASTIC_TAMEX_CALIB_FILE.txt");
     if(data.fail()){
         cerr << "Could not find Calibration type file for PLASTIC_TAMEX" << endl;
-        exit(0);
+     //   exit(0);
     }
     string line;
     const char* format = "%s %d";

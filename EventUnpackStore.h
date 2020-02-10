@@ -44,10 +44,11 @@ public:
         //Clear the members
         void ClearEvent();       
 
+      
         //FRS Output
     //Float_t fFRS_Music_dE[3], fFRS_Music_dE_corr[3];
-   // Float_t fFRS_sci_l[12], fFRS_sci_r[12], fFRS_sci_e[12], fFRS_sci_tx[12], fFRS_sci_x[12];
-    Float_t fFRS_sci_e[12];
+   Float_t fFRS_sci_l[12], fFRS_sci_r[12], fFRS_sci_e[12], fFRS_sci_tx[12], fFRS_sci_x[12];
+  //  Float_t fFRS_sci_e[12];
   //  Float_t fFRS_sci_tofll2, fFRS_sci_tofll3, fFRS_sci_tof2, fFRS_sci_tofrr2, fFRS_sci_tofrr3, fFRS_sci_tof3;
    // Float_t fFRS_ID_x2, fFRS_ID_y2, fFRS_ID_a2, fFRS_ID_b2;
     Float_t fFRS_ID_x2;
@@ -118,7 +119,7 @@ public:
         Double_t fFat_QDC_T[50];
         UInt_t fFat_firedTDC;
         Int_t fFat_TDC_ID[50];
-        double fFat_TDC_TS[50][50]; 
+        Long64_t fFat_TDC_TS[50][50]; 
         UInt_t fFat_TDC_Multiplicity[50];
         Long64_t fFat_WR;
         
@@ -128,7 +129,8 @@ public:
         Int_t fGal_ID[32]; 
         Double_t fGal_E[32];
         Double_t fGal_T[32];
-        Int_t fGal_Pileup;
+        Double_t fGal_Pileup[32];
+        Double_t fGal_Overflow[32];
         Long64_t fGal_WR;
         
 //         Int_t ffing_tamexhits;

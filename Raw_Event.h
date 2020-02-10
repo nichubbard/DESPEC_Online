@@ -155,7 +155,7 @@ private:
     //
     int    FAT_TDCs_FIRED;
     int    FAT_TDC_id[100];
-    double FAT_TDC_timestamp[100];//tdc time raw
+    ULong64_t FAT_TDC_timestamp[100];//tdc time raw
     // for vector array
 	//FATIMA_DataStruct FATIMA_Data;
 	
@@ -245,6 +245,9 @@ private:
 	int GALILEO_hit_pattern[36];
 	ULong GALILEO_chan_time[36];
 	double GALILEO_chan_energy[36];
+    double GALILEO_Pileup[36];
+    double GALILEO_Overflow[36];
+    
     int DET[36];
 
 
@@ -297,7 +300,7 @@ public:
 
     void set_DATA_SCALAR(int, double*, int*);
 
-    void set_DATA_GALILEO(int,ULong64_t*,int*,int*,ULong64_t*,double*,int*);
+    void set_DATA_GALILEO(int,ULong64_t*,int*,ULong64_t*,double*,int*,double*,double*);
 
 
 
@@ -511,11 +514,13 @@ public:
 	//temporary GALILEO getters
 	int         get_GALILEO_am_Fired();
 	ULong64_t   get_GALILEO_Sum_T(int);
-	int         get_GALILEO_Pileup(int);
+	//int         get_GALILEO_Pileup(int);
 	int         get_GALILEO_Hit_Pattern(int);
 	ULong64_t   get_GALILEO_Chan_T(int);
 	double      get_GALILEO_Chan_E(int);
     int         get_GALILEO_Det_ids(int);
+    double      get_GALILEO_Pileup(int);
+    double      get_GALILEO_Overflow(int);
 
 
 	//White Rabbit setter and getter

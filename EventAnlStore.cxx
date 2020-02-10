@@ -33,6 +33,18 @@ void EventAnlStore::Clear(Option_t *t)
        pFRS_ID_x4 = 0 ;
        pFRS_z = 0 ;
        pFRS_z2 = 0 ;
+       pSci_num = 0;
+       
+       
+       for(int l=0; l<12;l++){
+   
+        pFRS_sci_l[l] = 0;
+        pFRS_sci_r[l] = 0;
+        pFRS_sci_e[l] = 0;
+        pFRS_sci_tx[l] = 0;
+        pFRS_sci_x[l] = 0;
+     
+     }
    
        pFRS_ZAoQ_pass = false;
        pFRS_x2AoQ_pass = false;
@@ -49,16 +61,16 @@ void EventAnlStore::Clear(Option_t *t)
     //Plastic raw T 
         pbPlasTDC_T[i] = 0;
    //Plastic calibrated TDC SC41 - SiPM Ch.x
-        pbPlas_SC41_dT[i] = 0;
+       // pbPlas_SC41_dT[i] = 0;
    //Plastic calibrated SiPM1 - SiPM Ch.x    
-        pbPlas_SiPM_dT_Calib[i] = 0;
+       // pbPlas_SiPM_dT_Calib[i] = 0;
    // Plastic Calibrated Energy   
        // pbPlas_QDCGainMatch_i[i] = 0;
 
         // Plastic dT SC41 - SiPM ch.x
-        pbPlas_SC41_dT[i] = 0;
+       // pbPlas_SC41_dT[i] = 0;
         // Plastic SiPm ch.ref - SiPM ch.x Gainmatched
-        pbPlas_SiPM_dT_Calib[i] = 0;
+       // pbPlas_SiPM_dT_Calib[i] = 0;
     }
     for(int j =0; j<50; j++){
      pbPlas_TDCID[j] = -1;
@@ -70,7 +82,7 @@ void EventAnlStore::Clear(Option_t *t)
 //     pFat_TDCFired = -1;
 //     pFat_firedQDC_Comb = -1;
     //Fatima TDC channel 0
-    pFat_Ch0_TDC = -1;
+  //  pFat_Ch0_TDC = -1;
 
     for(int i=0; i< 50; i++){
         //Fatima QDC ID
@@ -82,11 +94,11 @@ void EventAnlStore::Clear(Option_t *t)
     //Fatima gainmatched time 
     pFat_TDC_T[i] = 0;
     //Fatima SC41 - PM ch.x
-    pFat_SC41_dT_Calib[i] = 0;
+   // pFat_SC41_dT_Calib[i] = 0;
     //Fatima TDC hits/channel
     pFat_TDC_Multipl_perCh[i] = 0;
     //Fatima Ch.ref - Cha 0
-    pFat_Ch_dT[i] = 0;
+  //  pFat_Ch_dT[i] = 0;
     
     pFat_ToTCalib[i] =0;
     

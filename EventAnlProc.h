@@ -55,18 +55,18 @@ class EventAnlProc : public TGo4EventProcessor {
       virtual Bool_t BuildEvent2(TGo4EventElement* dest);
       TGo4PolyCond *fCond_FingToTvsStrip;
 
-        double lead_lead_bplas[32][100], trail_trail_bplas[32][100];
-        double lead_lead_fat[32][100];
-        double ToT_bplas[32][100];
-        double lead_bplas[32][100], lead_bplas1[32][100], lead_bplas2[32][100] ;
-        double trail_bplas1[32][100], trail_bplas2[32][100];
-        double lead_lead_bplas_gated[32][100], lead_lead_bplas_Ref0[32][100];
-        double lead_lead_fat_Ref0[32][100];
+        double lead_lead_bplas[48][100], trail_trail_bplas[48][100];
+        double lead_lead_fat[48][100];
+        double ToT_bplas[48][100];
+        double lead_bplas[48][100], lead_bplas1[48][100], lead_bplas2[48][100] ;
+        double trail_bplas1[48][100], trail_bplas2[48][100];
+        double lead_lead_bplas_gated[48][100], lead_lead_bplas_Ref0[48][100];
+        double lead_lead_fat_Ref0[48][100];
         int hits_bplas_lead = 0, hits_bplas_trail=0;
-        double SC41L_ANA_lead_bPlas[32][100], SC41R_ANA_lead_bPlas[32][100];
-        double SC41L_DIG_lead_bPlas[32][100], SC41R_DIG_lead_bPlas[32][100];
-        double SC41L_ANA_lead_fat[32][100], SC41R_ANA_lead_fat[32][100];
-        double SC41L_DIG_lead_fat[32][100], SC41R_DIG_lead_fat[32][100];
+        double SC41L_ANA_lead_bPlas[48][100], SC41R_ANA_lead_bPlas[48][100];
+        double SC41L_DIG_lead_bPlas[48][100], SC41R_DIG_lead_bPlas[48][100];
+        double SC41L_ANA_lead_fat[48][100], SC41R_ANA_lead_fat[48][100];
+        double SC41L_DIG_lead_fat[48][100], SC41R_DIG_lead_fat[48][100];
 
         double bPlas_TAM_SC41L_ANA[100];
         double bPlas_TAM_SC41R_ANA[100];
@@ -157,7 +157,7 @@ class EventAnlProc : public TGo4EventProcessor {
       double FatQDC_T[50];
       int    FatTDCFired;
       int    FatTDCID[50];
-      double FatTDC_TS[50][50];
+      Long64_t FatTDC_TS[50][50];
       int    FatTDC_Multipl[50];
       double Fat_CHA_0_TDC;
       Long64_t Fat_WR;
@@ -167,7 +167,8 @@ class EventAnlProc : public TGo4EventProcessor {
       int    GalID[32];
       double GalE[32];
       double GalT[32];
-      int    GalPileup;
+      double GalPileUp[32];
+      double GalOverFlow[32];
 
       int GaldetID[2][16];
       Long64_t Gal_WR;
@@ -456,6 +457,9 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hGAL_Chan_Time_Diff[32];
             TH1 *hGAL_Time_Diff_vs_Energy[32];
             TH1 *hGAL_ESum;
+            TH1 *hGAL_ESum_largerange_OF;
+            TH1 *hGAL_ESum_largerange_PU;
+            TH1 *hGAL_ESum_largerange_all;
             TH1 *hGAL_Hit_Pat;
             TH1 *hGAL_Multi;
             TH1 *hGAL_Pileup;

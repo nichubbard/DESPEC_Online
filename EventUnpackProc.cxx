@@ -335,7 +335,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
         sub_evt_length  = (psubevt->GetDlen() - 2) / 2;
 
-    ///------------------------------WHITE RABBIT: UNDER DEVELOPMENT --------------------------------------////
+    ///------------------------------WHITE RABBIT --------------------------------------////
         if(WHITE_RABBIT_USED){
           //sub_evt_length = sub_evt_length - 5;
 
@@ -359,7 +359,8 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
            ///if(WR_d==xxx) fOutput->fMon_WR = WR_tmp; ///Monster WR
 
             WR_main = WR_tmp;
-        //  cout<<"WR_d " <<WR_d<<" WR_main " <<  WR_main <<endl;
+            //if(fOutput->fGal_WR>0 && fOutput->fbPlas_WR>0){
+          //cout<<" event " << event_number << " WR_d " <<WR_d<<" WR_main " <<  WR_main <<" fOutput->fGal_WR " << fOutput->fGal_WR << " fOutput->fbPlas_WR " << fOutput->fbPlas_WR << "dT " << fOutput->fbPlas_WR-fOutput->fGal_WR <<   endl;}
                      }
 
 ///-----------------------------------------------------------------------------------------------------------///
@@ -420,14 +421,20 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 //            
 //            }
         ///SCI
-       fOutput->fFRS_sci_e[7] = RAW->get_FRS_sci_e(7);
-//            for(int l=0;l<12;++l){
-//             fOutput->fFRS_sci_l[l] = RAW->get_FRS_sci_l(l);
-//             fOutput->fFRS_sci_r[l] = RAW->get_FRS_sci_r(l);
-//             
-//             fOutput->fFRS_sci_tx[l] = RAW->get_FRS_sci_tx(l);
-//             fOutput->fFRS_sci_x[l] = RAW->get_FRS_sci_x(l);
-//            }
+//        if(RAW->get_FRS_sci_l(2)>0){
+//        fOutput->fFRS_sci_l2=RAW->get_FRS_sci_l(2);
+//      fOutput->fFRS_sci_l[2] = RAW->get_FRS_sci_l(2);
+//      cout<<"event " << event_number <<"  fOutput->fFRS_sci_l[2] " << fOutput->fFRS_sci_l[2] << " RAW->get_FRS_sci_l(2) " << RAW->get_FRS_sci_l(2) << endl;
+//        }
+           for(int l=0;l<12;++l){
+   if(RAW->get_FRS_sci_e(l)>0) fOutput->fFRS_sci_e[l] = RAW->get_FRS_sci_e(l);
+   if(RAW->get_FRS_sci_l(l)>0) fOutput->fFRS_sci_l[l] = RAW->get_FRS_sci_l(l);
+   if(RAW->get_FRS_sci_r(l)>0) fOutput->fFRS_sci_r[l] = RAW->get_FRS_sci_r(l);
+            
+   if(RAW->get_FRS_sci_tx(l)>0) fOutput->fFRS_sci_tx[l] = RAW->get_FRS_sci_tx(l);
+   if(RAW->get_FRS_sci_x(l)>0) fOutput->fFRS_sci_x[l] = RAW->get_FRS_sci_x(l);
+             }
+           
             ///SCI TOF
 //         fOutput->fFRS_sci_tofll2 = RAW->get_FRS_tofll2();
 //         fOutput->fFRS_sci_tofll3 = RAW->get_FRS_tofll3();
@@ -437,6 +444,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 //         fOutput->fFRS_sci_tof3 = RAW->get_FRS_tof3();
         ///ID 2 4
         fOutput->fFRS_ID_x2 = RAW->get_FRS_x2();
+        
         //fOutput->fFRS_ID_y2 = RAW->get_FRS_y2();
 //         fOutput->fFRS_ID_a2 = RAW->get_FRS_a2();
 //         fOutput->fFRS_ID_b2 = RAW->get_FRS_b2();
@@ -603,6 +611,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
             bPlasTDCmulti[Plas_VME_TDC_ID_sing]++;
             fOutput->fbPlas_VME_TDC_ID[j] = Plas_VME_TDC_ID[j];
             fOutput->fbPlas_VME_TDC_TS[j][Plas_VME_TDC_ID[j]] = RAW->get_plastic_VME_TDC_dat(Plas_VME_TDC_ID[j]);//25ps //Plastic TDC Data
+
             fOutput->fbPlas_VME_TDC_Multiplicity[Plas_VME_TDC_ID_sing] =  bPlasTDCmulti[Plas_VME_TDC_ID_sing];
 
           }
@@ -701,7 +710,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
             fOutput->fFat_TDC_ID[j] =  RAW->get_FAT_TDC_id(j);
             fOutput->fFat_TDC_TS[j][Fat_TDC_ID[j]] = RAW->get_FAT_TDC_timestamp(j); //In 25ps
             fOutput->fFat_TDC_Multiplicity[Fat_TDC_ID_sing] =  Fat_TDC_multi[Fat_TDC_ID_sing];
-
+            
             /** SC41 Trigger **/
             if(Fat_TDC_ID[j]==34){
             fOutput->fSC41[j] =  RAW->get_FAT_TDC_timestamp(j);
@@ -770,7 +779,11 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
             fOutput->fGal_ID[i] =  RAW->get_GALILEO_Det_ids(i);
             fOutput->fGal_E[Gal_ID] = RAW->get_GALILEO_Chan_E(i)/1000;
             fOutput->fGal_T[Gal_ID] = RAW->get_GALILEO_Chan_T(i);
-            fOutput->fGal_Pileup = RAW->get_GALILEO_Pileup(i);
+            fOutput->fGal_Pileup[Gal_ID] = RAW->get_GALILEO_Pileup(i);
+            fOutput->fGal_Overflow[Gal_ID] = RAW->get_GALILEO_Overflow(i);
+//             cout<<"[Gal_ID] " << Gal_ID <<"  fOutput->fGal_Overflow[Gal_ID]  "<<  fOutput->fGal_Overflow[Gal_ID]  <<" fOutput->fGal_Pileup[Gal_ID] " << fOutput->fGal_Pileup[Gal_ID] <<  " i " << i << endl;
+            
+            
           }
         }
         ///--------------------------------------------------------------------------------------------///
