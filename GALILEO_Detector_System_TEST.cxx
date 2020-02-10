@@ -20,12 +20,13 @@ GALILEO_Detector_System::GALILEO_Detector_System(){
     fired_FEBEX_amount = 0;
    
     Sum_Time = new ULong64_t[max_am_dets];
-    Pileup = new int[max_am_dets];
+//    Pileup = new int[max_am_dets];
     Hit_Pattern = new int[max_am_dets];
 
     Chan_Time = new ULong64_t[max_am_dets];
     Chan_Energy = new double[max_am_dets];
-
+    Pileup = new double[max_am_dets];
+    Overflow = new double[max_am_dets];
    // det_ids = new int[max_am_dets];
 
     GALILEO_T_CALIB = new GALILEO_Time_Calibration();
@@ -50,7 +51,9 @@ GALILEO_Detector_System::~GALILEO_Detector_System(){
     
     delete[] Chan_Time;
     delete[] Chan_Energy;
-
+    delete[] Pileup;
+    delete[] Overflow;
+    
     delete GALILEO_T_CALIB;
     delete GALILEO_E_CALIB;
 }
@@ -84,7 +87,7 @@ void GALILEO_Detector_System::load_board_channel_file(){
 
 void GALILEO_Detector_System::get_Event_data(Raw_Event* RAW){
     
-    RAW->set_DATA_GALILEO(fired_FEBEX_amount,Sum_Time,pileup_flags,Ge_channels,Chan_Time,Chan_Energy,det_ids);
+    RAW->set_DATA_GALILEO(fired_FEBEX_amount,Sum_Time,Ge_channels,Chan_Time,Chan_Energy,det_ids,Pileup,Overflow);
     
 }
 
@@ -204,6 +207,8 @@ void GALILEO_Detector_System::Process_MBS(int* pdata){
             FEBEX_En *fbx_Ch_En=(FEBEX_En*) this->pdata; 
             
             Chan_Energy[fired_FEBEX_amount] = fbx_Ch_En->chan_en;
+            Pileup[fired_FEBEX_amount] = fbx_Ch_En->pileup;
+            Overflow[fired_FEBEX_amount] = fbx_Ch_En->overflow;
             det_ids[fired_FEBEX_amount] = current_det;
             //cout<<" det_ids[fired_FEBEX_amount] " <<  det_ids[fired_FEBEX_amount] << " fired_FEBEX_amount " << fired_FEBEX_amount <<endl;
             //cout <<  "1) Chan_Energy[current_det] "<<  Chan_Energy[fired_FEBEX_amount] << " current_det " <<  det_ids[fired_FEBEX_amount] <<endl;

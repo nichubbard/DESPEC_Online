@@ -35,12 +35,13 @@ private:
 	int tmp_Hit_Pattern;
 	
 	ULong64_t* Sum_Time;
-	int* Pileup;
+	
 	int* Hit_Pattern;
 	
 	ULong64_t* Chan_Time;
 	double* Chan_Energy;
-
+    double* Overflow;
+    double* Pileup;
 	
 
 	std::map<std::pair<int,int>, int> GALILEO_map;

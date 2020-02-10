@@ -28,8 +28,8 @@ public:
   int Intensity; /* ADC Data corrected for polarity */
   double Energy;
 
-  
-  
+
+
   AidaEvent();
 
   void Zero();
@@ -99,11 +99,14 @@ public:
   int64_t FastTimeFront;
   int64_t FastTimeBack;
 
+  // If the implant is believed to have stopped here (AIDA only veto)
+  bool Stopped;
+
   AidaHit() { Zero(); }
   void Zero();
   virtual ~AidaHit() {}
 
-  ClassDef(AidaHit, 1)
+  ClassDef(AidaHit, 2)
 };
 
 #endif /* TAIDAEVENT_H */

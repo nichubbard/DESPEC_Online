@@ -89,7 +89,7 @@ CalibParameter::CalibParameter(const Text_t *name)
    file.open("Configuration_Files/Plastic_TAMEX_Energy_Calibration.txt");
   if (file.fail()) {
     cout << "ERROR:  Could not open file: Plastic_TAMEX_Energy_Calibration.txt ! (params set to 1 and 0)\n";
-    for (i = 0; i < 32; i++){
+    for (i = 0; i < 48; i++){
        DetIDPlas_TAMEX = i; 
        Abplas_TAMEX[i] = 1;
        Bbplas_TAMEX[i] = 0;
@@ -98,7 +98,7 @@ CalibParameter::CalibParameter(const Text_t *name)
   
    else {
     cout << "CalibParameter - reading calibration from: Plastic_TAMEX_Energy_Calibration.txt\n";
-    for (i = 0; i < 32; i++){
+    for (i = 0; i < 48; i++){
       if(IsData(file)) file >> DetIDPlas_TAMEX  >> Abplas_TAMEX[i] >> Bbplas_TAMEX[i] ;
        if (file.fail()) cout << "ERROR reading Plastic_TAMEX_Energy_Calibration.txt\n ";
     }

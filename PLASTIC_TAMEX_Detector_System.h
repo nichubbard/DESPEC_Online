@@ -29,7 +29,9 @@ private:
     bool no_edges[100];
 
     bool written;
-
+    
+    bool Error;
+    
     bool CALIBRATE,Calibration_Done;
     
     int cal_count;

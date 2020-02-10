@@ -1498,8 +1498,8 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
         vme_type = getbits(*pdata,2,9,3);
         vme_chn = getbits(*pdata,2,1,5);
         //printf("pdata=0x%08x\n",*pdata); fflush(stdout);
-        if(20 == psubevt->GetProcid())  vme_tpc[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
-        if(25 == psubevt->GetProcid())  vme_tpc[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
+        if(20 == psubevt->GetProcid()||25 == psubevt->GetProcid())  vme_tpc[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
+       // if(25 == psubevt->GetProcid())  vme_tpc[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
         pdata++; len++;
       }   
     }
@@ -2073,8 +2073,8 @@ void FRS_Detector_System::FRS_Sort(){
   /* these are treated as 32-bit integers directly  */
     for(int i = 0 ;i < 32; ++i){
     
-    sc_long[i]  = vme_frs[0][i]; //frs crate
-    sc_long[32+i] = vme_main[8][i]; //main crate
+    sc_long[i]  = scaler_frs[i]; //frs crate
+    sc_long[32+i] = scaler_main[i]; //main crate
 
     }
 
@@ -2729,8 +2729,8 @@ void FRS_Detector_System::FRS_Calib(){
       }
 
   //Store scalers for later
-  freeTrig=mon_inc[0];
-  acptTrig=mon_inc[1];
+  freeTrig=mon_inc[32];
+  acptTrig=mon_inc[33];
   
   
 //   if(sc_long[35]!=0)
