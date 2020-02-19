@@ -27,6 +27,7 @@
 #include "AIDA_Data_Types.h"
 #include "TCutG.h"
 #include "TGraph.h"
+#include "DESPEC_Array_Sizes.h"
 #include "Go4ConditionsBase/TGo4WinCond.h"
 #include "Go4ConditionsBase/TGo4PolyCond.h"
 
@@ -37,6 +38,8 @@
 #define bPLAS_TAMEX_NUM 3
 #define bPLAS_TAMEX_ID 2
 #define FAT_TAMEX_ID 0
+
+
 
 
 class EventAnlStore;
@@ -163,16 +166,18 @@ class EventAnlProc : public TGo4EventProcessor {
       Long64_t Fat_WR;
       double SC41, SC41_ns;
 
+      // From unpacker
       int    GalFired;
-      int    GalID[32];
-      double GalE[32];
-      double GalT[32];
-      double GalPileUp[32];
-      double GalOverFlow[32];
+      int    GalDet[GALILEO_MAX_HITS];
+      int    GalCrys[GALILEO_MAX_HITS];
+      double GalE[GALILEO_MAX_HITS];
+      double GalE_Cal[GALILEO_MAX_HITS];
+      double GalT[GALILEO_MAX_HITS];
+      bool GalPileUp[GALILEO_MAX_HITS];
+      bool GalOverFlow[GALILEO_MAX_HITS];
 
-      int GaldetID[2][16];
       Long64_t Gal_WR;
-      Long64_t Gal_WR_Store[100];
+      //Long64_t Gal_WR_Store[100];
 
       int    Fing_firedTamex;
       int    Fing_leadHits[4];
@@ -448,7 +453,7 @@ class EventAnlProc : public TGo4EventProcessor {
 
             TH1 *hFAT_test[50];
             //Galileo Histograms
-            TH1 *hGAL_Chan_E[32];
+            TH1 *hGAL_Chan_E[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
             //TH1 *hGAL_Chan_E2;
             TH1 *hGAL_Chan_Egate;
             TH1 *hGAL_Chan_E_M1;
@@ -461,7 +466,10 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hGAL_ESum_largerange_PU;
             TH1 *hGAL_ESum_largerange_all;
             TH1 *hGAL_Hit_Pat;
-            TH1 *hGAL_Multi;
+            TH1 *hGAL_Multi_1;
+	    TH1 *hGAL_Multi_2;
+	    TH1 *hGAL_Multi_3;
+	    TH1 *hGAL_Multi_4;
             TH1 *hGAL_Pileup;
             TH2 *hGAL_Chan_E_Mat;
 

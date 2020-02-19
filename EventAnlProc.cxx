@@ -123,8 +123,6 @@ TGo4EventProcessor(name)
     read_setup_parameters();
     get_used_Systems();
 
-    load_GalileoMap_File();
-
 }
 //-----------------------------------------------------------
 EventAnlProc::~EventAnlProc()
@@ -412,10 +410,14 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
  ///--------------------------------------/**Galileo Input**/------------------------------------------///
    GalFired = -1;
    //Gal_WR = 0;
-   for(int g = 0; g<20; g++){
-      GalID[g] = -1;
+   for(int g = 0; g<GALILEO_MAX_HITS; g++){
+      GalDet[g] = -1;
+      GalCrys[g] = -1;
       GalE[g] = -1;
+      GalE_Cal[g] = -1;
       GalT[g] =-1;
+      GalPileUp[g] = false;
+      GalOverFlow[g] = false;
    }
 //    cout<<" event " << pOutput->pEvent_Number << " Used_Systems[5] "<< Used_Systems[5] <<" pOutput->pUsed_Systems[5] " << pOutput->pUsed_Systems[5] << endl;
 
@@ -430,15 +432,17 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
     //}
 
-    for (int i = 0; i<GalFired; i++){
-      GalID[i] = pInput->fGal_ID[i];
-      GalE[GalID[i]] = pInput->fGal_E[GalID[i]];
-      GalT[GalID[i]] = pInput->fGal_T[GalID[i]];
-      GalPileUp[GalID[i]] = pInput->fGal_Pileup[GalID[i]];
-      GalOverFlow[GalID[i]] = pInput->fGal_Overflow[GalID[i]];
-     // cout<<"GalE[GalID[i]] " << GalE[GalID[i]] << endl;
+    for (int i = 0; i<GalFired; i++)
+    {
+      GalDet[i] = pInput->fGal_Detector[i];
+      GalCrys[i] = pInput->fGal_Crystal[i];
+      GalPileUp[i] = pInput->fGal_Pileup[i];
+      GalOverFlow[i] = pInput->fGal_Overflow[i];
+      GalE[i] = pInput->fGal_E[i];
+      //TODO: NH - this is dumb for now to avoid cahgning calib file
+      int id = GalDet[i] * 3 + GalCrys[i];
+      GalE_Cal[i] = fCal->AGal[id]* pow( GalE[i],2) + fCal->BGal[id]*  GalE[i] + fCal->CGal[id];
     }
-
 
         Do_Galileo_Histos(pOutput);
   }
@@ -642,26 +646,6 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 ///-----------------------------------------------------------------------------------------------------------------///
 void EventAnlProc::load_GalileoMap_File(){
 
-   const char* format = "%d %d %d";
-  ifstream data("Configuration_Files/GALILEO_Detector_Map.txt");
-  if(data.fail()){
-    cerr << "Could not find Galileo_allocation config file!" << endl;
-    exit(0);
-  }
-  //     int id[5] = {0,0,0,0,0};
-  //int i = 0;
-  int BoardID = -1;
-  int GalCh = -1;
-  int GalDet = -1;
-  string line;
-  //char s_tmp[100];
-  while(data.good()){
-
-    getline(data,line,'\n');
-    if(line[0] == '#') continue;
-    sscanf(line.c_str(),format,&BoardID,&GalCh,&GalDet);
-    GaldetID[BoardID][GalCh] = GalDet;
-  }
 }
 /**----------------------------------------------------------------------------------------------**/
  /**--------------------------------------    White Rabbit   ---------------------------------------------**/
@@ -2730,150 +2714,119 @@ if(Fat_QDC_IDMain_i<40){
 /**----------------------------------------------------------------------------------------------**/
 /**--------------------------------------  GALILEO  ---------------------------------------------**/
 /**----------------------------------------------------------------------------------------------**/
- void EventAnlProc::Make_Galileo_Histos(){
-    hGAL_ESum = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum","GALILEO Energy Sum",5000,0,5000);
-    hGAL_ESum_largerange_all = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum_largerange","GALILEO Energy Sum",20000,0,20000);
-     hGAL_ESum_largerange_OF = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_OF","GALILEO Energy Sum",20000,0,20000);
-      hGAL_ESum_largerange_PU = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_PU","GALILEO Energy Sum",20000,0,20000);
-    hGAL_Hit_Pat = MakeTH1('I',"GALILEO/Stats/GALILEO_Hit_Pat","GALILEO Hit Pattern",32,0,32);
-    hGAL_Multi = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity","GALILEO Multiplicity",50,0,50);
+void EventAnlProc::Make_Galileo_Histos()
+{
+  hGAL_ESum = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum","GALILEO Energy Sum",20000,0,20000);
+  //hGAL_ESum_largerange_all = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum_largerange","GALILEO Energy Sum",20000,0,20000);
+  hGAL_ESum_largerange_OF = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_OF","GALILEO Energy Sum (Overflow)",20000,0,20000);
+  hGAL_ESum_largerange_PU = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_PU","GALILEO Energy Sum (Pileup)",20000,0,20000);
+  hGAL_Hit_Pat = MakeTH1('I',"GALILEO/Stats/GALILEO_Hit_Pat","GALILEO Hit Pattern",36,0,36);
+  //hGAL_Multi_1 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_1","GALILEO Multiplicity 1",50,0,50);
+  //hGAL_Multi_2 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_2","GALILEO Multiplicity 2",50,0,50);
+  //hGAL_Multi_3 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_3","GALILEO Multiplicity 3",50,0,50);
+  //hGAL_Multi_4 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_4","GALILEO Multiplicity 4",50,0,50);
     hGAL_Chan_E_Mat = MakeTH2('D',"GALILEO/GALILEO_E_Mat","GALILEO Energy-Energy Matrix",2500,0,10000,2500,0,10000);
-    hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
-    hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
-    hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",5000,0,5000);
+  //hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
+  //hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
+  hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",20000,0,20000);
 
-    for (int j=0; j<32; j++)
+  for (int i=0; i<GALILEO_MAX_DETS; i++)
+  {
+    for (int j = 0; j < GALILEO_CRYSTALS; j++)
     {
-    hGAL_Chan_E[j] = MakeTH1('D',Form("GALILEO/Energy_Ch./GALILEO_E_Ch.%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
+      hGAL_Chan_E[i][j] = MakeTH1('D',Form("GALILEO/Energy_Ch./GALILEO_E_Det_%2d_%1d",i, j), Form("GALILEO Channel Energy Detector %2d Crystal %1d",i, j),5000,0,5000);
+    }
   //  hGAL_FatdT[j] = MakeTH1('I',Form("Correlations/Fatima_Galilieo/Fat_GAldT%2d",j),Form("GALILEO Fatima dT Ch. %2d",j),2000,-1000,1000);
    // hGAL_Chan_E2[j] = MakeTH1('D',Form("GALILEO/GALILEO_Energy2/GALILEO_E2%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
     //hGAL_Chan_Egate[j] = MakeTH1('D',Form("GALILEO/gated energy/GALILEO_Egate%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
     }
-    for (int k=0; k<32; k++){
+  //for (int k=0; k<32; k++){
 
-    hGAL_Chan_Time_Diff[k] = MakeTH1('D',Form("GALILEO/Time_diff/GALILEO_Chan_Time_Diff%2d",k), Form("GALILEO Channel Time Difference for %2d",k),100,-1000,1000);
-
+    //hGAL_Chan_Time_Diff[k] = MakeTH1('D',Form("GALILEO/Time_diff/GALILEO_Chan_Time_Diff%2d",k), Form("GALILEO Channel Time Difference for %2d",k),2000,-1000,1000);
+    //hGAL_Chan_Timedifference_new[k] = MakeTH1('D',Form("GALILEO/Timediff_new/GALILEO_Chan_T_Diff%2d",k), Form("GALILEO Channel T Difference for %2d",k),2000,-1000,1000);
    // hGAL_Time_Diff_vs_Energy[k] = MakeTH2('D',Form("GALILEO/GALILEO_dT_vs_Energy_Spectra/GALILEO_dT_vs_E%2d",k), Form("GALILEO Time Difference Vs Channel Energy Channel %2d",k),5000,0,5000,100,-1000,1000);
-        }
+  //}
     }
 ///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
-void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput){
+void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput)
+{
+    // Process hits once
+    for (int i = 0; i < GalFired; i++)
+    {
+       // Skip pileup/overflow events
+       if (GalPileUp[i])
+       {
+          hGAL_ESum_largerange_PU->Fill(GalE_Cal[i]);
+          continue;
+        }
+
+       if (GalOverFlow[i])
+       {
+         hGAL_ESum_largerange_OF->Fill(GalE_Cal[i]);
+         continue;
+        }
+
+       int det = GalDet[i];
+       int crys = GalCrys[i];
+       pOutput->pGal_T[det][crys] = GalT[i];
+       pOutput->pGal_E[det][crys] = GalE_Cal[i];
   
-       // GalEvent gal;
-        double GalE1[32],GalE2_i[32],Gal_time_diff,sumM2;
-        double GalE_Cal_i[32],GalE2_Cal_i[32];
-        double GalE_Cal_Sum_i,sum1,sum2;
-        long   GalT_i[32];
-        double AddbackSum[16],GalE_Cal_Sum_Det[16], Addbackall;
-        long   Fat_Gal_dT;
-        GalE_Cal_Sum_i = 0;
-        Gal_time_diff = 0;
-        sum1 = 0;
-        sum2 = 0;
-        sumM2 = 0;
-        Addbackall =0;
-        for (int i =0; i<16; i++){
-        AddbackSum[i] = 0;
-        GalE_Cal_Sum_Det[i]=0;
-        }
-        for (int i =0; i<32; i++){
-            GalE_Cal_i[i] = 0;
-            GalE2_Cal_i[i] = 0;
-            GalE1[i] = 0;
-            GalE2_i[i] = 0;
-            GalT_i[i] = 0;
+       hGAL_Hit_Pat->Fill(det * GALILEO_CRYSTALS + crys);
+       hGAL_ESum->Fill(GalE_Cal[i]);
+       hGAL_Chan_E[det][crys]->Fill(GalE_Cal[i]);
 
-        }
-//         for(int j=0;j<1000;j++){
-//             Tdiff_WR_gal[j]=0;
-//         }
-
-        //Galileo multiplicity
-        hGAL_Multi -> Fill(GalFired);
-        pOutput-> pGalFired = GalFired;
-        
-        pOutput->pGAL_WR = Gal_WR;
-       // cout<<"GAL Event_Number" << pOutput->pEvent_Number << " pOutput->pGAL_WR " << pOutput->pGAL_WR <<endl;
-    for (int i = 0; i < GalFired; i++){
-
-        pOutput-> pGalID[i] = GalID[i];
-
-        GalT_i[i]=GalT[GalID[i]]; //Galileo First hit Time
-        pOutput-> pGalT[GalID[i]] = GalT[GalID[i]];
-        GalE1[GalID[i]] = GalE[GalID[i]]; //Galileo raw energy
-        Fat_Gal_dT =  (Fat_WR-Gal_WR);
-        //hGAL_FatdT[GalID[i]]->Fill(Fat_Gal_dT);
-
-           //cout<<"Event " << event_number << " Fat_WR "  << Fat_WR <<"  Gal_WR " << Gal_WR <<" Fat_Gal_dT " << Fat_Gal_dT <<endl;
-        //Gal_Multipl++;
-        ///Galileo calibrated energy
-        GalE_Cal_i[GalID[i]] = fCal->AGal[GalID[i]]* pow( GalE1[GalID[i]],2) + fCal->BGal[GalID[i]]*  GalE1[GalID[i]] + fCal->CGal[GalID[i]];
-        pOutput-> pGalE_Cal_i[GalID[i]] = GalE_Cal_i[GalID[i]];
-       
-        ///Galileo Hit pattern
-        hGAL_Hit_Pat->Fill(GalID[i]);
-
-        ///Galileo energy sum all channels
-        GalE_Cal_Sum_i =  GalE_Cal_i[GalID[i]];
-
-        ///M.P. 22.1.20 
-        if(GalID[i]<3)GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]] = GalE_Cal_i[GalID[i]];                                         //NEW
-        if(GalID[i]>2 && GalID[i]<6)GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]] = GalE_Cal_i[GalID[i]];              //NEW
-        if(GalID[i]>5 && GalID[i]<9)GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]] = GalE_Cal_i[GalID[i]];              //NEW
-        if(GalID[i]>8 && GalID[i]<12)GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]] = GalE_Cal_i[GalID[i]];              //NEW
-
-        if(GalE_Cal_i[GalID[i]] > 0){
-            ///Galileo fill energy spectra
-            hGAL_Chan_E[GalID[i]]->Fill(GalE_Cal_i[GalID[i]]);
-            hGAL_ESum ->Fill(GalE_Cal_i[GalID[i]]);
-            
-          
-           
-       if(GalID[i]<3) AddbackSum[GaldetID[0][GalID[i]]] += GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]];            //NEW
-       if(GalID[i]>2 && GalID[i]<6) AddbackSum[GaldetID[0][GalID[i]]] += GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]];     //NEW
-       if(GalID[i]>5 && GalID[i]<9) AddbackSum[GaldetID[0][GalID[i]]] += GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]];     //NEW
-       if(GalID[i]>8 && GalID[i]<12) AddbackSum[GaldetID[0][GalID[i]]] += GalE_Cal_Sum_Det[GaldetID[0][GalID[i]]];   //NEW
-  
-
-    }
-         // cout<<"1)event " << event_number << " addback="<<AddbackSum<<" GalE_Cal_i[GalID[i]] " << GalE_Cal_i[GalID[i]] << endl;
-           ///Galileo Gamma-Gamma, (additional fired crystals)
-        for(int k =i+1; k < GalFired; k++){
-            GalE2_i[k] = GalE[GalID[k]];
-            GalE_Cal_i[GalID[k]] = fCal->AGal[GalID[k]]* pow(GalE2_i[k],2) + fCal->BGal[GalID[k]]* GalE2_i[k] + fCal->CGal[GalID[k]];
-            
-            GalT_i[k]=GalT[GalID[k]];
-            Gal_time_diff = GalT_i[i] - GalT_i[k];
-            
-            hGAL_Chan_Time_Diff[GalID[k]]->Fill(Gal_time_diff);
-            pOutput->pGal_dT = Gal_time_diff;
-      // cout<<"2)event " << event_number << " addback="<<AddbackSum<<" GalE_Cal_i[GalID[i]] " << GalE_Cal_i[GalID[i]] <<" GalE_Cal_i[GalID[k]] " << GalE_Cal_i[GalID[k]] << endl;
-    if(GalOverFlow[GalID[i]]==1) hGAL_ESum_largerange_OF->Fill(AddbackSum[GaldetID[0][GalID[i]]]);
-     if(GalPileUp[GalID[i]]==1) hGAL_ESum_largerange_PU->Fill(AddbackSum[GaldetID[0][GalID[i]]]);
-    hGAL_ESum_largerange_all->Fill(AddbackSum[GaldetID[0][GalID[i]]]);
-            //Time gate for Multiplicity 2 events
-            if (Gal_time_diff>-50 && Gal_time_diff<50)
-            {
-                sumM2 += GalE_Cal_Sum_i;
-                hGAL_Chan_E_M2->Fill(sumM2);
-            }
-
-       /// Gamma-Gamma Energy matrix
-        hGAL_Chan_E_Mat->Fill(GalE_Cal_i[GalID[i]],GalE_Cal_i[GalID[k]]);
-            }
-           
-            Addbackall= AddbackSum[GaldetID[0][GalID[i]]] ;
-        }
-         if(Addbackall>0){
-
-            hGAL_AddbackSum->Fill(Addbackall);
-            
-            //hGAL_ESum_largerange_all->Fill(Addbackall);
-             pOutput->pGalE_Addback = Addbackall;
-	    
-           
+       // 2D Matrix generation
+       for (int j = 0; j < GalFired; j++)
+       {
+          if (i == j) continue;
+          hGAL_Chan_E_Mat->Fill(GalE_Cal[i], GalE_Cal[j]);
        }
     }
+            
+    static const long dT_addback = 50;
+            
+    // Detector addback
+    for (int i = 0; i < GALILEO_MAX_DETS; i++)
+    {
+        double E[GALILEO_CRYSTALS] = { 0 };
+        long T[GALILEO_CRYSTALS] = { 0 };
+        int n[GALILEO_CRYSTALS] = { 0 };
+        int v = 0;
+        for (int j = 0; j < GALILEO_CRYSTALS; j++)
+            {
+          if (pOutput->pGal_E[i][j] == 0) continue;
+          bool added = false;
+          // Try to addback to an existing hit
+          for (int k = 0; k < v; k++)
+          {
+            if (T[k] - pOutput->pGal_T[i][j] < dT_addback)
+            {
+              E[k] += pOutput->pGal_E[i][j];
+              T[k] = (T[k] + pOutput->pGal_T[i][j]) / (n[k] + 1);
+              n[k] += 1;
+              added = true;
+            }
+            }
+           
+          // Add to a new hit
+          if (!added)
+          {
+            T[v] = pOutput->pGal_T[i][j];
+            E[v] = pOutput->pGal_E[i][j];
+            n[v] = 1;
+            v++;
+          }
+        }
+           
+        // Fill and write to Tree the addback energies
+        for (int j = 0; j < v; j++)
+        {
+            pOutput->pGal_EAddback[i][j] = E[j];
+            hGAL_AddbackSum->Fill(E[j]);
+       }
+    }
+} //end of Do_Galileo_Histos()
+
 /**----------------------------------------------------------------------------------------------**/
 /**--------------------------------------  FINGER  ----------------------------------------**/
 /**----------------------------------------------------------------------------------------------**/

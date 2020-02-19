@@ -772,18 +772,16 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
         ///--------------------------------------------------------------------------------------------///
                                             /**Output GALILEO **/
         ///--------------------------------------------------------------------------------------------///
-        if (Used_Systems[5]&& PrcID_Conv==5){
-          fOutput->fGal_fired = RAW->get_GALILEO_am_Fired();
-          for (int i=0; i<RAW->get_GALILEO_am_Fired(); i++){
-            int Gal_ID = RAW->get_GALILEO_Det_ids(i);
-            fOutput->fGal_ID[i] =  RAW->get_GALILEO_Det_ids(i);
-            fOutput->fGal_E[Gal_ID] = RAW->get_GALILEO_Chan_E(i)/1000;
-            fOutput->fGal_T[Gal_ID] = RAW->get_GALILEO_Chan_T(i);
-            fOutput->fGal_Pileup[Gal_ID] = RAW->get_GALILEO_Pileup(i);
-            fOutput->fGal_Overflow[Gal_ID] = RAW->get_GALILEO_Overflow(i);
-//             cout<<"[Gal_ID] " << Gal_ID <<"  fOutput->fGal_Overflow[Gal_ID]  "<<  fOutput->fGal_Overflow[Gal_ID]  <<" fOutput->fGal_Pileup[Gal_ID] " << fOutput->fGal_Pileup[Gal_ID] <<  " i " << i << endl;
-            
-            
+        if (Used_Systems[5]&& PrcID_Conv==5)
+        {
+          for (int i=fOutput->fGal_fired; i<RAW->get_GALILEO_am_Fired() && i < GALILEO_MAX_HITS; i++){
+            fOutput->fGal_Detector[i] =  RAW->get_GALILEO_Det_id(i);
+            fOutput->fGal_Crystal[i] =  RAW->get_GALILEO_Crystal_id(i);
+            fOutput->fGal_E[i] = RAW->get_GALILEO_Chan_E(i)/1000;
+            fOutput->fGal_T[i] = RAW->get_GALILEO_Chan_T(i);
+            fOutput->fGal_Pileup[i] = RAW->get_GALILEO_Pileup(i);
+            fOutput->fGal_Overflow[i] = RAW->get_GALILEO_Overflow(i);
+            fOutput->fGal_fired++;
           }
         }
         ///--------------------------------------------------------------------------------------------///
@@ -2362,7 +2360,7 @@ void EventUnpackProc::Fill_FATIMA_Histos(){
 
 
 void EventUnpackProc::Make_GALILEO_Histos(){
-  for (int j; j<32; j++){
+  for (int j; j<GALILEO_MAX_HITS; j++){
         hGAL_Raw_E[j] = MakeTH1('D',Form("GALILEO/Raw/GALILEO_Energy_Spectra/GALILEO_Raw_E%2d",j),
                             Form("GALILEO Channel Energy Channel Raw %2d",j),20000,0,20000);
 
@@ -2377,7 +2375,7 @@ void EventUnpackProc::Fill_GALILEO_Histos(){
      /**------------------GALILEO Raw Energy -----------------------------------------**/
       GALILEO_hits = RAW->get_GALILEO_am_Fired();
          for(int i=0; i<GALILEO_hits; i++){
-        GalID = RAW->get_GALILEO_Det_ids(i);
+        GalID = RAW->get_GALILEO_Det_id(i) * 3 + RAW->get_GALILEO_Crystal_id(i);
         tmpGAL[GalID] = RAW->get_GALILEO_Chan_E(i)/1000;
         hGAL_Raw_E[GalID]->Fill(tmpGAL[GalID]);
          }

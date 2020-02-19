@@ -3,7 +3,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -122,18 +122,15 @@ void EventAnlStore::Clear(Option_t *t)
         }
     }
     
-    //Galileo fired channel
-    pGalFired = 0;
-    //Galileo Time difference
-    pGal_dT = 0;
-    for(int i=0; i<32; i++){
-        //Galileo Time
-        pGalT[i] =0;
-        //Galileo Energy
-        pGalE_Cal_i [i] = 0;
+    for (int i = 0; i < GALILEO_MAX_DETS; i++)
+    {
+      for (int j = 0; j < GALILEO_CRYSTALS; j++)
+      {
+        pGal_T[i][j] = 0;
+        pGal_E[i][j] = 0;
+        pGal_EAddback[i][j] = 0;
+      }
     }
-    //Galileo Addback sum
-    pGalE_Addback = 0; 
     
     
     //FINGER

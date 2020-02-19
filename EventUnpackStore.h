@@ -126,11 +126,12 @@ public:
         double_t fSC41[50];
         
         Int_t fGal_fired;
-        Int_t fGal_ID[32]; 
-        Double_t fGal_E[32];
-        Double_t fGal_T[32];
-        Double_t fGal_Pileup[32];
-        Double_t fGal_Overflow[32];
+        Int_t fGal_Detector[GALILEO_MAX_HITS];
+        Int_t fGal_Crystal[GALILEO_MAX_HITS];
+        Double_t fGal_E[GALILEO_MAX_HITS];
+        Double_t fGal_T[GALILEO_MAX_HITS];
+        bool fGal_Pileup[GALILEO_MAX_HITS];
+        bool fGal_Overflow[GALILEO_MAX_HITS];
         Long64_t fGal_WR;
         
 //         Int_t ffing_tamexhits;
