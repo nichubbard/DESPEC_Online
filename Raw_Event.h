@@ -239,17 +239,14 @@ private:
 
 	//GALILEO
 	int GAL_FIRED;
-	int GALILEO_Det_Nums[36];
-	ULong GALILEO_sum_time[36];
-	int GALILEO_pileup[36];
-	int GALILEO_hit_pattern[36];
-	ULong GALILEO_chan_time[36];
-	double GALILEO_chan_energy[36];
-    double GALILEO_Pileup[36];
-    double GALILEO_Overflow[36];
-    
-    int DET[36];
-
+	int GALILEO_Det_Nums[GALILEO_MAX_HITS];
+	int GALILEO_Crystal_Nums[GALILEO_MAX_HITS];
+	ULong GALILEO_sum_time[GALILEO_MAX_HITS];
+	int GALILEO_hit_pattern[GALILEO_MAX_HITS];
+	ULong GALILEO_chan_time[GALILEO_MAX_HITS];
+	double GALILEO_chan_energy[GALILEO_MAX_HITS];
+  bool GALILEO_Pileup[GALILEO_MAX_HITS];
+	bool GALILEO_Overflow[GALILEO_MAX_HITS];
 
 	bool ch51;
 
@@ -300,7 +297,7 @@ public:
 
     void set_DATA_SCALAR(int, double*, int*);
 
-    void set_DATA_GALILEO(int,ULong64_t*,int*,ULong64_t*,double*,int*,double*,double*);
+    void set_DATA_GALILEO(int,ULong64_t*,int*,ULong64_t*,double*,int*,int*,bool*,bool*);
 
 
 
@@ -518,9 +515,10 @@ public:
 	int         get_GALILEO_Hit_Pattern(int);
 	ULong64_t   get_GALILEO_Chan_T(int);
 	double      get_GALILEO_Chan_E(int);
-    int         get_GALILEO_Det_ids(int);
-    double      get_GALILEO_Pileup(int);
-    double      get_GALILEO_Overflow(int);
+    int       get_GALILEO_Det_id(int);
+		int				get_GALILEO_Crystal_id(int);
+    bool      get_GALILEO_Pileup(int);
+    bool      get_GALILEO_Overflow(int);
 
 
 	//White Rabbit setter and getter

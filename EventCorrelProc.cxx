@@ -3,7 +3,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -384,14 +384,15 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
 
         ///GALILEO Prompt Isomers
         //for(int j =0; j<cInputMain->pGalFired; j++){
-        cOutput-> cGalE = cInputMain->pGalE_Addback;
+        //cOutput-> cGalE = cInputMain->pGalE_Addback;
         
         if(bPLAS_WR>0 && aida_imptime_fatgal_noFRS>0){
         bplas_aida_imptimedT = (bPLAS_WR-aida_imptime_fatgal);
         }
         
         hA_implant_bPlasdT->Fill(bplas_aida_imptimedT);
-          if(cInputMain->pGalE_Addback>0 && GAL_WR>0){
+        // NEEDS UPDATE NH
+          /*if(cInputMain->pGalE_Addback>0 && GAL_WR>0){
              gal_aida_imptime_dT =  (GAL_WR - aida_imptime_fatgal); 
              
        //  cout<< " GAL_WR " << GAL_WR <<" aida_imptime_fatgal  " << aida_imptime_fatgal <<  " gal_aida_imptime_dT " << gal_aida_imptime_dT << endl;
@@ -414,7 +415,7 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
             // hA_implant_GaldT_GalE->Fill( cInputMain->pGalE_Addback,gal_aida_imptime_dT);
             
             
-          }
+          }*/
    
        aida_imptime_fatgal = 0;   
        aida_imptime_fatgal_noFRS = 0;
@@ -680,9 +681,9 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
       
       for(int j =0; j<cOutput->cAIDA_dT_imp_decay_hits; j++){
    
-                ///Germanium
+                ///Germanium - Needs update NH 19.02.2020
         
-              if( cOutput->cAIDA_dT_imp_decay[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay[j]*1E-6<24000 && j==1){
+              /*if( cOutput->cAIDA_dT_imp_decay[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay[j]*1E-6<24000 && j==1){
                   if(cInput->pGalE_Addback>0  &&dT_AIDA_Gal>-1000 && dT_AIDA_Gal<500 ){
                         hA_dT_GeE->Fill(cInput->pGalE_Addback);
                                 /// AIDA Gal
@@ -698,9 +699,9 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
                         }
                    }   
                 }
-              }
+              } */
                        ///FRS Gated AIDA-Gal
-    if(cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6<24000 && j==1&&dT_AIDA_Gal>-2000 && dT_AIDA_Gal<2000){
+    /* if(cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6<24000 && j==1&&dT_AIDA_Gal>-2000 && dT_AIDA_Gal<2000){
         ///disabled for now 02.12.19 AKM
       //   hA_dT_FRS_Gated_imp_decay_vs_GeE->Fill(cInput->pGalE_Addback,cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6);
                         
@@ -714,7 +715,7 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
                             }
                         }
                    
-                } ///End of FRS condition              
+                } ///End of FRS condition */
              }
           
         }

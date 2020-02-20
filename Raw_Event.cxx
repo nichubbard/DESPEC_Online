@@ -570,17 +570,19 @@ void Raw_Event::set_DATA_FATIMA_TAMEX(int* it_fat,double** Edge_Coarse_fat,doubl
 //-------------------------------------- GALILEO FEBEX  ------------------------------------------------//
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Raw_Event::set_DATA_GALILEO(int GAL_FIRED,ULong64_t* sum_time,int* pileup,int* hit_pattern,ULong64_t* chan_time,double* chan_en, int* FEBEX_det_ids){
+void Raw_Event::set_DATA_GALILEO(int GAL_FIRED,ULong64_t* sum_time,int* hit_pattern,ULong64_t* chan_time,double* chan_en, int* det_ids, int* crystal_ids, bool* pileup, bool* overflow){
     this->GAL_FIRED = GAL_FIRED;
 
     for(int i = 0;i < GAL_FIRED;++i){
 
-        GALILEO_Det_Nums[i] = FEBEX_det_ids[i];
+        GALILEO_Det_Nums[i] = det_ids[i];
+        GALILEO_Crystal_Nums[i] = crystal_ids[i];
         GALILEO_sum_time[i] = sum_time[i];
-        GALILEO_pileup[i] = pileup[i];
         GALILEO_hit_pattern[i] = hit_pattern[i];
         GALILEO_chan_time[i] = chan_time[i];
         GALILEO_chan_energy[i] = chan_en[i];
+        GALILEO_Pileup[i] = pileup[i];
+        GALILEO_Overflow[i] = overflow[i];
       // cout << "2) i " <<i<<" GALILEO_chan_energy[i] "<< GALILEO_chan_energy[i]<< endl;
 
     }
@@ -923,7 +925,9 @@ int Raw_Event::get_GALILEO_am_Fired(){return GAL_FIRED;}
 
 ULong64_t Raw_Event::get_GALILEO_Sum_T(int i){return GALILEO_sum_time[i];}
 
-int Raw_Event::get_GALILEO_Pileup(int i){return GALILEO_pileup[i];}
+bool Raw_Event::get_GALILEO_Pileup(int i){return GALILEO_Pileup[i];}
+
+bool Raw_Event::get_GALILEO_Overflow(int i){return GALILEO_Overflow[i];}
 
 int Raw_Event::get_GALILEO_Hit_Pattern(int i){return GALILEO_hit_pattern[i];}
 
@@ -931,4 +935,6 @@ ULong64_t Raw_Event::get_GALILEO_Chan_T(int i){return GALILEO_chan_time[i];}
 
 double Raw_Event::get_GALILEO_Chan_E(int i){return GALILEO_chan_energy[i];}
 
-int Raw_Event::get_GALILEO_Det_ids(int i){return GALILEO_Det_Nums[i];}
+int Raw_Event::get_GALILEO_Det_id(int i){return GALILEO_Det_Nums[i];}
+
+int Raw_Event::get_GALILEO_Crystal_id(int i){return GALILEO_Crystal_Nums[i];}

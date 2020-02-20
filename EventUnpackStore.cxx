@@ -121,7 +121,7 @@ void  EventUnpackStore::Clear(Option_t *t)
          fbPlas_VME_QDC_ID[i] = -1;
          fbPlas_VME_QDC_E_AIDA[i] = 0;
          }
-        for (int i=0; i<50; i++){         
+        for (int i=0; i<32; i++){
          fbPlas_VME_TDC_ID[i] = -1;
         
          for (int j=0; j<32; j++){
@@ -153,12 +153,13 @@ void  EventUnpackStore::Clear(Option_t *t)
             fGal_fired = 0;
             fGal_WR = 0;
             
-                for (int i=0; i<32; i++){
-                    fGal_ID[i] = 0;
+                for (int i=0; i<GALILEO_MAX_HITS; i++){
+                    fGal_Detector[i] = 0;
+                    fGal_Crystal[i] = 0;
                     fGal_E[i] = 0;
                     fGal_T[i] = 0;
-                    fGal_Pileup[i]=0;
-                    fGal_Overflow[i]=0;
+                    fGal_Pileup[i]=false;
+                    fGal_Overflow[i]=false;
        }        
        
         //FINGER 
@@ -347,14 +348,16 @@ void  EventUnpackStore::ClearEvent()
         fFat_WR = 0;
       
        
-        fGal_fired = -1;
+        fGal_fired = 0;
         fGal_WR = 0;
-       for (int i=0; i<32; i++){
-        fGal_ID[i] = 0;
+
+            for (int i=0; i<GALILEO_MAX_HITS; i++){
+                fGal_Detector[i] = 0;
+                fGal_Crystal[i] = 0;
         fGal_E[i] = 0;
         fGal_T[i] = 0;
-        fGal_Pileup[i]=0;
-        fGal_Overflow[i]=0;
+                fGal_Pileup[i]=false;
+                fGal_Overflow[i]=false;
        }
          //FINGER 
          

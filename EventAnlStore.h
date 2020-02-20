@@ -3,7 +3,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -113,13 +113,18 @@ class EventAnlStore : public TGo4EventElement {
       
      
       
-      Int_t    pGalFired;
-      Int_t    pGalID[32];
-      Long64_t pGalT[32];
-      Double_t pGalE_Cal_i[32];
+      //Int_t    pGalFired;
+      //Int_t    pGalID[32];
+      //Long64_t pGalT[32];
+      //Double_t pGalE_Cal_i[32];
      // Double_t pGal_Energy;
-      Long64_t pGal_dT;
-      Double_t pGalE_Addback;
+      //Long64_t pGal_dT;
+      //Double_t pGalE_Addback;
+
+      // New GALILEO Outputs NH 19.02.2020
+      Long64_t pGal_T[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
+      double   pGal_E[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
+      double   pGal_EAddback[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
       
 //       Int_t pFing_firedTamex; 
 //       Int_t pFing_iterator[4];
@@ -146,6 +151,3 @@ class EventAnlStore : public TGo4EventElement {
    ClassDef(EventAnlStore,1)
 };
 #endif //TSCNCALEVENT_H
-
-
-
