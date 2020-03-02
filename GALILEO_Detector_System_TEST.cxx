@@ -181,7 +181,7 @@ void GALILEO_Detector_System::Process_MBS(int* pdata){
                 FEBEX_Chan_Header *fbx_Ch=(FEBEX_Chan_Header*) this->pdata;
         
                 int tmp_Ch_ID = fbx_Ch->Ch_ID;
-		
+        
         //if(false && pileup_flags[tmp_Ch_ID] == 1) this->pdata += 3;
             
         //else
@@ -229,7 +229,7 @@ void GALILEO_Detector_System::Process_MBS(int* pdata){
                     }   
           else
           {
-            std::cout << "Unknown detector with channel: " << board_id << ", " << tmp_Ch_ID << std::endl;
+           // std::cout << "Unknown detector with channel: " << board_id << ", " << tmp_Ch_ID << std::endl;
             this->pdata += 3; // Moves to Future Use //
           }
                 }

@@ -34,7 +34,7 @@
 #include "EventAnlStore.h"
 //#include "TSCNUnpackEvent.h"
 #include "EventUnpackStore.h"
-#include "TSCNParameter.h"
+//#include "TSCNParameter.h"
 
 #include "TAidaConfiguration.h"
 
@@ -59,46 +59,6 @@ TGo4EventProcessor(name)
 
   checkTAMEXorVME();
 
-  TFile* f;
-  f = new TFile("Parameters.root");
-  if(f->IsOpen()) //The File Parameter.root exist
-  {
-    cout<<"Reading initial parameters from file Parameters.root"<<endl;
-    fParam1=(TSCNParameter*)f->Get("SCNParameter");
-    f->Close();
-  }
-  else //Data file with parameters
-  {
-    ifstream myfile;
-    myfile.open ("Parameters.dat", ios::in);
-    if(myfile.is_open()) //I have the file
-    {
-      fParam1 = (TSCNParameter*)  GetParameter("SCNParameter");
-      string intro;
-      myfile>>intro;
-      cout<<intro<<endl;
-      cout<<"Reading data file Parameters.dat"<<endl;
-      int a;
-      double b;
-      for(int i=0;i<SCN_NUM_CHAN;i++)
-      {
-        myfile>>a;
-        fParam1->SetPedestal(i,a);
-      }
-      myfile>>intro;
-      for(int i=0;i<SCN_NUM_CHAN;i++)
-      {
-        myfile>>b;
-        fParam1->SetFactor(i,b);
-      }
-      myfile.close();
-    }
-    else  //No Parameters at all. Go to default constructor
-    {
-      cout<<"No parameters file. Using default constructor"<<endl;
-      fParam1 = (TSCNParameter*)  GetParameter("SCNParameter");
-    }
-  }
   fCal = new CalibParameter("CalibPar");
   AddParameter(fCal);
   // fCal = (MoDSSCalibParameter*) GetParameter("CalibPar");
@@ -122,6 +82,8 @@ TGo4EventProcessor(name)
 
     read_setup_parameters();
     get_used_Systems();
+
+  //  load_GalileoMap_File();
 
 }
 //-----------------------------------------------------------
@@ -184,7 +146,11 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
     if(Used_Systems[0])  Make_FRS_Histos();
     if (Used_Systems[1]) Make_Aida_Histos();
    // if (Used_Systems[2] && VMEorTAMEX_bPlas==true) Make_Plastic_VME_Histos();
-    if (Used_Systems[2] && VMEorTAMEX_bPlas==false) Make_Plastic_Tamex_Histos();
+    if (Used_Systems[2] && VMEorTAMEX_bPlas==false){ 
+        Make_Plastic_Tamex_Histos();
+        Make_Fatima_Tamex_Histos();
+        
+    }
     if (Used_Systems[3] && VMEorTAMEX_fatima==true) Make_Fatima_Histos();
    // if (Used_Systems[3] && VMEorTAMEX_fatima==false && VMEandTAMEX_fatima==false) Make_Fatima_Tamex_Histos();
 
@@ -300,7 +266,7 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 //         bPlas_TAM_SC41R_ANA[j] = 0;
 //         bPlas_TAM_SC41L_DIG[j] = 0;
 //         bPlas_TAM_SC41R_DIG[j] = 0;
-// 	bPlas_RefCh[j] = 0;
+// 	bPlas_RefCh0_Det[j] = 0;
 // 	//Fat_RefCh[j] = 0;
 //         bPlas_AND_Coinc[j] = 0;
         }
@@ -312,25 +278,24 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
          
 //      cout<< "PLAS " << pOutput->pEvent_Number<<" pOutput->pbPLAS_WR " << pOutput->pbPLAS_WR<< endl;
        
-        for (int i = 0; i < 48; i++){
-        for(int j=0; j<pInput->fbPlas_PMT_Lead_N[i];j++){
-        bPlas_TAM_SC41L_ANA[j] = pInput->fbPlas_Lead_PMT[12][j];
+        for (int i = 0; i < FATIMA_TAMEX_CHANNELS; i++){
+            for(int j=0; j<pInput->fFat_PMT_Lead_N[i];j++){ ///Hits iterator
+                bPlas_TAM_SC41L_ANA[j] = pInput->fFat_Lead_PMT[12][j];
 
-        bPlas_TAM_SC41R_ANA[j] = pInput->fbPlas_Lead_PMT[11][j];
-        bPlas_TAM_SC41L_DIG[j] = pInput->fbPlas_Lead_PMT[13][j];
-        bPlas_TAM_SC41R_DIG[j] = pInput->fbPlas_Lead_PMT[14][j];
+                bPlas_TAM_SC41R_ANA[j] = pInput->fFat_Lead_PMT[11][j];
+                bPlas_TAM_SC41L_DIG[j] = pInput->fFat_Lead_PMT[13][j];
+                bPlas_TAM_SC41R_DIG[j] = pInput->fFat_Lead_PMT[14][j];
 
-       // bPlas_RefCh[j] = pInput->fbPlas_Lead_PMT[16][j];
+       // bPlas_RefCh0_Det[j] = pInput->fbPlas_Lead_PMT[16][j];
    
       //  Fat_RefCh[j] = pInput->fbPlas_Lead_PMT[0][j];
 //
-        bPlas_AND_Coinc[j] = pInput->fbPlas_Lead_PMT[9][j];
+        bPlas_AND_Coinc[j] = pInput->fFat_Lead_PMT[9][j];
        
+            }
         }
-    }
-      Do_Plastic_Tamex_Histos(pInput,pOutput);
-     
-      
+     Do_Plastic_Tamex_Histos(pInput,pOutput);
+     Do_Fatima_Tamex_Histos(pInput,pOutput);   
    }
   
   
@@ -407,45 +372,46 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 //      }
 
 
- ///--------------------------------------/**Galileo Input**/------------------------------------------///
-   GalFired = -1;
-   //Gal_WR = 0;
-   for(int g = 0; g<GALILEO_MAX_HITS; g++){
-      GalDet[g] = -1;
-      GalCrys[g] = -1;
-      GalE[g] = -1;
-      GalE_Cal[g] = -1;
-      GalT[g] =-1;
-      GalPileUp[g] = false;
-      GalOverFlow[g] = false;
-   }
-//    cout<<" event " << pOutput->pEvent_Number << " Used_Systems[5] "<< Used_Systems[5] <<" pOutput->pUsed_Systems[5] " << pOutput->pUsed_Systems[5] << endl;
-
-   if ( PrcID_Conv[5]==5){
-
-
-    GalFired =  pInput->fGal_fired;
-//    GalPileup = pInput->fGal_Pileup;
-    Gal_WR = pInput->fGal_WR;
-   
-    //for(int f=0;f<1000;f++){
-
-    //}
-
-    for (int i = 0; i<GalFired; i++)
-    {
-      GalDet[i] = pInput->fGal_Detector[i];
-      GalCrys[i] = pInput->fGal_Crystal[i];
-      GalPileUp[i] = pInput->fGal_Pileup[i];
-      GalOverFlow[i] = pInput->fGal_Overflow[i];
-      GalE[i] = pInput->fGal_E[i];
-      //TODO: NH - this is dumb for now to avoid cahgning calib file
-      int id = GalDet[i] * 3 + GalCrys[i];
-      GalE_Cal[i] = fCal->AGal[id]* pow( GalE[i],2) + fCal->BGal[id]*  GalE[i] + fCal->CGal[id];
-    }
-
-        Do_Galileo_Histos(pOutput);
-  }
+  ///--------------------------------------/**Galileo Input**/------------------------------------------///
+       GalFired = -1;
+       //Gal_WR = 0;
+       for(int g = 0; g<GALILEO_MAX_HITS; g++){
+          GalDet[g] = -1;
+          GalCrys[g] = -1;
+          GalE[g] = -1;
+          GalE_Cal[g] = -1;
+          GalT[g] =-1;
+          GalPileUp[g] = false;
+          GalOverFlow[g] = false;
+       }
+    //    cout<<" event " << pOutput->pEvent_Number << " Used_Systems[5] "<< Used_Systems[5] <<" pOutput->pUsed_Systems[5] " << pOutput->pUsed_Systems[5] << endl;
+    
+       if ( PrcID_Conv[5]==5){
+    
+    
+        GalFired =  pInput->fGal_fired;
+    //    GalPileup = pInput->fGal_Pileup;
+        Gal_WR = pInput->fGal_WR;
+       
+        //for(int f=0;f<1000;f++){
+    
+        //}
+    
+        for (int i = 0; i<GalFired; i++)
+        {
+          GalDet[i] = pInput->fGal_Detector[i];
+          GalCrys[i] = pInput->fGal_Crystal[i];
+          GalPileUp[i] = pInput->fGal_Pileup[i];
+          GalOverFlow[i] = pInput->fGal_Overflow[i];
+          GalE[i] = pInput->fGal_E[i];
+          //TODO: NH - this is dumb for now to avoid cahgning calib file
+          int id = GalDet[i] * 3 + GalCrys[i];
+          GalE_Cal[i] = fCal->AGal[id]* pow( GalE[i],2) + fCal->BGal[id]*  GalE[i] + fCal->CGal[id];
+        }
+    
+    
+            Do_Galileo_Histos(pOutput);
+      }
 
  ///--------------------------------------/**Finger Input**/------------------------------------------///
         Fing_firedTamex = -1;
@@ -644,9 +610,29 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
 }
 ///-----------------------------------------------------------------------------------------------------------------///
-void EventAnlProc::load_GalileoMap_File(){
-
-}
+// void EventAnlProc::load_GalileoMap_File(){
+// 
+//    const char* format = "%d %d %d";
+//   ifstream data("Configuration_Files/GALILEO_Detector_Map.txt");
+//   if(data.fail()){
+//     cerr << "Could not find Galileo_allocation config file!" << endl;
+//     exit(0);
+//   }
+//   //     int id[5] = {0,0,0,0,0};
+//   //int i = 0;
+//   int BoardID = -1;
+//   int GalCh = -1;
+//   int GalDet = -1;
+//   string line;
+//   //char s_tmp[100];
+//   while(data.good()){
+// 
+//     getline(data,line,'\n');
+//     if(line[0] == '#') continue;
+//     sscanf(line.c_str(),format,&BoardID,&GalCh,&GalDet);
+//     GaldetID[BoardID][GalCh] = GalDet;
+//   }
+// }
 /**----------------------------------------------------------------------------------------------**/
  /**--------------------------------------    White Rabbit   ---------------------------------------------**/
  /**----------------------------------------------------------------------------------------------**/
@@ -1325,274 +1311,39 @@ AidaHit EventAnlProc::ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const
   return hit;
 }
                                                     ///End of Aida ///
-/**----------------------------------------------------------------------------------------------**/
-/**--------------------------------------  bPLASTIC VME (+Scalar)  ----------------------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-
-// void EventAnlProc::Make_Plastic_VME_Histos(){
-//   for (int i=0; i<32; i++){
-//     hPLAS_QDCCalib1[i] =  MakeTH1('D', Form("bPlastic/Energy/QDC1Calib/QDC1Calib_Ch.%2d",i), Form("QDC1 Calib Ch. %2d",i), 20000, 0., 20000.);
-//    // hPLAS_TDCCalib1[i] =  MakeTH1('D', Form("bPlastic/Timing/TDC1Calib/TDC1Calib_Ch.%2d",i), Form("TDC1 Ch. %2d",i), 2E4, 0, 2E5);
-//     hPLAS_TimeDiffSiPM_Ch_Raw[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SiPM1-SiPMRaw/TDCSiPM_dT_Ch.%02d",i),Form("SiPM dT(ns) Ch1 - Ch%0d",i),250,-2E4,2E4);
-//     hPLAS_TimeDiffSiPM_Ch_Calib[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SiPM1-SiPMCalib/TDCSiPM1_dT_Ch.%02d",i),Form("TimeDiff Gainmatched Ch1 - Ch%0d",i),250,-2E4,2E4);
-//     hPLAS_TimeDiffSiPM_Ch_Calib_Egated[i] = MakeTH1('D',Form("bPlastic/Timing/EGated/TDCdt_SiPM1-SiPM/TDCSiPM1_dT_EGated_Ch.%02d",i),Form("TimeDiff Gainmatched Ch1 - Ch%0d",i),250,-2E4,2E4);
-//
-//     //hPLAS_TimeDiff_Ch_Raw[i] = MakeTH1('D',Form("bPlastic/Timing/Raw/TDCdt_ref-plas/TDCSiPM1_dt_Raw_Ch.%02d",i),Form("TimeDiff Ch0 - Ch%0d",i),1E5,-2E5,2E5);
-//    // hPLAS_TimeDiffSiPM_Ch[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SiPM1-SiPm/TDCSiPMdt_Ch.%02d",i),Form("TimeDiff Ch1 - Ch%0d",i),1E5,-2E5,2E5);
-//     ///new
-//     hPLAS_TDC_FiredRatio[i] = MakeTH1('D', Form("bPlastic/Timing/TDC1_FiredRatio/TDC_FiredRatio_Ch.%2d",i), Form("TDC1 Ratio CalibTDC/FiredTDC Ch. %2d",i), 4000, 0, 4000);
-//     hPLAS_TimeDiff_SC41_Raw[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMRaw/TDCdT_SC41_Plas_RawCh.%02d",i),Form("SC41-SiPM dT(ns) Raw Ch%0d",i),5E3,0,5E5);
-//     hPLAS_TimeDiff_SC41_Calib[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMCalib/TDCdT_SC41_Plas_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),5E3,0,5E5);
-//     hPLAS_TimeDiff_SC41_Calib_Egated[i] = MakeTH1('D',Form("bPlastic/Timing/EGated/TDCdt_SC41-SiPM/TDCdT_SC41_Plas_EGated_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),5E4,0,5E5);
-//
-//     hPLAS_TDC_multich[i] = MakeTH1('D', Form("bPlastic/Stats/TDC_MultiCh/TDCMch%2d",i), Form("TDC channel Multi %2d",i), 50, 0, 50);
-//
-// //     hPLAS_EvsdT[i] = MakeTH2('D',Form("bPlastic/Timing/E_vs_dT/E_vs_dT_Ch.%02d",i), Form("E_vs_dT_Ch.%0d",i), 2500, -5000, 0,  2500, 0, 5000);
-//    // hPLAS_CoincE1E2[i] = MakeTH2('D',Form("bPlastic/Energy/CoincEnergy/Coinc_Energy_Energy_Ch.%02d",i), Form("Coinc_Energy_Energy_Sum_Ch.%0d",i), 500, 0, 5000,  500, 0, 5000);
-//     hPLAS_CoincE_dTSiPM_Ch[i] =   MakeTH2('D',Form("bPlastic/Timing/Coinc_Energy_SiPM_dT/Coinc_E_dTCh1-Ch.%02d",i), Form("Energy vs. SiPM1-SiPMCh.%0d",i), 2500, 0, 5000, 2500,-5000,5000);
-//
-//
-//   }
-//     //hPLAS_E1E2TimeGated[i] = MakeTH2('D',Form("bPlastic/CoincEEGated/CoincEEGated%02d",i), Form("CoincGated%0d",i), 400, 0, 4000.0,  400, 0, 4000.0);
-//
-//
-//     //Sum spectra
-//     hPLAS_QDCCalib1Sum = MakeTH1('D',"bPlastic/Energy/QDCSum","QDC Calibrated Sum",2000,0,20000);
-//     hPLAS_TDCCalib1Sum = MakeTH1('D',"bPlastic/Timing/TDCSum","TDC Calibrated Sum (ns)",2E4, 0, 2E5);
-//     hPLAS_TimeDiffSiPM_Ch_Sum = MakeTH1('D',"bPlastic/Timing/TDCdT_SiPM1-SiPM","SiPM1 - SiPM Ch.x dT(ns) (calibrated)",1000,-2E6,2E6);
-//     hPLAS_TimeDiffSiPM_Ch_Sum_M1 = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SiPM1-SiPM_Multi1","SiPM1 - SiPM Ch.x dT(ns) Multiplicity1 (calibrated)",250,-2E4,2E4);
-//     hPLAS_TimeDiffSiPM_Ch_Sum_M2 = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SiPM1-SiPM_Multi2","SiPM1 - SiPM Ch.x dT(ns) Multiplicity2 (calibrated)",250,-2E4,2E4);
-//     hPLAS_TimeDiffSiPM_Ch_Sum_M3P = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SiPM1-SiPM_Multi3","SiPM1 - SiPM Ch.x dT(ns) Multiplicity>3 (calibrated)",250,-2E4,2E4);
-//
-//     hPLAS_TimeDiffSiPM_Ch_Sum_Egated = MakeTH1('D',"bPlastic/Energy/EGated/TDCdT_SiPM1-SiPM_EGated","Energy gated SiPM1 - SiPM  dT(ns) Ch.x (calibrated)",250,-2E4,2E4);
-//
-//     hPLAS_TimeDiff_SC41_Sum = MakeTH1('D',"bPlastic/Timing/TDCdT_SC41-SiPM","SC41 - SiPM dT(ns) (calibrated)",4E4,0,2E6);
-//     hPLAS_TimeDiff_SC41_Sum_M1 = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SC41-SiPM_Multi1","SC41 - SiPM  Ch.x dT(ns) Multiplicity1 (calibrated)",4E4,0,2E6);
-//     hPLAS_TimeDiff_SC41_Sum_M2 = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SC41-SiPM_Multi2","SC41 - SiPM  Ch.x dT(ns) Multiplicity2 (calibrated)",4E4,0,2E6);
-//     hPLAS_TimeDiff_SC41_Sum_M3P = MakeTH1('D',"bPlastic/Timing/Multiplicity/TDCdT_SC41-SiPM_Multi3+","SC41 - SiPM  Ch.x dT(ns) Multiplicity >3 (calibrated)",4E4,0,2E6);
-//
-//
-//     hPLAS_TimeDiff_SC41_Sum_Egated  = MakeTH1('D',"bPlastic/Timing/EGated/TDCdT_SC41-SiPM_EGated","Energy gated SC41 - SiPM dT(ns) Ch.x (calibrated)",4E4,0,2E6);
-//     hPLAS_TDC_FiredRatio_Sum = MakeTH1('D',"bPlastic/Timing/TDC_FiredRatio","TDC1 Ratio CalibTDC/FiredTDC",4000, 0, 4000);
-//
-//     hPLAS_QDC1_hits  = MakeTH1('D',"bPlastic/Stats/QDC1_hits","bPlastic hit pattern QDC1",32,0,32);
-//     hPLAS_TDC_hits  = MakeTH1('D',"bPlastic/Stats/TDC_hits","bPlastic hit pattern TDC",32,0,32);
-//     hPLAS_TDC_multi = MakeTH1('D',"bPlastic/Stats/TDC_Multi","bPlastic TDC Multiplicity",50,0,50);
-//
-//     hPLAS_CoincE1E2_Sum = MakeTH2('D',"bPlastic/Energy/Coinc_Energy_Energy_Sum","bPlastic Energy-Energy Sum", 500, 0, 5000,  500, 0, 5000);
-//     hPLAS_CoincE_dTSiPM_Sum = MakeTH2('D',"bPlastic/Energy/CoincEnergy_SiPM1-SiPMCh.x","Energy vs. SiPMCh.1-SiPM_all", 5000, 0, 5000, 100,-100,100);
-//
-//     hScalar_hit_pattern = MakeTH1('D',"Scalar/HitPat","Scalar Hit pattern",32,0,32);
-// }
-///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
-// void EventAnlProc::Do_Plastic_VME_Histos(EventAnlStore* pOutput){
-//
-//   int bPlasTDCIDMain;
-//     int bPlasQDCID_i, bPlasQDCID_j;
-//     double bPlasTDC_TS_Raw[32],    bPlasTDC_T_Calib[32] ;
-//     double bPlasTDC_TS_Firedratio[32];
-//     double bPlas_SiPM_dT_Raw[32], bPlas_SiPM_dT_Calib[32];
-//     double bPlas_SC41_dT_Raw[32], bPlas_SC41_dT_Calib[32];
-//     double bPlasQDCGainMatch_i[32],bPlasQDCGainMatch_j[32];
-//     double bPlas_TDC_Cha1;
-//   bPlasTDCIDMain = -1;
-//     bPlas_TDC_Cha1 = 0;
-//     bPlasQDCID_i=0;
-//     bPlasQDCID_j=0;
-//   for (int i=0; i< 32; i++){
-//
-//         bPlasTDC_TS_Raw[i]=0;
-//         bPlasTDC_T_Calib[i]=0;
-//         bPlasQDCGainMatch_i[i] = 0;
-//         bPlasQDCGainMatch_j[i] = 0;
-//         bPlas_SiPM_dT_Raw[i] = 0;
-//         bPlas_SiPM_dT_Calib[i] = 0;
-//         bPlas_SC41_dT_Raw[i] = 0;
-//         bPlas_SC41_dT_Calib[i] = 0;
-//   }
-//   /**------------------bPlastic Energy -----------------------------------------**/
-//          pOutput->pbPlas_QDCFired = bPlasQDCFired;
-//     for (int i=0; i<bPlasQDCFired; i++){
-//          bPlasQDCID_i = bPlasQDCID[i];
-//          pOutput->pbPlas_QDCID[i] = bPlasQDCID[i];
-//          bPlasQDCGainMatch_i[bPlasQDCID_i] = fCal->AplasQDC[bPlasQDCID_i]*bPlasQDC[bPlasQDCID_i] + fCal -> BplasQDC[bPlasQDCID_i]; //gain matching
-//           hPLAS_QDC1_hits->Fill(bPlasQDCID_i);
-//
-//           if(bPlasQDCGainMatch_i[bPlasQDCID_i]>30){
-//                if(bPlasQDCID_i<16 ){//temporarily remove the noise for chans>15
-//
-//              pOutput->pbPlas_QDCGainMatch_i[bPlasQDCID_i] = bPlasQDCGainMatch_i[bPlasQDCID_i];
-//
-//              hPLAS_QDCCalib1[bPlasQDCID_i]->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i]);
-//              hPLAS_QDCCalib1Sum->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i]);
-//                              }
-//           }
-//                ///Energy-Energy Matrix
-//                 for(int j=0; j<bPlasQDCFired; j++){
-//                   bPlasQDCID_j = bPlasQDCID[j];
-//                    ///Dont loop on the first hit again: (check)
-//                   if(bPlasQDCID_i<bPlasQDCID_j){
-//                   bPlasQDCGainMatch_j[bPlasQDCID_j] = fCal->AplasQDC[bPlasQDCID_j]*bPlasQDC[bPlasQDCID_j] + fCal -> BplasQDC[bPlasQDCID_j]; //gain matching
-//                //   hPLAS_CoincE1E2[bPlasQDCID_i] ->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i],bPlasQDCGainMatch_j[bPlasQDCID_j]);
-//                   hPLAS_CoincE1E2_Sum->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i],bPlasQDCGainMatch_j[bPlasQDCID_j]);
-//
-//                }
-//             }
-//           }
-//      /**----------------------------bPlastic Timing -----------------------------------------**/
-//      ///Channel 0 is SC41 trigger
-//         pOutput->pbPlas_TDCFired = bPlasTDCFired;
-//   for (int i=0; i<bPlasTDCFired;i++){
-//
-//           bPlasTDCIDMain = bPlasTDCID[i];
-//           pOutput->pbPlas_TDCID[i] = bPlasTDCID[i];
-//           bPlasTDC_TS_Raw[bPlasTDCIDMain] = bPlasTDC_TS[i][bPlasTDCIDMain];
-//           bPlas_TDC_Multiplicity[bPlasTDCIDMain]++;
-//           pOutput-> pbPlas_TDC_Multiplicity[bPlasTDCIDMain] = bPlas_TDC_Multiplicity[bPlasTDCIDMain];
-//           hPLAS_TDC_hits->Fill(bPlasTDCIDMain);
-//           hPLAS_TDC_multi->Fill(bPlas_TDC_Multiplicity[bPlasTDCIDMain]);
-//        //  cout <<"FAT Event " << event_number <<" bPlasTDC_TS_Raw[bPlasTDCIDMain]" <<bPlasTDC_TS_Raw[bPlasTDCIDMain]  << " bPlasTDCID[i] " << bPlasTDCID[i] << endl;
-//
-//           //cout <<"ev " << event_number << " fired " <<  bPlasTDCFired << " i " << i <<" bPlasTDCID[i] " << bPlasTDCID[i]  <<endl;
-//
-//           ///Calibrate raw TDC
-//         //  bPlasTDC_T_Calib[bPlasTDCIDMain] =  bPlasTDC_TS_Raw[bPlasTDCIDMain] + fCal->AplasTDC_Raw[bPlasTDCIDMain];
-//           pOutput->pbPlasTDC_T[bPlasTDCIDMain] =   bPlasTDC_TS_Raw[bPlasTDCIDMain]; //Output bPlas Raw TDC
-//             ///Get the first hit of the reference channel (Cha.1)
-//            if(bPlasTDC_TS[0][1]>0 && bPlas_TDC_Multiplicity[bPlasTDCIDMain]==1 &&bPlasTDCIDMain ==1){
-//                            bPlas_TDC_Cha1 =   bPlasTDC_TS[0][1];
-//                                    }
-//
-//           //hPLAS_TDCCalib1[bPlasTDCIDMain] -> Fill(bPlasTDC_T_Calib[bPlasTDCIDMain]);
-//           hPLAS_TDCCalib1Sum -> Fill(bPlasTDC_T_Calib[bPlasTDCIDMain]);
-//
-//           bPlasTDC_TS_Firedratio[bPlasTDCIDMain] = bPlasTDC_T_Calib[bPlasTDCIDMain]/bPlasTDCFired;
-//           hPLAS_TDC_FiredRatio[bPlasTDCIDMain] -> Fill(bPlasTDC_TS_Firedratio[bPlasTDCIDMain]);
-//           hPLAS_TDC_FiredRatio_Sum -> Fill( bPlasTDC_TS_Firedratio[bPlasTDCIDMain]);
-//
-//           ///Ref SiPMCh.1 - SiPM Ch.x
-//        //   if(bPlas_TDC_Multiplicity[bPlasTDCIDMain]>1 && bPlasTDCIDMain==1){
-//
-//        //   }
-//        //   if(bPlas_TDC_Cha1>0 &&bPlasTDC_TS_Raw[bPlasTDCIDMain]>0){
-//         //  cout<<"event " << event_number<<" bPlas_TDC_Cha1 " <<bPlas_TDC_Cha1 << " bPlasTDC_TS_Raw[bPlasTDCIDMain] " << bPlasTDC_TS_Raw[bPlasTDCIDMain]<< endl;
-//            bPlas_SiPM_dT_Raw[bPlasTDCIDMain] = (bPlasTDC_TS[0][1] - bPlasTDC_TS_Raw[bPlasTDCIDMain]);
-//            bPlas_SiPM_dT_Calib[bPlasTDCIDMain] = ((bPlasTDC_TS[0][1] - bPlasTDC_TS_Raw[bPlasTDCIDMain] )+ fCal->AplasTDC_Chref_dT[bPlasTDCIDMain]);
-//            pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain] =   bPlas_SiPM_dT_Calib[bPlasTDCIDMain];
-//
-//
-//            if(bPlasTDCIDMain!=1){
-//             hPLAS_TimeDiffSiPM_Ch_Raw[bPlasTDCIDMain] -> Fill(bPlas_SiPM_dT_Raw[bPlasTDCIDMain]);
-//             hPLAS_TimeDiffSiPM_Ch_Calib[bPlasTDCIDMain] -> Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//             hPLAS_TimeDiffSiPM_Ch_Sum -> Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//
-//                       ///Fill for Multiplicites
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] ==1) hPLAS_TimeDiffSiPM_Ch_Sum_M1 ->Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] ==2) hPLAS_TimeDiffSiPM_Ch_Sum_M2 ->Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] >2)  hPLAS_TimeDiffSiPM_Ch_Sum_M3P ->Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//         }
-//         //  }
-//           ///SC41 - SiPM Ch.x
-//           if(bPlasTDC_TS_Raw[0]>0 && bPlasTDC_TS_Raw[bPlasTDCIDMain]>0){
-//
-//            bPlas_SC41_dT_Raw[bPlasTDCIDMain] = (bPlasTDC_TS_Raw[0] - bPlasTDC_TS_Raw[bPlasTDCIDMain]);
-//            bPlas_SC41_dT_Calib[bPlasTDCIDMain] =  bPlas_SC41_dT_Raw[bPlasTDCIDMain] + fCal->BplasTDC_SC41dT[bPlasTDCIDMain];
-//            // cout<<" bPlas_SC41_dT_Calib[bPlasTDCIDMain]  " <<  bPlas_SC41_dT_Calib[bPlasTDCIDMain] << endl;
-//             pOutput-> pbPlas_SC41_dT[bPlasTDCIDMain] = bPlas_SC41_dT_Calib[bPlasTDCIDMain]; //Output SC41-bPlas dT
-//             if(bPlasTDCIDMain!=0){
-//                 hPLAS_TimeDiff_SC41_Raw[bPlasTDCIDMain] ->Fill(bPlas_SC41_dT_Raw[bPlasTDCIDMain]);
-//                 hPLAS_TimeDiff_SC41_Calib[bPlasTDCIDMain] ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-//                 hPLAS_TimeDiff_SC41_Sum ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-//                 ///Fill for Multiplicites
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] ==1) hPLAS_TimeDiff_SC41_Sum_M1 ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] ==2) hPLAS_TimeDiff_SC41_Sum_M2 ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-// if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] >2)  hPLAS_TimeDiff_SC41_Sum_M3P ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-//
-//             }
-//           }
-//   /**-----------------------bPlastic Energy gated Timing (gates defined in Correlations.dat)-----------------------------------------**/
-//            /// NOTE: TDC ID = QDC ID +1 (TDC Ch.0 =SC41)
-//
-//
-//                 ///Energy-Time matrices
-//                 if(bPlasQDCGainMatch_i[bPlasTDCIDMain-1]>50){
-//            hPLAS_CoincE_dTSiPM_Ch[bPlasTDCIDMain-1] -> Fill(bPlasQDCGainMatch_i[bPlasTDCIDMain-1],  pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//           //   cout <<"event " <<event_number<<" dT "<<    pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain] << " E " <<bPlasQDCGainMatch_i[bPlasTDCIDMain-1] <<endl;
-//
-//                 }
-//
-//                         for (int j=0; j<bPlasQDCFired; j++){
-//                     ///Energy Gate
-//                 if(bPlasQDCGainMatch_i[bPlasQDCID[j]] > fCorrel->GbPlas_Egate_low &&  bPlasQDCGainMatch_i[bPlasQDCID[j]] < fCorrel->GbPlas_Egate_high   ){
-//                             ///Energy gated SiPM - SiPM x.
-//                     if(bPlasTDCIDMain!=1){
-//                     hPLAS_TimeDiffSiPM_Ch_Calib_Egated[bPlasTDCIDMain] -> Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//                     hPLAS_TimeDiffSiPM_Ch_Sum_Egated -> Fill(bPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
-//                             }
-//
-//                     if(bPlasTDC_TS_Raw[0]>0 && bPlasTDC_TS_Raw[bPlasTDCIDMain]>0){
-//                             ///Energy gated SC41 - SiPM Ch.x
-//                         if(bPlasTDCIDMain!=0 && bPlasTDC_TS_Raw[bPlasTDCIDMain]> 2580 && bPlasTDC_TS_Raw[bPlasTDCIDMain]<2640){
-//                     hPLAS_TimeDiff_SC41_Calib_Egated[bPlasTDCIDMain] ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-//                     hPLAS_TimeDiff_SC41_Sum_Egated ->Fill(bPlas_SC41_dT_Calib[bPlasTDCIDMain]);
-//               }
-//             }
-//           }
-//         }
-//       }
-//   }
 
  /**----------------------------------------------------------------------------------------------**/   
-     /**--------------------------------------  bPlastic and FATIMA Combined TAMEX ----------------------------------------------   
+     /**--------------------------------------  bPlastic  TAMEX ----------------------------------------------   
      //**----------------------------------------------------------------------------------------------**/  
         
     void EventAnlProc::Make_Plastic_Tamex_Histos(){ 
-        Text_t chis[256];   
-        Text_t chead[256];  
         
-         for (int i =1; i<3; i++)   
-      { 
+         for (int i =1; i<bPLASTIC_TAMEX_MODULES; i++)   
+            { 
+                 hbPlas_ToT_Sum[i] = MakeTH1('D', Form("bPlastic/ToT_Sum_Det.%2d",i), Form("bPlastic Sum Gainmatched ToT Det. %2d",i), 2500, 0, 1500000);
+  
+                  hbPlas_hit_pattern_det[i]= MakeTH1('D', Form("bPlastic/Stats/HitPattern_Det.%2d",i), Form("bPlastic Hit pattern Det. %2d",i), 17, 0, 17);
+                   
+                 
+                   
           for(int j=0; j<16; j++){  
-           sprintf(chis,"bPlastic/ToT/ToT Det.%2d Ch.%2d", i,j);    
-           sprintf(chead,"TOT Detector %2d Ch. %2d", i,j);  
-           hbPlas_ToT_det[i][j] = MakeTH1('I', chis,chead, 25000, 0., 150000.); 
+              
+             hbPlas_Lead_T[i][j] = MakeTH1('D', Form("bPlastic/LeadTime/Lead T Plas Det. %2d Ch.%2d",  i,j), Form("Lead - Time Det %2d Ch. %2d", i,j),2500, 0, 2000);
+             hbPlas_Trail_T[i][j] = MakeTH1('D', Form("bPlastic/TrailTime/Trail T Plas Det. %2d Ch.%2d",  i,j), Form("Trail - Time Det %2d Ch. %2d", i,j),2500, 0, 2000);
+               
+               
+            hbPlas_ToT_det[i][j] = MakeTH1('D', Form("bPlastic/ToT/ToT Plas Det. %2d Ch. %2d",  i,j), Form("ToT Det. %2d Ch. %2d", i,j),150000, 0., 150000.);   
             
            hbPlas_Energy_Calib[i][j] = MakeTH1('D', Form("bPlastic/Energy_Calib/Energy Calib Plas Det. %2d Ch. %2d",  i,j), Form("Energy Calib Det. %2d Ch. %2d", i,j),150000, 0., 150000.);    
-          } 
-      } 
+            
+          //if(i==bPLAS_TAMEX_ID){    
+            
+//         hbPlas_lead_lead[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead/Lead-Lead Plas Det. %2d Ch.%2d",  i,j), Form("Lead - Lead Det %2d Ch. %2d", i,j),2500, -50000., 50000);  
         
-            
-        for(int i =0; i<bPLAS_TAMEX_NUM; i++){      
-        for (int j =0; j<32; j++)   
-      { 
-          if(i==bPLAS_TAMEX_ID){    
-    //        sprintf(chis,"bPlastic/ToT/ToT Det. %2d Ch.%2d", i,j);    
-    //        sprintf(chead,"TOT Detector %2d Ch. %2d", i,j);   
-    //        hbPlas_ToT[i][j] = MakeTH1('I', chis,chead, 25000, 0., 150000.);  
-            
-    //        sprintf(chis,"bPlastic/ToT_coinc_2chans/ToT_coinc_2Chans. %2d Ch.%2d", i,j);  
-    //        sprintf(chead,"TOT coinc (min 2 channels fired) Detector %2d Ch. %2d", i,j);  
-    //        hbPlas_ToT_coinc[i][j] = MakeTH1('I', chis,chead, 2500, 0., 15000.);  
-            
-    //         sprintf(chis,"bPlastic/ToT_coinc_2dets/ToT_coinc 2Dets. %2d Ch.%2d", i,j);   
-    //        sprintf(chead,"TOT coinc (min 2 channels and 2 detectors fired) Detector %2d Ch. %2d", i,j);  
-    //        hbPlas_ToT_coinc_dets[i][j] = MakeTH1('I', chis,chead, 2500, 0., 15000.); 
-            
-            
-    //        sprintf(chis,"bPlastic/ToT_coinc_2dets_perchan/ToT_coinc 2Dets_perchan. %2d Ch.%2d", i,j);    
-    //        sprintf(chead,"TOT coinc (coincident channels and 2 detectors fired) Detector %2d Ch. %2d", i,j); 
-    //        hbPlas_ToT_coinc_dets_perchan[i][j] = MakeTH1('I', chis,chead, 2500, 0., 15000.); 
-       // hbPlas_ToTCoin[i][j] = MakeTH1('I',Form("bPlastic/TOT_COIN/ToTCoin %2d Ch.%2d",  i,j), 2500, 0., 10000.); 
-            
-        hbPlas_lead_lead[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead/Lead-Lead Plas Det. %2d Ch.%2d",  i,j), Form("Lead - Lead Det %2d Ch. %2d", i,j),2500, -50000., 50000);  
-        
-        hbPlas_lead_lead_ref[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead_Ref/Lead-Lead Plas Det. %2d RefCh. %2d", i,j), Form("Lead Ref Ch.0 - Lead Det.%2d Ch. %2d", i,j),2500, -50000., 50000.); 
+        hbPlas_lead_lead_ref_det1[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead_Ref/Lead-Lead Plas Det. %2d RefCh. %2d", i,j), Form("Lead Ref Ch.0 - Lead Det.%2d Ch. %2d", i,j),2500, -50000., 50000.);
+        hbPlas_lead_lead_ref_det2[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead_Ref/Lead-Lead Plas Det. %2d RefCh. %2d", i,j), Form("Lead Ref Ch.0 - Lead Det.%2d Ch. %2d", i,j),2500, -50000., 50000.);
             
         hbPlas_lead_lead_gated[i][j] = MakeTH1('D', Form("bPlastic/Lead-Lead_Egated/Lead-Lead Egated Plas Det. %2d Ch. %2d",  i,j), Form("Lead - Lead Energy gated Det. %2d Ch.  %2d", i,j),2500, -50000., 50000.); 
-            
-    //     hbPlas_trail_trail[i][j] = MakeTH1('D', Form("bPlastic/Trail-Trail/trail-trail Plas Det. %2d Ch. %2d",  i,j), Form("Trail - Trail Det. %2d Ch. %2d", i,j), 2500, -50000., 50000.);   
-    //      
-        
             
        // hbPlas_SC41L_lead[i][j] = MakeTH1('D', Form("bPlastic/SC41-Lead_Plas/SC41_Lead Plas Det. %2d Ch.%02d", i,j), Form("SC41 Lead - bPlas Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.);    
          hbPlas_SC41L_Anal_lead[i][j] = MakeTH1('D', Form("bPlastic/SC41L_Anal-Lead_bPlas/SC41L_Anal_Lead bPlas Det. %2d Ch.%02d", i,j), Form("SC41L Analogue Lead - bPlas Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.);    
@@ -1603,53 +1354,18 @@ AidaHit EventAnlProc::ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const
             
          hbPlas_SC41R_Digi_lead[i][j] = MakeTH1('D', Form("bPlastic/SC41R_Digi-Lead_bPlas/SC41R_Digi_Lead bPlas Det. %2d Ch.%02d", i,j), Form("SC41R Digital Lead - bPlas Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.);             
         
-        }   
-                        
-        if (i==FAT_TAMEX_ID){   
-           sprintf(chis,"FATIMA_TAMEX/ToT/ToT Fat Det. %2d Ch.%2d", i,j);   
-           sprintf(chead,"TOT Detector %2d Ch. %2d", i,j);  
-           hFATTEMP_ToT[i][j] = MakeTH1('I', chis,chead, 25000, 0., 150000.);   
-                
-    //        sprintf(chis,"FATIMA_TAMEX/ToT_coinc_2dets_perchan/ToT_coinc 2Dets_perchan. %2d Ch.%2d", i,j);    
-    //        sprintf(chead,"TOT coinc (coincident channels and 2 detectors fired) Detector %2d Ch. %2d", i,j); 
-    //        hFATTEMP_ToT_coinc_dets_perchan[i][j] = MakeTH1('I', chis,chead, 2500, 0., 15000.);   
-       // hbPlas_ToTCoin[i][j] = MakeTH1('I',Form("bPlastic/TOT_COIN/ToTCoin %2d Ch.%2d",  i,j), 2500, 0., 10000.); 
-            
-        hFATTEMP_lead_lead[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/Lead-Lead/Lead-Lead Fat Det. %2d Ch.%2d",  i,j), Form("Lead - Lead Det %2d Ch. %2d", i,j),2500, -50000., 50000); 
+          }
+            }
         
-            
-        
-        hFATTEMP_lead_lead_gated[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/Lead-Lead_Egated/Lead-Lead Fat Egated Det. %2d Ch. %2d",  i,j), Form("Lead - Lead Energy gated Det. %2d Ch.  %2d", i,j),2500, -50000., 50000.);    
-            
-    //     hFATTEMP_trail_trail[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/Trail-Trail/trail-trail Fat Det. %2d Ch. %2d",  i,j), Form("Trail - Trail Det. %2d Ch. %2d", i,j), 2500, -50000., 50000.);  
-    //      
-        hFATTEMP_Energy_Calib[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/Energy_Calib/Energy_Calib Fat Det. %2d Ch. %2d",  i,j), Form("Energy Calib Det. %2d Ch. %2d", i,j),2500, -50000., 50000.);        
-            
-        hFATTEMP_SC41L_Anal_lead[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/SC41L_Anal-Lead_Fat/SC41L_Anal_Lead Fat Det. %2d Ch.%02d", i,j), Form("SC41L Analogue Lead - Fat Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.); 
-            
-        hFATTEMP_SC41R_Anal_lead[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/SC41R_Anal-Lead_Fat/SC41R_Anal_Lead Fat Det. %2d Ch.%02d", i,j), Form("SC41R Analogue Lead - Fat Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.); 
-            
-        hFATTEMP_SC41L_Digi_lead[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/SC41L_Digi-Lead_Fat/SC41L_Digi_Lead Fat Det. %2d Ch.%02d", i,j), Form("SC41L Digital Lead - Fat Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.);  
-            
-        hFATTEMP_SC41R_Digi_lead[i][j] = MakeTH1('D', Form("FATIMA_TAMEX/SC41R_Digi-Lead_Fat/SC41R_Digi_Lead Fat Det. %2d Ch.%02d", i,j), Form("SC41R Digital Lead - Fat Lead Det. %2d Lead Ch. %2d ", i,j), 4002, -100000., 100000.);  
-                    }   
-        
-            }   
-        }   
-            
-        for(int j=0; j<16; j++){    
-        hFATTEMP_lead_lead_ref[j] = MakeTH1('D', Form("FATIMA_TAMEX/Lead-Lead_Ref/Lead-Lead Fat RefCh. %2d",j), Form("Lead Ref Ch.0 - Lead Ch. %2d", j),2500, -50000., 50000.); 
-        
-        }   
+                                 
         hSC41_Analogue_Tamex = MakeTH1('D',"bPlastic/SC41/Analogue L-R","SC41 Analogue L - R",4002, -100000., 100000.); 
         hSC41_Digital_Tamex = MakeTH1('D',"bPlastic/SC41/Digital L-R","SC41 Analogue L - R",4002, -100000., 100000.);   
+           
             
-        hbPlas_ToT_Sum_Det1 = MakeTH1('I',"bPlastic/ToT_Sum_Det1","bPlastic Sum Gainmatched ToT Detector 1 ",250000, 0., 1500000.); 
-            
-        hbPlas_ToT_Sum_Det2 = MakeTH1('I',"bPlastic/ToT_Sum_Det2","bPlastic Sum Gainmatched ToT Detector 2 ",250000, 0., 1500000.); 
-            
-        hbPlas_hit_pattern = MakeTH1('D',"bPlastic/Stats/HitPat","Scalar Hit pattern",32,0,32); 
-        hbPlas_num_fired_chans = MakeTH1('D',"bPlastic/Stats/Hits_Chan","bPlastic Multiplicity",32,0,32);   
+        hbPlas_Multiplicity_Det1 = MakeTH1('D',"bPlastic/Stats/Multiplicity_Det1","bPlastic Multiplicity Det 1",32,0,32);   
+        hbPlas_Multiplicity_Det2 = MakeTH1('D',"bPlastic/Stats/Multiplicity_Det2","bPlastic Multiplicity Det 2",32,0,32);   
+       
+      
         
     }   
     /////////////////////////////////////////////////// 
@@ -1658,29 +1374,30 @@ AidaHit EventAnlProc::ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const
         bool fired_det1=false, fired_det2=false;    
         int bPlas_tot_hits; 
        
+         for(int a=1; a<3; a++){
+                 for (int b = 0; b < 16; b++){  
+                     for(int k=0; k<10; k++){
+                        lead_bplas[a][b][k]=0; 
+                        ToT_bplas[a][b][k] = 0;   
+                     }
+                 }
+         }
+         for(int i=0; i<10; i++){
+         bPlas_RefCh0_Det1[i] =0;
+         bPlas_RefCh0_Det2[i] =0;
+         }
         for (int i = 0; i < 48; i++)    
             {   
-                for(int j=0; j<100;j++){    
-                 lead_lead_bplas[i][j]=0;   
-                 lead_lead_fat[i][j]=0; 
-                 lead_lead_bplas_Ref0[i][j]=0;  
+                for(int j=0; j<10;j++){    
+
+                 lead_lead_bplas_Ref1[i][j]=0;  
                  lead_lead_fat_Ref0[i][j]=0;    
-                 trail_trail_bplas[i][j]=0; 
-                 ToT_bplas[i][j] = 0;   
-                 trail_bplas1[i][j] = 0;    
-                 trail_bplas2[i][j] = 0;    
-                 lead_bplas1[i][j]=0;   
-                 lead_bplas2[i][j] =0;  
-    //              SC41_lead_bplas[i][j] = 0;  
-    //              SC41_lead_fat[i][j] = 0;    
+  
                  SC41L_ANA_lead_bPlas[i][j] = 0;    
                  SC41R_ANA_lead_bPlas[i][j] = 0;    
                  SC41L_DIG_lead_bPlas[i][j] = 0;    
                  SC41R_DIG_lead_bPlas[i][j] = 0;    
-                 SC41L_ANA_lead_fat[i][j] = 0;  
-                 SC41R_ANA_lead_fat[i][j] = 0;  
-                 SC41L_DIG_lead_fat[i][j] = 0;  
-                 SC41R_DIG_lead_fat[i][j] = 0;  
+                
                 }   
             }
           
@@ -1688,619 +1405,242 @@ AidaHit EventAnlProc::ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const
         
      ///**---------------------------------------------LEAD -------------------------------------------------**/        
            ///Loop on channels First    
-              
-                                  
-              for (int i = 0; i < 48; i++)  
-            {   
-                for(int j=0; j< pInput->fbPlas_PMT_Lead_N[i]; j++){ 
-              Fat_RefCh[j] = pInput->fbPlas_Lead_PMT[1][j]; 
-              bPlas_RefCh[j] = pInput->fbPlas_Lead_PMT[16][j];  
-                }   
-            }   
+                           
+              for(int i=1; i<3; i++){ ///Detector number
+                 for (int j = 0; j < 16; j++){  ///Channel number 
+                     
+                for(int k=0; k< pInput->fbPlas_PMT_Lead_N[i][j]; k++){ 
+                    //Fat_RefCh[j] = pInput->fFat_Lead_PMT[1][j]; 
+                    bPlas_RefCh0_Det1[k] = pInput->fbPlas_Lead_PMT[1][0][k];
+                    bPlas_RefCh0_Det2[k] = pInput->fbPlas_Lead_PMT[2][0][k];
+            
+                        }      
+                    }
+              }
             ////////////////////////////    
               ///Loop over channels 
-          for (int i = 0; i < 48; i++)  
-            {   
-                 int bplas_detnum =-1;  
-                       if(i>15 && i<32) bplas_detnum=1; 
-                       if(i>31)  bplas_detnum=2;    
-                        
-                pOutput->pbPlas_PMT_Lead_N[i] = pInput->fbPlas_PMT_Lead_N[i];   
-                //Lead T    
-                for(int j=0; j< pInput->fbPlas_PMT_Lead_N[i]; j++){ ///Hits 
-                 //cout<<"j " << j << " pInput->fbPlas_Lead_PMT[1][j] " << pInput->fbPlas_Lead_PMT[1][j]<<" Fat_RefCh[j] " <<Fat_RefCh[j] <<  " i " << i <<endl;    
-                        
+              for(int a=1; a<3; a++){ ///Detector number
+                 for (int b = 0; b < 16; b++){  ///Channel number 
+                     
+ ///**---------------------------------------------Plastic Lead Time ----------------------------------**/    
+                                                            
+                pOutput->pbPlas_PMT_Lead_N[a][b] = pInput->fbPlas_PMT_Lead_N[a][b]; 
+                
+               for(int j=0; j< pInput->fbPlas_PMT_Lead_N[a][b]; j++){ ///Hits 
+
                     
-                    lead_bplas1[i][j] = pInput->fbPlas_Lead_PMT[i][j];      
-                   // cout <<"lead_bplas1[i][j] " <<lead_bplas1[i][j] << " i " << i << " j " << j <<endl;   
+                    lead_bplas[a][b][j] = pInput->fbPlas_Lead_PMT[a][b][j];  
+                    hbPlas_Lead_T[a][b]->Fill(lead_bplas[a][b][j]);
                     hits_bplas_lead++;  
-                    pOutput->pbPlas_LeadT[i][j] = lead_bplas1[i][j];    
+                    pOutput->pbPlas_LeadT[a][b][j] = lead_bplas[a][b][j];    
                     pOutput->pbPlas_LeadHits = hits_bplas_lead; 
-                    pOutput->pbPlas_LeadT_Avg = lead_bplas1[i][j]/hits_bplas_lead;  
+                    pOutput->pbPlas_LeadT_Avg = lead_bplas[a][b][j]/hits_bplas_lead;  
         
         
-    ///**---------------------------------------------Ref channel -------------------------------------------------**/          
-            //Plastic               
-                    if(i>15 && pInput->fbPlas_Lead_PMT[16][j]>0 && pInput->fbPlas_Lead_PMT[i][j]>0) {   
-                     lead_lead_bplas_Ref0[i][j] = (bPlas_RefCh[j] -  pInput->fbPlas_Lead_PMT[i][j]);    
-                     hbPlas_lead_lead_ref[bPLAS_TAMEX_ID][i-16] ->Fill(lead_lead_bplas_Ref0[i][j]);  
-//                      if(j>0){
-//                      cout<<"lead_lead_bplas_Ref0[i][j] " << lead_lead_bplas_Ref0[i][j] << " bPlas_RefCh[j] " <<bPlas_RefCh[j] << " pInput->fbPlas_Lead_PMT[i][j] " << pInput->fbPlas_Lead_PMT[i][j] << " i " << i << " j " << j << " bPLAS_TAMEX_ID " <<bPLAS_TAMEX_ID << endl;    }
-                    }   
-    //                  
-                    
-                   // if(i>15 && pInput->fbPlas_Lead_PMT[31][j]>0 && pInput->fbPlas_Lead_PMT[15][j]>0) {    
+    ///**---------------------------------------------Plastic Lead Ref dT ----------------------------------**/          
+                          
+//                     if(i>15 && pInput->fbPlas_Lead_PMT[16][j]>0 && pInput->fbPlas_Lead_PMT[a][b][j]>0) {   
                 
+        if(bPlas_RefCh0_Det1[j]>0 && lead_bplas[1][b][j]>0){
+            lead_lead_bplas_Ref1[b][j] = (bPlas_RefCh0_Det1[j] -  lead_bplas[1][b][j])*CYCLE_TIME; 
+        }
+        if(bPlas_RefCh0_Det2[j]>0 && lead_bplas[2][b][j]>0){
+                      lead_lead_bplas_Ref2[b][j] = (bPlas_RefCh0_Det2[j] -  lead_bplas[2][b][j])*CYCLE_TIME;
+        }
+                      
+              if(lead_lead_bplas_Ref1[b][j]!=0) hbPlas_lead_lead_ref_det1[1][b] ->Fill(lead_lead_bplas_Ref1[b][j]);
+              if(lead_lead_bplas_Ref2[b][j]!=0) hbPlas_lead_lead_ref_det2[2][b] ->Fill(lead_lead_bplas_Ref2[b][j]);
+           
+                }
+              
+                                
+      ///**---------------------------------------------Plastic Trail ----------------------------------**/  
+                                                            
+                pOutput->pbPlas_PMT_Trail_N[a][b] = pInput->fbPlas_PMT_Trail_N[a][b]; 
                 
-                    // lead_lead_bplas_Ref0[i][j] = (pInput->fbPlas_Lead_PMT[15][j] -  pInput->fbPlas_Lead_PMT[31][j]);   
-            
-        
-                    ///Fatima   
-                        
+               for(int j=0; j< pInput->fbPlas_PMT_Trail_N[a][b]; j++){ ///Hits 
+
                     
+                    trail_bplas[a][b][j] = pInput->fbPlas_Trail_PMT[a][b][j];  
+                    hbPlas_Trail_T[a][b]->Fill(trail_bplas[a][b][j]);
+                    hits_bplas_trail++;  
+                    pOutput->pbPlas_TrailT[a][b][j] = trail_bplas[a][b][j];  
+                     }
+   ///**---------------------------------------------Plastic ToT ----------------------------------**/  
+              for(int j=0; j< pInput->fbPlas_PMT_Lead_N[a][b]; j++){ 
+                  
+                  if(pInput->fbPlas_Trail_PMT[a][b][j] >0 && pInput->fbPlas_Lead_PMT[a][b][j]>0){ 
                 
-                    if(i<8 && Fat_RefCh[j]>0 && pInput->fbPlas_Lead_PMT[i][j]>0){   
-                
-                  lead_lead_fat_Ref0[i][j] = (Fat_RefCh[j] -  pInput->fbPlas_Lead_PMT[i][j]);   
-                    
-                  if(lead_lead_fat_Ref0[i][j]!=0){  
-                     //cout<<"lead_lead_fat_Ref0[i][j] " << lead_lead_fat_Ref0[i][j] << " Fat_RefCh[j] " <<Fat_RefCh[j]<< " pInput->fbPlas_Lead_PMT[i][j] " << pInput->fbPlas_Lead_PMT[i][j] <<" pInput->fbPlas_Lead_PMT[1][j]  " << pInput->fbPlas_Lead_PMT[1][j]  <<" i " << i << " j " << j <<   endl;   
-                        
-                     hFATTEMP_lead_lead_ref[i] ->Fill(lead_lead_fat_Ref0[i][j]);    
-                        }   
-                    }   
-                        
-     ///**--------------------------------------------SCI41 Comparisons -------------------------------------------------**/                     
-                           hSC41_Analogue_Tamex->Fill(bPlas_TAM_SC41L_ANA[j] - bPlas_TAM_SC41R_ANA[j]); 
-                           hSC41_Digital_Tamex->Fill(bPlas_TAM_SC41L_DIG[j] - bPlas_TAM_SC41R_DIG[j]);  
-                            
-                      if (i<8){ 
-                            ///For Fatima SC41L Analogue    
-                                
-               if (bPlas_TAM_SC41L_ANA[j] >0 && lead_bplas1[i][j] >0) SC41L_ANA_lead_fat[i][j] = (bPlas_TAM_SC41L_ANA[j] - lead_bplas1[i][j]);  
-                    
-                if(SC41L_ANA_lead_fat[i][j]>0)  hFATTEMP_SC41L_Anal_lead[FAT_TAMEX_ID][i]->Fill(SC41L_ANA_lead_fat[i][j]);  
-                            
-                                
-                            ///For Fatima SC41R Analogue    
-                            if (bPlas_TAM_SC41R_ANA[j] >0 && lead_bplas1[i][j] >0)SC41R_ANA_lead_fat[i][j] = (bPlas_TAM_SC41R_ANA[j] - lead_bplas1[i][j]);  
-                             hFATTEMP_SC41R_Anal_lead[FAT_TAMEX_ID][i]->Fill(SC41R_ANA_lead_fat[i][j]); 
-                                
-                             ///For Fatima SC41L Digital    
-                            if (bPlas_TAM_SC41L_DIG[j] >0)SC41L_DIG_lead_fat[i][j] = (bPlas_TAM_SC41L_DIG[j] - lead_bplas1[i][j]);  
-                           //  hFATTEMP_SC41L_Anal_lead[FAT_TAMEX_ID][i]->Fill(SC41L_DIG_lead_fat[i][j]);   
-                                
-                              ///For Fatima SC41R Digital   
-                            if (bPlas_TAM_SC41R_DIG[j] >0)SC41R_DIG_lead_fat[i][j] = (bPlas_TAM_SC41R_DIG[j] - lead_bplas1[i][j]);  
-                          //   hFATTEMP_SC41R_Anal_lead[FAT_TAMEX_ID][i]->Fill(SC41R_DIG_lead_fat[i][j]);   
-                             }  
-                                
-                          if(i>15){ 
-                         ///For bPlas SC41L Analogue    
-                           if (bPlas_TAM_SC41L_ANA[j] >0)SC41L_ANA_lead_bPlas[i][j] = (bPlas_TAM_SC41L_ANA[j] - lead_bplas1[i][j]);     
-                           // hbPlas_SC41L_Anal_lead[bPLAS_TAMEX_ID][i]->Fill(SC41L_ANA_lead_bPlas[i][j]);  
-                                
-                         ///For bPlas SC41R Analogue    
-                           if (bPlas_TAM_SC41R_ANA[j] >0)SC41R_ANA_lead_bPlas[i][j] = (bPlas_TAM_SC41R_ANA[j] - lead_bplas1[i][j]);     
-                            // hbPlas_SC41R_Anal_lead[bPLAS_TAMEX_ID][i]->Fill(SC41R_ANA_lead_bPlas[i][j]); 
-                                
-                          ///For bPlas SC41L Digital    
-                           if (bPlas_TAM_SC41L_DIG[j] >0)SC41L_DIG_lead_bPlas[i][j] = (bPlas_TAM_SC41L_DIG[j] - lead_bplas1[i][j]);     
-                           //  hbPlas_SC41L_Digi_lead[bPLAS_TAMEX_ID][i]->Fill(SC41L_DIG_lead_bPlas[i][j]); 
-                                
-                          ///For bPlas SC41R Digital    
-                           if (bPlas_TAM_SC41R_DIG[j] >0)SC41R_DIG_lead_bPlas[i][j] = (bPlas_TAM_SC41R_DIG[j] - lead_bplas1[i][j]);     
-                          //   hbPlas_SC41R_Digi_lead[bPLAS_TAMEX_ID][i]->Fill(SC41R_DIG_lead_bPlas[i][j]);     
-                                
-                          } 
-                            
-                        
-                    ///all Channels compare per detector system 
-                    for (int k=0; k< 48; k++){  
-                        if(i != k && hits_bplas_lead>1){    
-                                
-                             lead_bplas2[k][j] = pInput->fbPlas_Lead_PMT[k][j];     
-        
-        
-        
-        
-                             if (i>15 && k>15 &&  lead_bplas1[i][j] >0 && lead_bplas2[k][j]>0) lead_lead_bplas[i][j] = (lead_bplas1[i][j] -lead_bplas2[k][j]); ///For PLASTIC   
-                            // cout<<"event_number " << pInput->fevent_number << " lead_bplas1[i][j] " << lead_bplas1[i][j] << " lead_bplas1[k][j] " << lead_bplas1[k][j] << " i " << i << " k " << k <<  " lead_lead_bplas[i][j] " << lead_lead_bplas[i][j] << endl;}  
-                                
-                             if (i<8 && k<8 ) lead_lead_fat[i][j] = (lead_bplas1[i][j] -lead_bplas2[k][j]); ///For FATIMA   
-        
-                             lead_lead_bplas[i][j]  = CYCLE_TIME*lead_lead_bplas[i][j]; 
-        
-                             if(lead_lead_bplas[i][j]!=0 && lead_bplas1[i][j]>0 && lead_bplas2[k][j]>0)  {  
-                     if(i>15) hbPlas_lead_lead[bPLAS_TAMEX_ID][i-16] -> Fill(lead_lead_bplas[i][j]);    
-                  } 
-                                if(lead_lead_fat[i][j]!=0 && lead_bplas1[i][j]>0 && lead_bplas2[k][j]>0 && i<8)  {  
-                              hFATTEMP_lead_lead[FAT_TAMEX_ID][i] -> Fill(lead_lead_fat[i][j]);         
-                                }                               
-                            }   
-                          } 
-                       }    
-        
-                //Trail T   
-                for(int j=0; j< pInput->fbPlas_PMT_Trail_N[i]; j++){    
-                    trail_bplas1[i][j] = pInput->fbPlas_Trail_PMT[i][j];    
-                    hits_bplas_trail++; 
-                    pOutput->pbPlas_TrailT[i][j] = trail_bplas1[i][j];  
-                    pOutput->pbPlas_TrailHits = hits_bplas_trail;   
-                    for (int k=0; k< 32; k++){  
-                        if(i != k && hits_bplas_trail>1){   
-                             trail_bplas2[i][j] = pInput->fbPlas_Trail_PMT[k][j];   
-                             if(trail_bplas2[i][j]>0 && j>0){   
-        
-                trail_trail_bplas[i][j] = (trail_bplas1[i][j] - trail_bplas2[k][j]);    
-    //              if (ABS(trail_trail_bplas[i][j]) > (double)(COARSE_CT_RANGE>>1))        // overflow 
-    //                             {    
-    //                             trail_trail_bplas[i][j] = CYCLE_TIME*(trail_trail_bplas[i][j] + COARSE_CT_RANGE) ;   
-    //                         }    
-    //                         else {   
-                                 trail_trail_bplas[i][j]  = CYCLE_TIME*trail_trail_bplas[i][j] ;    
-    //                         }    
-                    
-              /*  if(i>15) hbPlas_trail_trail[bPLAS_TAMEX_ID][i-16] -> Fill(trail_trail_bplas[i][j]);       
-                else  hbPlas_trail_trail[FAT_TAMEX_ID][i] -> Fill(trail_trail_bplas[i][j]);    */   
-                            }   
-                        }   
-                    }   
-                }   
-                //ToT (~Energy) 
-              for(int j=0; j< pInput->fbPlas_PMT_Lead_N[i]; j++){   
-                  if(pInput->fbPlas_Trail_PMT[i][j] >0 && pInput->fbPlas_Lead_PMT[i][j]>0){ 
-                
-                      ToT_bplas[i][j] = (pInput->fbPlas_Trail_PMT[i][j] - pInput->fbPlas_Lead_PMT[i][j]);   
+        ToT_bplas[a][b][j] = (pInput->fbPlas_Trail_PMT[a][b][j] - pInput->fbPlas_Lead_PMT[a][b][j]);   
                     
                 ///Correction for overflows 
-                if(ABS( ToT_bplas[i][j]) >(double)(COARSE_CT_RANGE>>1)) {   
+                if(ABS(ToT_bplas[a][b][j]) >(double)(COARSE_CT_RANGE>>1)) {   
                     
-                       ToT_bplas[i][j] = CYCLE_TIME*(ToT_bplas[i][j] + COARSE_CT_RANGE);    
+                       ToT_bplas[a][b][j] = CYCLE_TIME*(ToT_bplas[a][b][j] + COARSE_CT_RANGE);    
                       } 
                  else{  
-                           ToT_bplas[i][j]= CYCLE_TIME*ToT_bplas[i][j];                         
+                           ToT_bplas[a][b][j]= CYCLE_TIME*ToT_bplas[a][b][j];                         
                        }    
-                                
-                      if(ToT_bplas[i][j]>0) {   
-                          hbPlas_hit_pattern->Fill(i);  
+                       ///Gain matching  
+               // pOutput-> pbPlas_ToTCalib[a][b][j] = fCal->Abplas_TAMEX[i]* ToT_bplas[a][b][j] + fCal->Bbplas_TAMEX[i];
+               pOutput-> pbPlas_ToTCalib[a][b][j] =ToT_bplas[a][b][j];
+                       if(ToT_bplas[a][b][j]>0) {
+                        hbPlas_ToT_det[a][b] ->Fill(ToT_bplas[a][b][j]);   
+                        hbPlas_ToT_Sum[a]->Fill(ToT_bplas[a][b][j]);   
+                        hbPlas_hit_pattern_det[a]->Fill(b);  
+                    
                           bPlas_tot_hits++; 
-                
-                        //   if(i>31)      cout<<"i " << i <<" ToT_bplas[i][j] " << ToT_bplas[i][j]<<  endl;    
-                    
-                        
-                        
-             if(bplas_detnum==1)   hbPlas_ToT_det[bplas_detnum][i-16] ->Fill(ToT_bplas[i][j]);  
-             if(bplas_detnum==2) hbPlas_ToT_det[bplas_detnum][i-32] ->Fill(ToT_bplas[i][j]);    
-                        
-                   // else {    
-                   //     if(ToT_bplas[i][j]>0){    
-                            
-                      if(i<16)  hFATTEMP_ToT[FAT_TAMEX_ID][i] ->Fill(ToT_bplas[i][j]); //raw Energy 
-                      //  if(i==10 || i ==11){  
-                      //    cout<<"ANALYSIS SCI " <<pOutput->pEvent_Number <<  " ToT_bplas[i][j] " << ToT_bplas[i][j] << " i " << i << endl;}   
-                        }   
-                  //  } 
-                        
-                  ///Gain matching  
-                  pOutput-> pbPlas_ToTCalib[i] = fCal->Abplas_TAMEX[i]* ToT_bplas[i][j] + fCal->Bbplas_TAMEX[i];    
-            //cout<<" ToT_bplas[i][j] " << ToT_bplas[i][j] << " pbPlas_ToTCalib[i] " <<pOutput->pbPlas_ToTCalib[i] << " fCal->Abplas_TAMEX[i] " <<  fCal->Abplas_TAMEX[i] << " fCal->Bbplas_TAMEX[i] " <<fCal->Bbplas_TAMEX[i] <<" i " << i <<  endl; 
-            
-                  if(i>15) {    
-                        
-               if(bplas_detnum==1)  {   
-                   hbPlas_Energy_Calib[bplas_detnum][i-16]->Fill(pOutput-> pbPlas_ToTCalib[i]); 
-               hbPlas_ToT_Sum_Det1->Fill(pOutput-> pbPlas_ToTCalib[i]); 
-               }    
-                
-               if(bplas_detnum==2) {    
-                   hbPlas_Energy_Calib[bplas_detnum][i-32]->Fill(pOutput-> pbPlas_ToTCalib[i]);                 
-                   hbPlas_ToT_Sum_Det2->Fill(pOutput-> pbPlas_ToTCalib[i]); 
-               }    
-                    //cout<<"1 event " << pInput->fevent_number<<" pOutput-> pbPlas_ToTCalib[i]/5 " << pOutput-> pbPlas_ToTCalib[i]/5 << " i " << i << endl;    
-                            
-                  } 
-                  else {    
-                        
-                    hFATTEMP_Energy_Calib[FAT_TAMEX_ID][i]->Fill(pOutput-> pbPlas_ToTCalib[i]); 
-        
-                  } 
-                  ///Lead-Lead Energy gating    
-               for (int k=0; k< 32; k++){   
-                   if(i != k && pOutput->pbPlas_LeadHits>1 ){   
-                       if(pOutput->pbPlas_LeadT[k][j]>0){   
-                             ///Temp E gate 
-                             if(ToT_bplas[0][j]>27806 && ToT_bplas[0][j]<28537){    
-                            
-                  if(pOutput->pbPlas_LeadT[i][j] >0 && pOutput->pbPlas_LeadT[k][j] >0){ 
-                lead_lead_bplas_gated[i][j] = (pOutput->pbPlas_LeadT[i][j]  -  pOutput->pbPlas_LeadT[k][j])*5000; ///into ps    
-                    
-               if(i>15) hbPlas_lead_lead_gated[bPLAS_TAMEX_ID][i-16] -> Fill(lead_lead_bplas_gated[i][j]);  
-               else hFATTEMP_lead_lead_gated[FAT_TAMEX_ID][i] -> Fill(lead_lead_bplas_gated[i][j]); 
-                     }  
-                   }    
-                 }  
-               }        
-             }  
-           }    
-         }      
-       }    
-       /*for(int i=0; i<32; i++){   
-        if(i>15 &&bPlas_tot_hits>1) fired_det1=true;    
-        if(i<16 &&bPlas_tot_hits>1) fired_det2=true;    
-    //     cout<<"event " << pInput->fevent_number << " pOutput-> pbPlas_ToTCalib[i] "<<pOutput-> pbPlas_ToTCalib[i] << " i " << i <<" fired_det1 " << fired_det1 << " fired_det2 " << fired_det2 <<" bPlas_tot_hits " << bPlas_tot_hits<<endl; 
-    //     if(fired_det1==true && pOutput-> pbPlas_ToTCalib[i]>0)   
-    //         hbPlas_ToT_coinc[bPLAS_TAMEX_ID][i] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5); //coincident Energy  
-    //      
-    //     if(fired_det2==true && pOutput-> pbPlas_ToTCalib[i]>0)   
-    //         hbPlas_ToT_coinc[FAT_TAMEX_ID][i-16] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5); //coincident Energy 
-    //      
-    //     if(fired_det1==true &&fired_det2==true ){    
-    //       if(i<16)  hbPlas_ToT_coinc_dets[bPLAS_TAMEX_ID][i] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5); 
-    //       else  hbPlas_ToT_coinc_dets[FAT_TAMEX_ID][i-16] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5);    
-    //          
-    //     }    
-    //     if(pOutput-> pbPlas_ToTCalib[i]/5>0 && pOutput-> pbPlas_ToTCalib[i+16]/5>0){ 
-    //        if(i<16) hbPlas_ToT_coinc_dets_perchan[bPLAS_TAMEX_ID][i] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5); 
-    //        else hbPlas_ToT_coinc_dets_perchan[FAT_TAMEX_ID][i-16] ->Fill(pOutput-> pbPlas_ToTCalib[i]/5);    
-    //          
-    //        // cout<<"3 event " << pInput->fevent_number<< " i " << i <<" ToTCalib[i] " << pOutput-> pbPlas_ToTCalib[i]/5 << " ToTCalib[i+16] " << pOutput-> pbPlas_ToTCalib[i+16]/5 <<  endl;    
-    //     }    
-       }*/  
-        
-      hbPlas_num_fired_chans->Fill(bPlas_tot_hits); 
-        
-            
-       hits_bplas_lead=0;   
-       //bPlas_tot_hits=0;  
-         
+          
+                         if(a==1) hbPlas_Multiplicity_Det1->Fill(bPlas_tot_hits);
+                         if(a==2) hbPlas_Multiplicity_Det2->Fill(bPlas_tot_hits);
+                            }
+                        }         
+                    }
+                 }
+              }
+            }
+    
+    /**-----------------------------------------------------------------------------------------------**/
+    /**--------------------------------------  FATIMA TAMEX ------------------------------------------**/
+    /**-----------------------------------------------------------------------------------------------**/
+ void EventAnlProc::Make_Fatima_Tamex_Histos(){
+     
+     for(int i=0; i<48; i++){ 
+         hFat_Lead_T[i] =  MakeTH1('D', Form("FATIMA_TAMEX/LeadT/Lead Time Ch.%2d",i), Form("Lead time. %2d",i), 5000,0,5000);
+         hFat_Trail_T[i] =  MakeTH1('D', Form("FATIMA_TAMEX/TrailT/Trail Time Ch.%2d",i), Form("Trail time. %2d",i), 5000,0,5000);
+         hFat_lead_lead_ref[i] =   MakeTH1('D', Form("FATIMA_TAMEX/LeadRef-Lead/Lead-Lead Time Ref Ch1- Ch.%2d",i), Form("RefLead-Lead time. %2d",i), 1000,-10000,10000);
+         hFat_ToT_det[i]=   MakeTH1('D', Form("FATIMA_TAMEX/LeadRef-Lead/Lead-Lead Time Ref Ch1- Ch.%2d",i), Form("RefLead-Lead time. %2d",i), 15000,0,150000);        
      }
-  /**----------------------------------------------------------------------------------------------**/
- /**--------------------------------------  FATIMA VME (QDC) AND TAMEX -----------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-// void EventAnlProc::Make_Fatima_VME_Tamex_Histos(){
-//
-//
-//     for (int i =0; i<50; i++)
-//   {
-//     hFAT_ToT[i] = MakeTH1('D', Form("FATIMA/TAMEX/ToT/ToT_Ch.%02d", i), Form("TOT Detector %2d", i), 16250, 0., 65000.);
-//     hFAT_lead_lead[i] = MakeTH1('D', Form("FATIMA/TAMEX/Lead-Lead/Lead-LeadCh.%02d", i), Form("Lead - Lead Ch. %2d", i),2500, -50000., 50000);
-//     hFAT_lead_lead_ref[i] = MakeTH1('D', Form("FATIMA/TAMEX/Lead-Lead_Ref/Lead-LeadRefCh.%02d", i), Form("Lead Ref Ch.0 - Lead Ch. %2d", i),2500, -50000., 50000.);
-//
-//
-//     hFAT_lead_lead_QDC_Gate[i] = MakeTH1('D', Form("FATIMA/Combined/Lead-Lead_QDCGate/Lead-Lead_QDCGateCh.%02d", i), Form("Lead - Lead QDC energy Gated Ch. %2d", i),2500, -50000., 50000);
-// //     hFAT_lead_lead_gated[i] = MakeTH1('D', Form("FATIMA/TAMEX/Lead-Lead_Egated/Lead-Lead_Egated_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-// //     hFAT_lead_lead_gated1[i] = MakeTH1('D', Form("FATIMA/TAMEX/Lead-Lead_Egated1/Lead-Lead_Egated1_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-// //     hFAT_lead_lead_gated2[i] = MakeTH1('D', Form("FATIMA/TAMEX/Lead-Lead_Egated2/Lead-Lead_Egated2_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-//
-//     hFAT_lead_lead_energy[i] = MakeTH2('D',Form("FATIMA/TAMEX/Lead-Lead_energy/Energy_vs._dT/Energy_vs._dT_Ch.%02d", i),Form("Fatima Energy vs Lead-Lead.%02d", i),500,0,2000, 160, -40000., 40000);
-//
-//     hFAT_trail_trail[i] = MakeTH1('D', Form("FATIMA/TAMEX/Trail-Trail/trail-trailCh.%02d", i), Form("Trail - Trail Ch. %2d", i), 2500, -50000., 50000.);
-//
-//    // hFAT_Sc41lead_leadmaxtot[i] = MakeTH1('D', Form("FATIMA/Sc41-LeadMaxToT/SC41Lead_LeadCh.%02d", i), Form("SC41 Lead - (max ToT chan) Lead %2d ", i), 4002, -100000., 100000.);
-//
-//     ///VME
-//
-//     hFAT_QDCCalib1[i] =  MakeTH1('D', Form("FATIMA/VME/Energy/EnergyCalib/LaBr_ECalib_Ch.%2d",i), Form("QDC Calib Ch. %2d",i), 4000,0,4000);
-//     }
-//
-//     hFAT_QDCCalib1Sum = MakeTH1('D', "FATIMA/VME/Energy/Fat_VME_EnergySum", "LaBr Energy (all detectors)",40000,0,40000);
-//     hFAT_hits_QDC       = MakeTH1('D', "FATIMA/VME/Stats/QDC_FAThits", "bPlastic hit pattern QDC1",50,0,50);
-//
-//
-//     hFAT_gamma_gamma = MakeTH2('D', "FATIMA/Gamma-Gamma/Sum", "FATIMA Gamma-Gamma (all detectors)",6500,0,65000, 6500,0,65000);
-//     }
- /**----------------------------------------------------------------------------------------------**/
+          hFat_ToT_Sum= MakeTH1('D', "FATIMA_TAMEX/ToTSum", "ToT LaBr (all detectors)",15000,0,150000);
+          hFat_tamex_hit_pattern =  MakeTH1('D', "FATIMA_TAMEX/Fatima_Hitpattern", "Fatima Hit pattern",48,0,48);  
+          hFat_tamex_multiplicity =  MakeTH1('D', "FATIMA_TAMEX/Fatima_Multiplicity", "Fatima Multiplicity",48,0,48);  
+ }
+ 
+ 
+//-----------------------------------------------------------------------------------------------//
+void EventAnlProc::Do_Fatima_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput){   
+          
+        //bool fired_det1=false, fired_det2=false;    
+        int Fat_tot_hits; 
+       
+        // for(int a=1; a<3; a++){
+                 for (int i = 0; i < 48; i++){  
+                     for(int j=0; j<10; j++){
+                        lead_fat[i][j]=0; 
+                        ToT_fat[i][j] = 0; 
+                        lead_lead_fat_Ref1[i][j]=0;
+//                         SC41L_ANA_lead_fat[i][j] = 0;  
+//                         SC41R_ANA_lead_fat[i][j] = 0;  
+//                         SC41L_DIG_lead_fat[i][j] = 0;  
+//                         SC41R_DIG_lead_fat[i][j] = 0;  
+                     }
+                 }
+         
+         for(int i=0; i<10; i++){
+         FatTam_RefCh0[i] =0;
+         SC41L_ANA_lead_fat[i] =0;
+         SC41R_ANA_lead_fat[i] =0;
+        bPlasDet1_coin_lead_Fat[i] =0;
+        bPlasDet2_coin_lead_Fat[i] =0;
+         
+         }
+                
+     ///**---------------------------------------------LEAD -------------------------------------------------**/        
+           ///Loop on channels First    
+                           
+              for(int i=0; i<48; i++){ ///Channel number
+                 for (int j = 0; j < pInput->fFat_PMT_Lead_N[i]; j++){  ///Hit 
+                     
+                    
+                    FatTam_RefCh0[j] = pInput->fFat_Lead_PMT[1][j];
+                    SC41L_ANA_lead_fat[j]=pInput->fFat_Lead_PMT[4][j];
+                    SC41R_ANA_lead_fat[j]=pInput->fFat_Lead_PMT[5][j];
+                    bPlasDet1_coin_lead_Fat[j]=pInput->fFat_Lead_PMT[6][j];
+                    bPlasDet2_coin_lead_Fat[j]=pInput->fFat_Lead_PMT[7][j];
+                 
+                   
+                        }      
+              }
+            ////////////////////////////    
+              ///Loop over channels 
+              for(int i=0; i<FATIMA_TAMEX_CHANNELS; i++){ ///Channel number
+                
+                     
+ ///**---------------------------------------------Fatima Lead Time ----------------------------------**/    
+   
+                for (int j = 0; j < pInput->fFat_PMT_Lead_N[i]; j++){  ///Hit 
 
-// void EventAnlProc::Do_Fatima_VME_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput){
-//     double lead_lead_fat[50], trail_trail_fat[50];
-//     double ToT_fat[50];
-//     double lead_fat1[50], lead_fat2[50] ;
-//     double trail_fat1[50], trail_fat2[50];
-//     double  lead_lead_fat_Ref0[50];
-//     double lead_lead_fat_gated[50], lead_lead_fat_gated1[50], lead_lead_fat_gated2[50];
-//     int hits_fat_lead = 0, hits_fat_trail=0;
-//     double Fat_QDC_GainMatch[50];
-//
-//
-//     int Fat_QDC_IDMain_i = 0;
-//     for (int i = 0; i < 50; i++)
-//         {
-//              Fat_QDC_GainMatch[i] = 0;
-//              lead_lead_fat[i]=0;
-//              lead_lead_fat_Ref0[i]=0;
-//              trail_trail_fat[i]=0;
-//              ToT_fat[i] = 0;
-//              trail_fat1[i] = 0;
-//              trail_fat2[i] = 0;
-//              lead_fat1[i] =0;
-//              lead_fat2[i] =0;
-//
-//              lead_lead_fat_gated[i] = 0;
-//              lead_lead_fat_gated1[i] = 0;
-//              lead_lead_fat_gated2[i] = 0;
-//
-//         }
-//         pOutput->pFat_firedQDC_Comb = pInput->fFat_firedQDC;
-//         ///VME QDC
-//         for (int i=0; i< pInput->fFat_firedQDC; i++){
-//
-//         Fat_QDC_IDMain_i = pInput->fFat_QDC_ID[i];
-//         pOutput->pFat_QDC_ID_Comb[i] = pInput->fFat_QDC_ID[i];
-//        // cout<<"pInput->fFat_QDC_E[i] " << pInput->fFat_QDC_E[i] << " pInput->fFat_firedQDC " << pInput->fFat_firedQDC <<" Fat_QDC_IDMain_i " << Fat_QDC_IDMain_i <<endl;
-//
-//         ///Gainmatched Energy
-//         Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = fCal->Afat[Fat_QDC_IDMain_i]* pow( pInput->fFat_QDC_E[i],3) + fCal->Bfat[Fat_QDC_IDMain_i]* pow( pInput->fFat_QDC_E[i],2) + fCal->Cfat[Fat_QDC_IDMain_i]* pInput->fFat_QDC_E[i] + fCal->Dfat[Fat_QDC_IDMain_i];
-//
-//          hFAT_QDCCalib1[i]->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
-//          hFAT_QDCCalib1Sum->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
-//          hFAT_hits_QDC->Fill(Fat_QDC_IDMain_i);
-//         pOutput-> pFat_QDC_E_Comb[Fat_QDC_IDMain_i] = Fat_QDC_GainMatch[Fat_QDC_IDMain_i];
-//         }
-//         ///Loop on channels
-//       for (int i = 0; i < 50; i++)
-//         {
-//             ///Lead T
-//             for(int j=0; j< pInput->fFat_PMT_Lead_N[i]; j++){
-//                 lead_fat1[i] = pInput->fFat_Lead_PMT[i][j];
-//                 hits_fat_lead++;
-//                 pOutput->pFat_LeadT[i][j] = lead_fat1[i];
-//                 pOutput->pFat_LeadHits = hits_fat_lead;
-//
-//                 ///Ref channel 0
-//                 if(pInput->fFat_Lead_PMT[0][j]>0 && pInput->fFat_Lead_PMT[i][j]>0&& hits_fat_lead>1){
-//                 lead_lead_fat_Ref0[i] = (pInput->fFat_Lead_PMT[0][j] -  pInput->fFat_Lead_PMT[i][j])*5000;
-//
-//                 hFAT_lead_lead_ref[i] ->Fill(lead_lead_fat_Ref0[i]);
-//                 }
-//
-//                 ///all Dets compare
-//                 for (int k=0; k< 50; k++){
-//                     if(i != k && hits_fat_lead>1){
-//                          lead_fat2[k] = pInput->fFat_Lead_PMT[k][j];
-//
-//                     lead_lead_fat[i] = (lead_fat1[i] - lead_fat2[k]);
-//                         if (ABS(lead_lead_fat[i]) > (double)(COARSE_CT_RANGE>>1))        // overflow
-//                             {
-//                             lead_lead_fat[i] = CYCLE_TIME*(lead_lead_fat[i]  + COARSE_CT_RANGE);
-//                         }
-//                          else {
-//                              lead_lead_fat[i]  = CYCLE_TIME*lead_lead_fat[i];
-//                          }
-//
-//                          if(lead_lead_fat[i]!=0 && lead_fat1[i]>1 && lead_fat2[k]>1 ) {
-//                              ///Fill Lead-Lead
-//                              hFAT_lead_lead[i] -> Fill(lead_lead_fat[i]);
-//
-//                        ///      QDC Energy Gates
-//                     if( pOutput-> pFat_QDC_E_Comb[0]>200 && pOutput-> pFat_QDC_E_Comb[0]<220 && pOutput-> pFat_QDC_E_Comb[1]>235 && pOutput-> pFat_QDC_E_Comb[1]<255){
-//                                  hFAT_lead_lead_QDC_Gate[i] -> Fill(lead_lead_fat[i]);
-//
-//                          }
-//          //cout<<"event " << event_number << " lead_lead_fat[i] " <<lead_lead_fat[i]<<" lead_fat1[i] " << lead_fat1[i] << " lead_fat2[k] "<<lead_fat2[k]  << " i " << i <<endl;
-//                       }
-//                     }
-//                 }
-//             }
-//             ///Trail T
-//             for(int j=0; j< pInput->fFat_PMT_Trail_N[i]; j++){
-//                 trail_fat1[i] = pInput->fFat_Trail_PMT[i][j];
-//                 hits_fat_trail++;
-//                 pOutput->pFat_TrailT[i][j] = trail_fat1[i];
-//                 pOutput->pFat_TrailHits = hits_fat_trail;
-//                 for (int k=0; k< 50; k++){
-//                     if(i != k && hits_fat_trail>1){
-//                          trail_fat2[i] = pInput->fFat_Trail_PMT[k][j];
-//                          if(trail_fat2>0 && j>0){
-//
-//             trail_trail_fat[i] = (trail_fat1[i] - trail_fat2[i]);
-//             if (ABS(trail_trail_fat[i]) > (double)(COARSE_CT_RANGE>>1))        // overflow
-//                             {
-//                             trail_trail_fat[i] = CYCLE_TIME*(trail_trail_fat[i] + COARSE_CT_RANGE);
-//                         }
-//              else {
-//                             trail_trail_fat[i]  = CYCLE_TIME*trail_trail_fat[i];
-//                         }
-//
-//             hFAT_trail_trail[i] -> Fill(trail_trail_fat[i]);
-//                         }
-//                     }
-//                 }
-//             }
-//             ///ToT (~Energy)
-//           for(int j=0; j< pInput->fFat_PMT_Lead_N[i]; j++){
-//            //   if(pInput->fFat_Trail_PMT[i][j] >0 && pInput->fFat_Lead_PMT[i][j]>0){
-//                 ToT_fat[i] = (pInput->fFat_Trail_PMT[i][j] - pInput->fFat_Lead_PMT[i][j]);
-//
-//                 ///Correction for overflows
-//             if(ABS(ToT_fat[i]) >(double)(COARSE_CT_RANGE>>1)) {
-//                    ToT_fat[i] = CYCLE_TIME*(ToT_fat[i] + COARSE_CT_RANGE);
-//             }
-//              else{
-//                         ToT_fat[i]= CYCLE_TIME*ToT_fat[i];
-//                    }
-// //
-//  //cout<<"pInput->fFat_Trail_PMT[i][j]  " <<pInput->fFat_Trail_PMT[i][j] << " pInput->fFat_Lead_PMT[i][j] " << pInput->fFat_Lead_PMT[i][j] <<" ToT_fat[i] " << ToT_fat[i] << endl;
-//                     hFAT_ToT[i] ->Fill(ToT_fat[i]); //raw Energy
-//
-//       }
-//    }
-// }
-
-
- /**----------------------------------------------------------------------------------------------**/
- /**--------------------------------------  FATIMA VME ----------------------------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-void EventAnlProc::FAT_det_pos_setup(){
-
-    FAT_positions   = new double*[36];
-    FAT_neighbour_check = new bool*[36];
-    FAT_angle_diffs = new double*[36];
-
-    for(int i = 0; i < 36; ++i){
-    FAT_positions[i] = new double[3];
-    FAT_angle_diffs[i] = new double[36];
-    FAT_neighbour_check[i] = new bool[36];
-    for (int j = 0; j < 3; ++j) FAT_positions[i][j] = -1;
-    for (int k = 0; k < 36; ++k){
-
-        FAT_neighbour_check[i][k] = true;
-
-        FAT_angle_diffs[i][k] = -1;
-
-            }
-    }
-
-    const char* format = "%d %lf %lf %lf";
-
-    ifstream file("Configuration_Files/FATIMA_Detector_Positions.txt");
-
-    if(file.fail()){
-        cerr << "Could not find FATIMA Detector Positions File!" << endl;
-        exit(0);
-    }
-
-    string line;
-    int pos_num;
-    double r, theta, phi;
-
-    while(file.good()){
-        getline(file,line,'\n');
-        if(line[0] == '#') continue;
-        sscanf(line.c_str(),format, &pos_num, &r, &theta, &phi);
-
-        FAT_positions[pos_num][0] = r;
-        FAT_positions[pos_num][1] = theta;
-        FAT_positions[pos_num][2] = phi;
-
-    }
-
-    if(FAT_nearest_neighbour_exclusion){
-
-    for(int i = 0; i < 36; ++i){
-
-        if(i%12 == 11) FAT_neighbour_check[i][(i-11)] = false; // Same Ring Rignt
-        else FAT_neighbour_check[i][(i+1)] = false; // Same Ring Right
-        if(i%12 == 0) FAT_neighbour_check[i][i+11] = false; // Same Ring Left
-        else FAT_neighbour_check[i][(i-1)] = false; // Same Ring Left
-
-        if(!same_ring_exclusion){
-
-        if(i < 12){
-
-            FAT_neighbour_check[i][(i+12)] = false; // Middle Ring Left
-
-            if(i == 12) FAT_neighbour_check[i][(i+1)] = false; // Middle Ring Left for 11
-
-            else FAT_neighbour_check[i][(i+13)] = false; // Middle Ring Right
+                    lead_fat[i][j] = pInput->fFat_Lead_PMT[i][j];  
+                    hFat_Lead_T[i]->Fill(lead_fat[i][j]);
+                    hits_fat_lead++;  
+                    pOutput->pFat_LeadT[i][j] = lead_fat[i][j];    
+                    pOutput->pFat_LeadHits = hits_fat_lead; 
+                   // cout<<"lead_fat[i][j] " << lead_fat[i][j]<< " i " << i << " j " << j <<endl;
+        
+        
+    ///**---------------------------------------------Fatima Lead Ref dT ----------------------------------**/          
+                          
+//                     if(i>15 && pInput->fFat_Lead_PMT[16][j]>0 && pInput->fFat_Lead_PMT[i][j]>0) {   
+                
+        if(FatTam_RefCh0[j]>0 && lead_fat[i][j]>0){
+            lead_lead_fat_Ref1[i][j] = (FatTam_RefCh0[j] -  lead_fat[i][j])*CYCLE_TIME; 
+//             cout<<"pOutput->Event_Number " << pOutput->pEvent_Number << " FatTam_RefCh0[j] " << FatTam_RefCh0[j] << " lead_fat[i][j] " << lead_fat[i][j] <<" lead_lead_fat_Ref1[i][j] " <<lead_lead_fat_Ref1[i][j] <<  " i " << i << " j  " << j << endl;
         }
-        if(i > 11 && i < 24){
-
-            FAT_neighbour_check[i][(i+12)] = false; // Upper Outer Ring
-            FAT_neighbour_check[i][(i-12)] = false; // Lower Outer Ring
-
-            if(i == 12){
-             FAT_neighbour_check[i][(i+23)] = false; // Upper Outer Ring
-             FAT_neighbour_check[i][(i-1)] = false; // Lower Outer Ring
-            }
-            else{
-            FAT_neighbour_check[i][(i+11)] = false; // Upper Outer Ring
-            FAT_neighbour_check[i][(i-13)] = false; // Lower Outer Ring
-            }
-        }
-        if(i > 23){
-
-            FAT_neighbour_check[i][(i-12)] = false; // Middle Ring Left
-
-            if(i == 35) FAT_neighbour_check[i][(i-23)] = false; // Middle Ring Left for 35
-
-            else FAT_neighbour_check[i][(i-11)] = false; // Middle Ring Right
+        
+                      
+              if(lead_lead_fat_Ref1[i][j]!=0) hFat_lead_lead_ref[i] ->Fill(lead_lead_fat_Ref1[i][j]);
+          
+           
                 }
-            }
-        }
-    }
+                
+              
+                                
+      ///**---------------------------------------------Plastic Trail ----------------------------------**/  
+                                                            
+               // pOutput->pFat_PMT_Trail_N[a][b] = pInput->fFat_PMT_Trail_N[a][b]; 
+                
+               for(int j=0; j< pInput->fFat_PMT_Trail_N[i]; j++){ ///Hits 
 
-    ofstream output_position_matrix_file;
-    output_position_matrix_file.open ("Configuration_Files/FATIMA_Exclusion_Matrix.txt");
-    cout<<endl;
-    cout << "============================================================" << endl;
-    cout << "A Matrix of excluded detector pairings can be found in" << endl;
-    cout << "'Configuration_Files/FATIMA_Exclusion_Matrix.txt'"<<endl;
-    cout << "============================================================" << endl;
-    cout<<endl;
-
-    if (output_position_matrix) output_position_matrix_file <<"        "<<"0 "<<"1 "<<"2 "<<"3 "<<"4 "<<"5 "<<"6 "<<"7 "<<"8 "
-            <<"9 "<<"10 "<<"11 "<<"12 "<<"13 "<<"14 "<<"15 "<<"16 "<<"17 "
-            <<"18 "<<"19 "<<"20 "<<"21 "<<"22 "<<"23 "<<"24 "<<"25 "<<"26 "
-            <<"27 "<<"28 "<<"29 "<<"30 "<<"31 "<<"32 "<<"33 "<<"34 "<<"35 "<<endl;
-
-    for(int i = 0; i < 36; ++i){
-
-    if (i >= 10 && output_position_matrix) output_position_matrix_file <<"Det "<<i<<": ";
-    if (i < 10  && output_position_matrix) output_position_matrix_file <<"Det "<<i<<" : ";
-
-    for (int k = 0; k < 36; ++k){
-
-        if(k > 9 && output_position_matrix) output_position_matrix_file<<" ";
-
-        double dist = distance_between_detectors( FAT_positions[i][0],  FAT_positions[i][1],  FAT_positions[i][2],
-                              FAT_positions[k][0],  FAT_positions[k][1],  FAT_positions[k][2]);
-
-        double angle = angle_between_detectors(FAT_positions[i][0], FAT_positions[k][0], dist);
-
-        FAT_angle_diffs[i][k] = angle;
-
-        if((dist < FAT_exclusion_dist && (((i < 12 && k < 12) ||
-                        (i < 24 && i > 11 && k < 24 && k > 11) ||
-                        (i > 23 && k > 23)) || !same_ring_exclusion )) || i == k ){
-
-
-         FAT_neighbour_check[i][k] = false;
-
-        }
-
-
-        if (output_position_matrix && !FAT_neighbour_check[i][k]) output_position_matrix_file<<"X ";
-
-        else if(output_position_matrix && FAT_neighbour_check[i][k]) output_position_matrix_file<<"0 ";
-
-    }
-
-    if (output_position_matrix) output_position_matrix_file<<endl;
-
-    }
-
-    output_position_matrix_file.close();
-
-}
-//-----------------------------------------------------------------------------------------------------------------------------//
-
-double EventAnlProc::distance_between_detectors(double _r, double _theta, double _phi, double r_, double theta_, double phi_){
-
-    _theta = _theta * M_PI/180.0;
-    theta_ = theta_ * M_PI/180.0;
-
-    _phi = _phi * M_PI/180.0;
-    phi_ = phi_ * M_PI/180.0;
-
-    double dist = sqrt(_r*_r + r_*r_ - 2.0*_r*r_*(sin(_theta)*sin(theta_)*cos(_phi - phi_) + cos(_theta)*cos(theta_)));
-
-    return dist;
-
-
-}
-//-----------------------------------------------------------------------------------------------------------------------------//
-double EventAnlProc::angle_between_detectors(double _r, double r_, double dist_){
-
-
-    double angle_diff = acos((_r*_r + r_*r_ - dist_*dist_)/(2.0*_r*r_));
-
-    angle_diff = angle_diff * 180.0/M_PI;
-
-    return angle_diff;
-
-}
-//-----------------------------------------------------------------------------------------------------------------------------//
+                    
+                    trail_fat[i][j] = pInput->fFat_Trail_PMT[i][j];  
+                    hFat_Trail_T[i]->Fill(trail_fat[i][j]);
+//                    hits_fat_trail++;  
+                    pOutput->pFat_TrailT[i][j] = trail_fat[i][j];  
+                     }
+   ///**---------------------------------------------Plastic ToT ----------------------------------**/  
+              for(int j=0; j< pInput->fFat_PMT_Lead_N[i]; j++){ 
+                  
+                  if(pInput->fFat_Trail_PMT[i][j] >0 && pInput->fFat_Lead_PMT[i][j]>0){ 
+                
+        ToT_fat[i][j] = (pInput->fFat_Trail_PMT[i][j] - pInput->fFat_Lead_PMT[i][j]);   
+                    
+                ///Correction for overflows 
+                if(ABS(ToT_fat[i][j]) >(double)(COARSE_CT_RANGE>>1)) {   
+                    
+                       ToT_fat[i][j] = CYCLE_TIME*(ToT_fat[i][j] + COARSE_CT_RANGE);    
+                      } 
+                 else{  
+                           ToT_fat[i][j]= CYCLE_TIME*ToT_fat[i][j];                         
+                       }    
+                       ///Gain matching  
+               // pOutput-> pFat_ToTCalib[i][j] = fCal->Afat_TAMEX[i]* ToT_fat[i][j] + fCal->Bfat_TAMEX[i];
+               pOutput-> pFat_ToTCalib[i][j] =ToT_fat[i][j];
+                       if(ToT_fat[i][j]>0) {
+                        hFat_ToT_det[i] ->Fill(ToT_fat[i][j]);   
+                        hFat_ToT_Sum->Fill(ToT_fat[i][j]);   
+                        hFat_tamex_hit_pattern->Fill(i);  
+                    
+                          Fat_tot_hits++; 
+                          hFat_tamex_multiplicity->Fill(Fat_tot_hits);
+                            
+                            }
+                        }         
+                    }
+                 }
+              }
+            
+  /**----------------------------------------------------------------------------------------------**/
+ /**--------------------------------------  FATIMA VME ----------------------------------------------**/
 
 void EventAnlProc::Make_Fatima_Histos(){
 
@@ -2310,31 +1650,20 @@ void EventAnlProc::Make_Fatima_Histos(){
    // hFAT_QDCdt[i]   = MakeTH1('D', Form("FATIMA_VME/Timing/QDCdt/QDCdt%2d",i), Form("QDCdT Ch.%2d",i), 3201,-40,40);
     //hFAT_TDCCalib1[i] =  MakeTH1('D', Form("FATIMA/Timing/TDCCalib/LaBr_Tcalib%2d",i), Form("TDC channel Calib %2d",i), 1E5,0,2E5);
     hFAT_TDCdt_refSC41[i] = MakeTH1('D', Form("FATIMA_VME/Timing/TDCdt_SC41-FatTDC/TDCdT_SC41_LaBr%02d", i), Form("TDC dtSC41 All Multip SC41- LaBr%02d", i),4E4,0,2E6);
-//     hFAT_TDCdt_refSC41_M1[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdt_SC41-FatTDC_M1/TDCdT_SC41_M1_LaBr%02d", i), Form("TDC dtSC41 Multip 1 SC41- LaBr%02d", i),25000,-50000,50000);
-//     hFAT_TDCdt_refSC41_M2[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdt_SC41-FatTDC_M2/TDCdT_SC41_M2_LaBr%02d", i), Form("TDC dtSC41 Multip 2 SC41- LaBr%02d", i),25000,-50000,50000);
-//     hFAT_TDCdt_refSC41_M3[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdt_SC41-FatTDC_M3/TDCdT_SC41_M2+_LaBr%02d", i), Form("TDC dtSC41 Multip 2+ SC41- LaBr%02d", i),25000,-50000,50000);
+
 //
     hFAT_TDCdt_refSC41_gated[i] = MakeTH1('D', Form("FATIMA_VME/Timing/TDCdt_SC41-FatTDC_EGated/TDCdT_Egated_SC41_LaBr%02d", i), Form("TDC Gamma gated dtSC41 SC41- LaBr%02d", i),4E4,0,2E6);
-/*    hFAT_TDCdt_refSC41_M1_gated[i] = MakeTH1('D', Form("FATIMA/Timing/EGated/TDCdt_SC41-FatTDC/TDCdT_Egated_SC41_M1_LaBr%02d", i), Form("TDC Gamma gated dtSC41 SC41- LaBr%02d", i),4000,-1000,1000);
-    hFAT_TDCdt_refSC41_M2_gated[i] = MakeTH1('D', Form("FATIMA/Timing/EGated/TDCdt_SC41-FatTDC/TDCdT_Egated_SC41_M2_LaBr%02d", i), Form("TDC Gamma gated dtSC41 SC41- LaBr%02d", i),4000,-1000,1000);
-    hFAT_TDCdt_refSC41_M3_gated[i] = MakeTH1('D', Form("FATIMA/Timing/EGated/TDCdt_SC41-FatTDC/TDCdT_Egated_SC41_M2+_LaBr%02d", i), Form("TDC Gamma gated dtSC41 SC41- LaBr%02d", i),4000,-1000,1000);
-   */
+
 
     hFAT_TDCdt_refCha[i] = MakeTH1('D', Form("FATIMA_VME/Timing/TDCdT_TDC0-TDC/TDCdT_Cha_LaBr%02d_LaBr%02d", 0, i), Form("TDC dt Channel All Multip LaBr%02d - LaBr%02d",0 , i),250,-2E4,2E4);
     hFAT_TDCdt_refCha_gated[i] = MakeTH1('D', Form("FATIMA_VME/Timing/TDCdT_TDC0-TDC_EGated/TDCdT_Cha_EGated_LaBr%02d_LaBr%02d", 0, i), Form("TDC dt Channel All Multip LaBr%02d - LaBr%02d",0 , i),250,-2E4,2E4);
-    //     hFAT_TDCdt_refCha_M1[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdT_TDC0-TDC_M1/TDCdT_Cha_M1_LaBr%02d_LaBr%02d", 0, i), Form("TDC dt Channel Multip 1 LaBr%02d - LaBr%02d",0 , i),4000,-1000,1000);
-//     hFAT_TDCdt_refCha_M2[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdT_TDC0-TDC_M2/TDCdT_Cha_M2_LaBr%02d_LaBr%02d", 0, i), Form("TDC dt Channel Multip 2 LaBr%02d - LaBr%02d",0 , i),4000,-1000,1000);
-//     hFAT_TDCdt_refCha_M3[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdT_TDC0-TDC_M2+/TDCdT_Cha_M2+_LaBr%02d_LaBr%02d", 0, i), Form("TDC dt Channel Multip 2+ LaBr%02d - LaBr%02d",0 , i),4000,-1000,1000);
-//
+    
     hFAT_TDC_Multipl_ch[i] = MakeTH1('D', Form("FATIMA_VME/Stats/TDC_MultiplCh/TDCM_Ch_LaBr%2d",i), Form("TDC channel Multi Fatima %2d",i), 50, 0, 50);
 
   }
-//      hFAT_QDC_vs_TDC_PMT_dT_Ch[7] = MakeTH2('D',Form("FATIMA_VME/Timing/Energy_vs._Time_SiPMdT_Ch/Energy_vs._Time_SiPMdT_Ch.%02d", 7),Form("Fatima Energy vs SiPMCh.0-SiPMCh.%02d", 7),4000,0,4000, 250,-2E4,2E4);
-//      hFAT_QDC_vs_TDC_SC41dT_Ch[7] = MakeTH2('D',Form("FATIMA_VME/Timing/Energy_vs._Time_SC41_Ch/Energy_vs._Time_SC41_Ch.%02d", 7),Form("Fatima Energy vs SC41-SiPMCh.%02d", 7),4000,0,4000, 4E2,0,2E6);
 
-    hFAT_QDCCalib1Sum = MakeTH1('D', "FATIMA_VME/Energy/Fat_VME__EnergySum", "LaBr Energy (all detectors)",40000,0,40000);
+    hFAT_QDCCalib1Sum = MakeTH1('D', "FATIMA_VME/Energy/Fat_VME_EnergySum", "LaBr Energy (all detectors)",40000,0,40000);
     hFAT_hits_QDC       = MakeTH1('D', "FATIMA_VME/Stats/QDC_FAThits", "bPlastic hit pattern QDC1",50,0,50);
-   // hFAT_E_Mat_Sum = MakeTH2('D', "FATIMA_VME/Energy/Gam-GamSum", "FATIMA Gamma-Gamma (all detectors)",4000,0,4000, 4000,0,4000);
     hFAT_hits_TDC       = MakeTH1('D', "FATIMA_VME/Stats/TDC_FAThits", "FATIMA TDC statistics",50,0,50);
     hFAT_TDC_Multipl_PerChan       = MakeTH1('D', "FATIMA_VME/Stats/TDC_FAT_Multiplicity_perCh", "FATIMA TDC Multiplicity (hits per channel)",50,0,50);
     hFAT_TDC_Multipl       = MakeTH1('D', "FATIMA_VME/Stats/TDC_FAT_Multiplicity", "FATIMA TDC Multiplicity",50,0,50);
@@ -2342,13 +1671,9 @@ void EventAnlProc::Make_Fatima_Histos(){
     hFAT_TDCdt_refSC41_Sum       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_refSC41_Sum", "TDC dT Ref SC41(all detectors)",4E4,0,2E6);
     hFAT_TDCdt_refSC41_Sum_gated       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_refSC41_Sum_EGated", "TDC dT (all detectors) Energy gated", 4E4,0,2E6);
     hFAT_TDCdt_refCha_Sum       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_ref0_AllM_Sum", "TDC dT LaBr0 - LaBr Multip All (all detectors)", 250,-2E4,2E4);
-//     hFAT_TDCdt_refCha_Sum_M1       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_ref0_M1_Sum", "TDC dT LaBr0 - LaBr Multip 1 (all detectors)", 250,-2E4,2E4);
-//     hFAT_TDCdt_refCha_Sum_M2       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_ref0_M2_Sum", "TDC dT LaBr0 - LaBr Multip 2 (all detectors)", 250,-2E4,2E4);
-//     hFAT_TDCdt_refCha_Sum_M3       = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_ref0_M2+_Sum", "TDC dT LaBr0 - LaBr Multip 2+ (all detectors)", 250,-2E4,2E4);
 
     hFAT_TDCdt_refCha_Sum_gated     = MakeTH1('D', "FATIMA_VME/Timing/TDCdt_ref0_Sum_EGated","TDC dT LaBr0 Gamma gated (all detectors)",250,-2E4,2E4);
-   // hFAT_QDC_vs_TDC_PMT_dT = MakeTH2('D',"FATIMA_VME/Energy_vs._Time_PMdT","Energy_vs.Time_PMT_dT",4000,0,4000, 250,-2E4,2E4);
-   // hFAT_QDC_vs_TDC_SC41dT = MakeTH2('D',"FATIMA_VME/Energy_vs._Time_S41dT","Energy_vs._Time_S41dT",4000,0,4000,4E2,0,2E6);
+
 
     hFAT_SC41_check      = MakeTH1('D', "FATIMA_VME/Timing/dt_SC41_L_R", "SC41 diff L vs R", 4E4,-2E6,2E6);
 
@@ -2358,7 +1683,8 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
     double Fat_QDC_i[50];
     double Fat_QDC_GainMatch[50], Fat_QDCGainMatch_j[50];
     double FATgate1_low, FATgate1_high;
-    double Fat_TDC_T_Main[50], Fat_SC41_dT_Raw[50], Fat_SC41_dT_Calib[50],  Fat_Ch_dT[50], Fat_Ch_dT_Calib[50];
+    ULong64_t  Fat_SC41_dT_Raw[50], Fat_SC41_dT_Calib[50],  Fat_Ch_dT[50], Fat_Ch_dT_Calib[50];
+    ULong64_t Fat_TDC_T_Main[50];
     int Fat_QDC_IDMain_i, Fat_QDC_IDMain_j, Fat_TDC_IDMain;
     double Fat_QDC_dt, Fat_QDCtime1, Fat_QDCtime2;
     int Fat_TDC_Incr;
@@ -2545,288 +1871,127 @@ if(Fat_QDC_IDMain_i<40){
     
 
 
-/**----------------------------------------------------------------------------------------------**/
-/**--------------------------------------  FATIMA TAMEX ----------------------------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-// void EventAnlProc::Make_Fatima_Tamex_Histos(){
-//
-//     for (int i =0; i<50; i++)
-//   {
-//     hFAT_ToT[i] = MakeTH1('D', Form("FATIMA/ToT/ToT_Ch.%02d", i), Form("TOT Detector %2d", i), 16250, 0., 65000.);
-//     hFAT_lead_lead[i] = MakeTH1('D', Form("FATIMA/Lead-Lead/Lead-LeadCh.%02d", i), Form("Lead - Lead Ch. %2d", i),2500, -50000., 50000);
-//     hFAT_lead_lead_ref[i] = MakeTH1('D', Form("FATIMA/Lead-Lead_Ref/Lead-LeadRefCh.%02d", i), Form("Lead Ref Ch.0 - Lead Ch. %2d", i),2500, -50000., 50000.);
-//
-//     hFAT_lead_lead_gated[i] = MakeTH1('D', Form("FATIMA/Lead-Lead_Egated/Lead-Lead_Egated_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-//     hFAT_lead_lead_gated1[i] = MakeTH1('D', Form("FATIMA/Lead-Lead_Egated1/Lead-Lead_Egated1_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-//     hFAT_lead_lead_gated2[i] = MakeTH1('D', Form("FATIMA/Lead-Lead_Egated2/Lead-Lead_Egated2_Ch.%02d", i), Form("Lead - Lead Energy gated Ch.  %2d", i),2500, -50000., 50000.);
-//
-//     hFAT_lead_lead_energy[i] = MakeTH2('D',Form("FATIMA/Lead-Lead_energy/Energy_vs._dT/Energy_vs._dT_Ch.%02d", i),Form("Fatima Energy vs Lead-Lead.%02d", i),500,0,2000, 160, -40000., 40000);
-//
-//     hFAT_trail_trail[i] = MakeTH1('D', Form("FATIMA/Trail-Trail/trail-trailCh.%02d", i), Form("Trail - Trail Ch. %2d", i), 2500, -50000., 50000.);
-//
-//    // hFAT_Sc41lead_leadmaxtot[i] = MakeTH1('D', Form("FATIMA/Sc41-LeadMaxToT/SC41Lead_LeadCh.%02d", i), Form("SC41 Lead - (max ToT chan) Lead %2d ", i), 4002, -100000., 100000.);
-//
-//     }
-//
-//     hFAT_gamma_gamma = MakeTH2('D', "FATIMA/Gamma-Gamma/Sum", "FATIMA Gamma-Gamma (all detectors)",6500,0,65000, 6500,0,65000);
-// }
-//-----------------------------------------------------------------------------------------------//
-// void EventAnlProc::Do_Fatima_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput){
-//     double lead_lead_fat[50], trail_trail_fat[50];
-//     double ToT_fat[50];
-//     double lead_fat1[50], lead_fat2[50] ;
-//     double trail_fat1[50], trail_fat2[50];
-//     double  lead_lead_fat_Ref0[50];
-//     double lead_lead_fat_gated[50], lead_lead_fat_gated1[50], lead_lead_fat_gated2[50];
-//     int hits_fat_lead = 0, hits_fat_trail=0;
-//     for (int i = 0; i < 50; i++)
-//         {
-//              lead_lead_fat[i]=0;
-//              lead_lead_fat_Ref0[i]=0;
-//              trail_trail_fat[i]=0;
-//              ToT_fat[i] = 0;
-//              trail_fat1[i] = 0;
-//              trail_fat2[i] = 0;
-//              lead_fat1[i] =0;
-//              lead_fat2[i] =0;
-//
-//              lead_lead_fat_gated[i] = 0;
-//              lead_lead_fat_gated1[i] = 0;
-//              lead_lead_fat_gated2[i] = 0;
-//
-//         }
-//
-//         ///Loop on channels
-//       for (int i = 0; i < 50; i++)
-//         {
-//             ///Lead T
-//             for(int j=0; j< pInput->fFat_PMT_Lead_N[i]; j++){
-//                 lead_fat1[i] = pInput->fFat_Lead_PMT[i][j];
-//                 hits_fat_lead++;
-//                 pOutput->pFat_LeadT[i][j] = lead_fat1[i];
-//                 pOutput->pFat_LeadHits = hits_fat_lead;
-//
-//                 ///Ref channel 0
-//                 if(pInput->fFat_Lead_PMT[0][j]>0 && pInput->fFat_Lead_PMT[i][j]>0&& hits_fat_lead>1){
-//                 lead_lead_fat_Ref0[i] = (pInput->fFat_Lead_PMT[0][j] -  pInput->fFat_Lead_PMT[i][j])*5000;
-//                // cout<<"event 1 " << event_number << " lead N " << pInput->fFat_PMT_Lead_N[i] << " fFat_Lead_PMT[0][j] " << pInput->fFat_Lead_PMT[0][j]*5000 << " Fat_Lead_PMT[i][j] " << pInput->fFat_Lead_PMT[i][j]*5000 << " lead_lead_fat_Ref0[i] " <<lead_lead_fat_Ref0[i]<< " i " << i << " j " << j <<  endl;
-//                 hFAT_lead_lead_ref[i] ->Fill(lead_lead_fat_Ref0[i]);
-//                 }
-//
-//                 ///all Dets compare
-//                 for (int k=0; k< 50; k++){
-//                     if(i != k && hits_fat_lead>1){
-//                          lead_fat2[k] = pInput->fFat_Lead_PMT[k][j];
-//
-//                     lead_lead_fat[i] = (lead_fat1[i] - lead_fat2[k]);
-//                         if (ABS(lead_lead_fat[i]) > (double)(COARSE_CT_RANGE>>1))        // overflow
-//                             {
-//                             lead_lead_fat[i] = CYCLE_TIME*(lead_lead_fat[i]  + COARSE_CT_RANGE);
-//                         }
-//                          else {
-//                              lead_lead_fat[i]  = CYCLE_TIME*lead_lead_fat[i];
-//                          }
-//                          if(lead_lead_fat[i]!=0 && lead_fat1[i]>1 && lead_fat2[k]>1 ) {
-//                              hFAT_lead_lead[i] -> Fill(lead_lead_fat[i]);
-//          //cout<<"event " << event_number << " lead_lead_fat[i] " <<lead_lead_fat[i]<<" lead_fat1[i] " << lead_fat1[i] << " lead_fat2[k] "<<lead_fat2[k]  << " i " << i <<endl;
-//                       }
-//                     }
-//                 }
-//             }
-//             ///Trail T
-//             for(int j=0; j< pInput->fFat_PMT_Trail_N[i]; j++){
-//                 trail_fat1[i] = pInput->fFat_Trail_PMT[i][j];
-//                 hits_fat_trail++;
-//                 pOutput->pFat_TrailT[i][j] = trail_fat1[i];
-//                 pOutput->pFat_TrailHits = hits_fat_trail;
-//                 for (int k=0; k< 50; k++){
-//                     if(i != k && hits_fat_trail>1){
-//                          trail_fat2[i] = pInput->fFat_Trail_PMT[k][j];
-//                          if(trail_fat2>0 && j>0){
-//
-//             trail_trail_fat[i] = (trail_fat1[i] - trail_fat2[i]);
-//             if (ABS(trail_trail_fat[i]) > (double)(COARSE_CT_RANGE>>1))        // overflow
-//                             {
-//                             trail_trail_fat[i] = CYCLE_TIME*(trail_trail_fat[i] + COARSE_CT_RANGE);
-//                         }
-//              else {
-//                             trail_trail_fat[i]  = CYCLE_TIME*trail_trail_fat[i];
-//                         }
-//
-//             hFAT_trail_trail[i] -> Fill(trail_trail_fat[i]);
-//                         }
-//                     }
-//                 }
-//             }
-//             ///ToT (~Energy)
-//           for(int j=0; j< pInput->fFat_PMT_Lead_N[i]; j++){
-//            //   if(pInput->fFat_Trail_PMT[i][j] >0 && pInput->fFat_Lead_PMT[i][j]>0){
-//                 ToT_fat[i] = (pInput->fFat_Trail_PMT[i][j] - pInput->fFat_Lead_PMT[i][j]);
-//
-//                 ///Correction for overflows
-//             if(ABS(ToT_fat[i]) >(double)(COARSE_CT_RANGE>>1)) {
-//                    ToT_fat[i] = CYCLE_TIME*(ToT_fat[i] + COARSE_CT_RANGE);
-//             }
-//              else{
-//                         ToT_fat[i]= CYCLE_TIME*ToT_fat[i];
-//                    }
-// //
-//  //cout<<"pInput->fFat_Trail_PMT[i][j]  " <<pInput->fFat_Trail_PMT[i][j] << " pInput->fFat_Lead_PMT[i][j] " << pInput->fFat_Lead_PMT[i][j] <<" ToT_fat[i] " << ToT_fat[i] << endl;
-//                     hFAT_ToT[i] ->Fill(ToT_fat[i]); //raw Energy
-//
-//
-//               ///Gain matching
-//               pOutput-> pFat_ToTCalib[i] = fCal->Afat_TAMEX[i]* pow(ToT_fat[i],3) + fCal->Bfat_TAMEX[i]* pow(ToT_fat[i],2) + fCal->Cfat_TAMEX[i]*ToT_fat[i] + fCal->Dfat_TAMEX[i];
-//
-//               ///Lead-Lead Energy gating
-//            for (int k=0; k< 50; k++){
-//                if(i != k ){
-//                 if(ToT_fat[i]>0 && ToT_fat[k]>0 ) hFAT_gamma_gamma->Fill(ToT_fat[i],ToT_fat[k]);
-//
-//                  if(pOutput->pFat_LeadT[k][j]>0 && pOutput->pFat_LeadHits>1 ){
-//                     lead_lead_fat_gated[i] = (pOutput->pFat_LeadT[i][j]  -  pOutput->pFat_LeadT[k][j])*5000; ///into ps
-//
-//            if( ToT_fat[1]>32700&&ToT_fat[1]<34000){
-//             hFAT_lead_lead_energy[i]->Fill(ToT_fat[0]/27,lead_lead_fat_gated[i]);
-//
-//             }
-//                          ///Temp E gate
-//                          if(ToT_fat[1]<31400){
-//
-//              hFAT_lead_lead_gated[i] -> Fill(lead_lead_fat_gated[i]);
-//                  }
-//                        if(ToT_fat[1]>27000 && ToT_fat[1]<27716){
-//
-//             hFAT_lead_lead_gated1[i] -> Fill(lead_lead_fat_gated[i]);
-//                  }
-//                   if(ToT_fat[1]>27806 && ToT_fat[1]<28537){
-//             hFAT_lead_lead_gated2[i] -> Fill(lead_lead_fat_gated[i]);
-//                  }
-//                }
-//              }
-//           }
-//        // }
-//      }
-//    }
-// }
 
 
-/**----------------------------------------------------------------------------------------------**/
-/**--------------------------------------  GALILEO  ---------------------------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-void EventAnlProc::Make_Galileo_Histos()
-{
-  hGAL_ESum = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum","GALILEO Energy Sum",20000,0,20000);
-  //hGAL_ESum_largerange_all = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum_largerange","GALILEO Energy Sum",20000,0,20000);
-  hGAL_ESum_largerange_OF = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_OF","GALILEO Energy Sum (Overflow)",20000,0,20000);
-  hGAL_ESum_largerange_PU = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_PU","GALILEO Energy Sum (Pileup)",20000,0,20000);
-  hGAL_Hit_Pat = MakeTH1('I',"GALILEO/Stats/GALILEO_Hit_Pat","GALILEO Hit Pattern",36,0,36);
-  //hGAL_Multi_1 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_1","GALILEO Multiplicity 1",50,0,50);
-  //hGAL_Multi_2 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_2","GALILEO Multiplicity 2",50,0,50);
-  //hGAL_Multi_3 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_3","GALILEO Multiplicity 3",50,0,50);
-  //hGAL_Multi_4 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_4","GALILEO Multiplicity 4",50,0,50);
-    hGAL_Chan_E_Mat = MakeTH2('D',"GALILEO/GALILEO_E_Mat","GALILEO Energy-Energy Matrix",2500,0,10000,2500,0,10000);
-  //hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
-  //hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
-  hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",20000,0,20000);
 
-  for (int i=0; i<GALILEO_MAX_DETS; i++)
-  {
-    for (int j = 0; j < GALILEO_CRYSTALS; j++)
+    /**----------------------------------------------------------------------------------------------**/
+    /**--------------------------------------  GALILEO  ---------------------------------------------**/
+    /**----------------------------------------------------------------------------------------------**/
+    void EventAnlProc::Make_Galileo_Histos()
     {
-      hGAL_Chan_E[i][j] = MakeTH1('D',Form("GALILEO/Energy_Ch./GALILEO_E_Det_%2d_%1d",i, j), Form("GALILEO Channel Energy Detector %2d Crystal %1d",i, j),5000,0,5000);
-    }
-  //  hGAL_FatdT[j] = MakeTH1('I',Form("Correlations/Fatima_Galilieo/Fat_GAldT%2d",j),Form("GALILEO Fatima dT Ch. %2d",j),2000,-1000,1000);
-   // hGAL_Chan_E2[j] = MakeTH1('D',Form("GALILEO/GALILEO_Energy2/GALILEO_E2%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
-    //hGAL_Chan_Egate[j] = MakeTH1('D',Form("GALILEO/gated energy/GALILEO_Egate%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
-    }
-  //for (int k=0; k<32; k++){
-
-    //hGAL_Chan_Time_Diff[k] = MakeTH1('D',Form("GALILEO/Time_diff/GALILEO_Chan_Time_Diff%2d",k), Form("GALILEO Channel Time Difference for %2d",k),2000,-1000,1000);
-    //hGAL_Chan_Timedifference_new[k] = MakeTH1('D',Form("GALILEO/Timediff_new/GALILEO_Chan_T_Diff%2d",k), Form("GALILEO Channel T Difference for %2d",k),2000,-1000,1000);
-   // hGAL_Time_Diff_vs_Energy[k] = MakeTH2('D',Form("GALILEO/GALILEO_dT_vs_Energy_Spectra/GALILEO_dT_vs_E%2d",k), Form("GALILEO Time Difference Vs Channel Energy Channel %2d",k),5000,0,5000,100,-1000,1000);
-  //}
-    }
-///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
-void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput)
-{
-    // Process hits once
-    for (int i = 0; i < GalFired; i++)
-    {
-       // Skip pileup/overflow events
-       if (GalPileUp[i])
-       {
-          hGAL_ESum_largerange_PU->Fill(GalE_Cal[i]);
-          continue;
-        }
-
-       if (GalOverFlow[i])
-       {
-         hGAL_ESum_largerange_OF->Fill(GalE_Cal[i]);
-         continue;
-        }
-
-       int det = GalDet[i];
-       int crys = GalCrys[i];
-       pOutput->pGal_T[det][crys] = GalT[i];
-       pOutput->pGal_E[det][crys] = GalE_Cal[i];
-  
-       hGAL_Hit_Pat->Fill(det * GALILEO_CRYSTALS + crys);
-       hGAL_ESum->Fill(GalE_Cal[i]);
-       hGAL_Chan_E[det][crys]->Fill(GalE_Cal[i]);
-
-       // 2D Matrix generation
-       for (int j = 0; j < GalFired; j++)
-       {
-          if (i == j) continue;
-          hGAL_Chan_E_Mat->Fill(GalE_Cal[i], GalE_Cal[j]);
-       }
-    }
-            
-    static const long dT_addback = 50;
-            
-    // Detector addback
-    for (int i = 0; i < GALILEO_MAX_DETS; i++)
-    {
-        double E[GALILEO_CRYSTALS] = { 0 };
-        long T[GALILEO_CRYSTALS] = { 0 };
-        int n[GALILEO_CRYSTALS] = { 0 };
-        int v = 0;
+      hGAL_ESum = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum","GALILEO Energy Sum",20000,0,20000);
+      //hGAL_ESum_largerange_all = MakeTH1('I',"GALILEO/Sum/GALILEO_ESum_largerange","GALILEO Energy Sum",20000,0,20000);
+      hGAL_ESum_largerange_OF = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_OF","GALILEO Energy Sum (Overflow)",20000,0,20000);
+      hGAL_ESum_largerange_PU = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_PU","GALILEO Energy Sum (Pileup)",20000,0,20000);
+      hGAL_Hit_Pat = MakeTH1('I',"GALILEO/Stats/GALILEO_Hit_Pat","GALILEO Hit Pattern",36,0,36);
+      //hGAL_Multi_1 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_1","GALILEO Multiplicity 1",50,0,50);
+      //hGAL_Multi_2 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_2","GALILEO Multiplicity 2",50,0,50);
+      //hGAL_Multi_3 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_3","GALILEO Multiplicity 3",50,0,50);
+      //hGAL_Multi_4 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_4","GALILEO Multiplicity 4",50,0,50);
+        hGAL_Chan_E_Mat = MakeTH2('D',"GALILEO/GALILEO_E_Mat","GALILEO Energy-Energy Matrix",2500,0,10000,2500,0,10000);
+      //hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
+      //hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
+      hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",20000,0,20000);
+    
+      for (int i=0; i<GALILEO_MAX_DETS; i++)
+      {
         for (int j = 0; j < GALILEO_CRYSTALS; j++)
-            {
-          if (pOutput->pGal_E[i][j] == 0) continue;
-          bool added = false;
-          // Try to addback to an existing hit
-          for (int k = 0; k < v; k++)
-          {
-            if (T[k] - pOutput->pGal_T[i][j] < dT_addback)
-            {
-              E[k] += pOutput->pGal_E[i][j];
-              T[k] = (T[k] + pOutput->pGal_T[i][j]) / (n[k] + 1);
-              n[k] += 1;
-              added = true;
-            }
-            }
-           
-          // Add to a new hit
-          if (!added)
-          {
-            T[v] = pOutput->pGal_T[i][j];
-            E[v] = pOutput->pGal_E[i][j];
-            n[v] = 1;
-            v++;
-          }
-        }
-           
-        // Fill and write to Tree the addback energies
-        for (int j = 0; j < v; j++)
         {
-            pOutput->pGal_EAddback[i][j] = E[j];
-            hGAL_AddbackSum->Fill(E[j]);
-       }
-    }
-} //end of Do_Galileo_Histos()
-
+          hGAL_Chan_E[i][j] = MakeTH1('D',Form("GALILEO/Energy_Ch./GALILEO_E_Det_%2d_%1d",i, j), Form("GALILEO Channel Energy Detector %2d Crystal %1d",i, j),5000,0,5000);
+        }
+      //  hGAL_FatdT[j] = MakeTH1('I',Form("Correlations/Fatima_Galilieo/Fat_GAldT%2d",j),Form("GALILEO Fatima dT Ch. %2d",j),2000,-1000,1000);
+       // hGAL_Chan_E2[j] = MakeTH1('D',Form("GALILEO/GALILEO_Energy2/GALILEO_E2%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
+        //hGAL_Chan_Egate[j] = MakeTH1('D',Form("GALILEO/gated energy/GALILEO_Egate%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
+        }
+      //for (int k=0; k<32; k++){
+    
+    
+    
+        //hGAL_Chan_Time_Diff[k] = MakeTH1('D',Form("GALILEO/Time_diff/GALILEO_Chan_Time_Diff%2d",k), Form("GALILEO Channel Time Difference for %2d",k),2000,-1000,1000);
+        //hGAL_Chan_Timedifference_new[k] = MakeTH1('D',Form("GALILEO/Timediff_new/GALILEO_Chan_T_Diff%2d",k), Form("GALILEO Channel T Difference for %2d",k),2000,-1000,1000);
+       // hGAL_Time_Diff_vs_Energy[k] = MakeTH2('D',Form("GALILEO/GALILEO_dT_vs_Energy_Spectra/GALILEO_dT_vs_E%2d",k), Form("GALILEO Time Difference Vs Channel Energy Channel %2d",k),5000,0,5000,100,-1000,1000);
+      //}
+        }
+    ///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
+    void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput)
+    {
+        // Process hits once
+        for (int i = 0; i < GalFired; i++)
+        {
+           // Skip pileup/overflow events
+           if (GalPileUp[i])
+           {
+              hGAL_ESum_largerange_PU->Fill(GalE_Cal[i]);
+              continue;
+   
+            }
+  
+           if (GalOverFlow[i])
+           {
+             hGAL_ESum_largerange_OF->Fill(GalE_Cal[i]);
+             continue;
+            }
+  
+           int det = GalDet[i];
+           int crys = GalCrys[i];
+           pOutput->pGal_T[det][crys] = GalT[i];
+           pOutput->pGal_E[det][crys] = GalE_Cal[i];
+ 
+           hGAL_Hit_Pat->Fill(det * GALILEO_CRYSTALS + crys);
+           hGAL_ESum->Fill(GalE_Cal[i]);
+           hGAL_Chan_E[det][crys]->Fill(GalE_Cal[i]);
+    
+           // 2D Matrix generation
+           for (int j = 0; j < GalFired; j++)
+           {
+              if (i == j) continue;
+              hGAL_Chan_E_Mat->Fill(GalE_Cal[i], GalE_Cal[j]);
+           }
+        }
+              
+        static const long dT_addback = 50;
+               
+        // Detector addback
+        for (int i = 0; i < GALILEO_MAX_DETS; i++)
+        {
+            double E[GALILEO_CRYSTALS] = { 0 };
+            long T[GALILEO_CRYSTALS] = { 0 };
+            int n[GALILEO_CRYSTALS] = { 0 };
+            int v = 0;
+            for (int j = 0; j < GALILEO_CRYSTALS; j++)
+                {
+              if (pOutput->pGal_E[i][j] == 0) continue;
+              bool added = false;
+              // Try to addback to an existing hit
+              for (int k = 0; k < v; k++)
+              {
+                if (T[k] - pOutput->pGal_T[i][j] < dT_addback)
+                {
+                  E[k] += pOutput->pGal_E[i][j];
+                  T[k] = (T[k] + pOutput->pGal_T[i][j]) / (n[k] + 1);
+                  n[k] += 1;
+                  added = true;
+                }
+              }
+               
+              // Add to a new hit
+              if (!added)
+              {
+                T[v] = pOutput->pGal_T[i][j];
+                E[v] = pOutput->pGal_E[i][j];
+                n[v] = 1;
+                v++;
+              }
+            }         
+            // Fill and write to Tree the addback energies
+            for (int j = 0; j < v; j++)
+            {
+                pOutput->pGal_EAddback[i][j] = E[j];
+                hGAL_AddbackSum->Fill(E[j]);
+           }
+        }
+    } //end of Do_Galileo_Histos()
+    
 /**----------------------------------------------------------------------------------------------**/
 /**--------------------------------------  FINGER  ----------------------------------------**/
 /**----------------------------------------------------------------------------------------------**/

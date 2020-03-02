@@ -121,7 +121,7 @@ void  EventUnpackStore::Clear(Option_t *t)
          fbPlas_VME_QDC_ID[i] = -1;
          fbPlas_VME_QDC_E_AIDA[i] = 0;
          }
-        for (int i=0; i<32; i++){
+        for (int i=0; i<50; i++){         
          fbPlas_VME_TDC_ID[i] = -1;
         
          for (int j=0; j<32; j++){
@@ -153,14 +153,14 @@ void  EventUnpackStore::Clear(Option_t *t)
             fGal_fired = 0;
             fGal_WR = 0;
             
-                for (int i=0; i<GALILEO_MAX_HITS; i++){
-                    fGal_Detector[i] = 0;
-                    fGal_Crystal[i] = 0;
-                    fGal_E[i] = 0;
-                    fGal_T[i] = 0;
-                    fGal_Pileup[i]=false;
-                    fGal_Overflow[i]=false;
-       }        
+                  for (int i=0; i<GALILEO_MAX_HITS; i++){
+                        fGal_Detector[i] = 0;
+                        fGal_Crystal[i] = 0;
+                        fGal_E[i] = 0;
+                        fGal_T[i] = 0;
+                        fGal_Pileup[i]=false;
+                        fGal_Overflow[i]=false;
+           }        
        
         //FINGER 
 //         ffing_tamexhits = -1;
@@ -224,17 +224,17 @@ void  EventUnpackStore::Clear(Option_t *t)
          }
          
          fbPlas_WR = 0;
-        for(int i =0; i<48;i++){
-          fbPlas_TAMEX_ID[i] = 0;
-          fbPlas_Strip_N[i] = 0;
-          fbPlas_PMT_Lead_N[i] = 0;
-          fbPlas_PMT_Trail_N[i] = 0;
-          fbPlas_PMT_Lead_N[i] = 0;
-          fbPlas_PMT_Trail_N[i] = 0;
-            for(int j =0; j<10;j++){
-         fbPlas_Lead_PMT[i][j] = 0;   
-         fbPlas_Trail_PMT[i][j] = 0;
-        }
+         fbPlaschan=-1;
+        for(int i =0; i<3;i++){
+           for(int j =0; j<16; j++){
+            fbPlas_PMT_Lead_N[i][j] = 0;
+            fbPlas_PMT_Trail_N[i][j] = 0;
+ 
+          for(int k =0; k<10;k++){
+                fbPlas_Lead_PMT[i][j][k] = 0;   
+                fbPlas_Trail_PMT[i][j][k] = 0;
+                }
+            }
         }
         //      fPatternUnit = 0;
 }
@@ -342,23 +342,23 @@ void  EventUnpackStore::ClearEvent()
                 }
             }
                   
-        fFat_firedQDC = -1;
-        fFat_firedTDC = -1;
+        fFat_firedQDC = 0;
+        fFat_firedTDC = 0;
         fFat_QDC_Multiplicity = 0;
         fFat_WR = 0;
       
        
-        fGal_fired = 0;
-        fGal_WR = 0;
-
-            for (int i=0; i<GALILEO_MAX_HITS; i++){
-                fGal_Detector[i] = 0;
-                fGal_Crystal[i] = 0;
-        fGal_E[i] = 0;
-        fGal_T[i] = 0;
-                fGal_Pileup[i]=false;
-                fGal_Overflow[i]=false;
-       }
+         fGal_fired = 0;
+         fGal_WR = 0;
+    
+                for (int i=0; i<GALILEO_MAX_HITS; i++){
+                    fGal_Detector[i] = 0;
+                    fGal_Crystal[i] = 0;
+                    fGal_E[i] = 0;
+                    fGal_T[i] = 0;
+                    fGal_Pileup[i]=false;
+                    fGal_Overflow[i]=false;
+           }
          //FINGER 
          
          for (int i = 0; i < 52; i++)
@@ -388,17 +388,20 @@ void  EventUnpackStore::ClearEvent()
          
             }
          }
+        fbPlaschan=-1;
+         for(int i =0; i<3;i++){
+          //fbPlas_TAMEX_ID[i] = 0;
+          // fbPlas_Strip_N[i] = 0;
+           for(int j =0; j<16; j++){
+          fbPlas_PMT_Lead_N[i][j] = 0;
+          fbPlas_PMT_Trail_N[i][j] = 0;
         
-        for(int i =0; i<48;i++){
-          fbPlas_TAMEX_ID[i] = 0;
-          fbPlas_Strip_N[i] = 0;
-          fbPlas_PMT_Lead_N[i] = 0;
-          fbPlas_PMT_Trail_N[i] = 0;
-          fbPlas_PMT_Lead_N[i] = 0;
-          fbPlas_PMT_Trail_N[i] = 0;
-            for(int j =0; j<10;j++){
-         fbPlas_Lead_PMT[i][j] = 0;   
-         fbPlas_Trail_PMT[i][j] = 0;
+          
+            
+          for(int k =0; k<10;k++){
+                fbPlas_Lead_PMT[i][j][k] = 0;   
+                fbPlas_Trail_PMT[i][j][k] = 0;
+                }
             }
         }
       //  ffing_tamexhits = -1;

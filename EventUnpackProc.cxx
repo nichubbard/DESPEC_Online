@@ -49,7 +49,14 @@
 
 
 using namespace std;
-
+// std::unordered_map<int, std::string> names =
+// {
+//   { 0x100, "FRS" },
+//   { 0x700, "AIDA" },
+//   { 0x500, "bPlas" },
+//   { 0x1500, "FATIMA" },
+//   { 0x400, "GALILEO" },
+// };
 
 //***********************************************************
 EventUnpackProc::EventUnpackProc() :TGo4EventProcessor("Proc")
@@ -100,7 +107,6 @@ EventUnpackProc::EventUnpackProc(const char* name) : TGo4EventProcessor(name)
   Detector_Systems[0] = !Used_Systems[0] ? nullptr : new FRS_Detector_System();
   Detector_Systems[1] = !Used_Systems[1] ? nullptr : new AIDA_Detector_System();
  // Detector_Systems[2] = !Used_Systems[2] ? nullptr : new PLASTIC_VME_Detector_System();
- // Detector_Systems[3] = !Used_Systems[3] ? nullptr : new FATIMA_Detector_System();
   Detector_Systems[5] = !Used_Systems[5] ? nullptr : new GALILEO_Detector_System();
   Detector_Systems[6] = !Used_Systems[6] ? nullptr : new FINGER_Detector_System();
 
@@ -149,39 +155,25 @@ EventUnpackProc::EventUnpackProc(const char* name) : TGo4EventProcessor(name)
 
   //if(Used_Systems[5]) Make_Finger_Histos();
 
-  get_interest_arrays();
- // Skip event building if plastic calibration is enabled
-  SKIP_EVT_BUILDING = SKIP_EVT_BUILDING || PLASTIC_CALIBRATION;
-
-//   if(!SKIP_EVT_BUILDING){
-//     EvtBuilder = new EventBuilder*[1];
-//     EvtBuilder[0] = new Time_EventBuilder(amount_interest,length_interest,interest_array);
-//
-//   }
-
-  //Raw_Event object to handle data
-  //RAW = new Raw_Event(PADI_OR_PADIWA);
 
   RAW = new Raw_Event();
 
   load_PrcID_File();
 
   load_FingerID_File();
-
+  load_FatTamex_Allocationfile();
   read_setup_parameters();
-//
-//     FAT_det_pos_setup();
+
     WR_count = 0;
     count = 0;
     array_count = 0;
     iterator = 0;
     val_it = 0;
 
-  //  FAT_gain_match_done = false;
 
   Cout_counter = 0;
 
-  //Clear for AIDA
+  ///Clear for AIDA
   lastTime = 0;
   ID = 0;
   totalEvents = 0;
@@ -191,7 +183,7 @@ EventUnpackProc::EventUnpackProc(const char* name) : TGo4EventProcessor(name)
   fAida.DecayEvents.clear();
   fAida.Implants.clear();
   fAida.Decays.clear();
-  // Setup AIDA arrays
+  /// Setup AIDA arrays
   if(Used_Systems[1])
   {
     TAidaConfiguration const* conf = TAidaConfiguration::GetInstance();
@@ -216,31 +208,8 @@ void EventUnpackProc::UserPostLoop()
 EventUnpackProc::~EventUnpackProc()
 {
 
-//   if(!SKIP_EVT_BUILDING){
-//     cout << "------------------" << endl;
-//     cout << "Deleting Event Builder" << endl;
-//     delete EvtBuilder[0];
-//     EvtBuilder[0] = nullptr;
-//     delete[] EvtBuilder;
-//   }
-  string DET_NAME[8] = {"FRS","AIDA","PLASTIC_TAMEX","FATIMA_TAMEX","FATIMA_VME","GALILEO","FINGER","PLASTIC_VME"};
-  //Detector_Systems[3]->write();
-  cout << "------------------" << endl;
-  for(int i = 0;i < 7;++i){
-//     if(Detector_Systems[i]){
-//       delete Detector_Systems[i];
-//       Detector_Systems[i] = nullptr;
-//       //cout<<"Detector_System " << DET_NAME[i] << " deleted" << endl;
-//     }
-  }
-  cout << "------------------" << endl;
-  for(int i = 0;i < 10;++i) if(interest_array[i]) delete[] interest_array[i];
- // delete[] interest_array;
-  delete[] length_interest;
   delete[] Detector_Systems;
-
-
-  delete RAW;//Clear for AIDA
+  delete RAW;
   delete WR;
   cout << "**** EventUnpackProc: Delete instance" << endl;
 }
@@ -284,8 +253,6 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
   isValid=kTRUE;
   event_number=fInput->GetCount();
   fOutput-> fevent_number = event_number;
- // cout<<"fOutput-> fevent_number " << fOutput-> fevent_number <<endl;
-   // fOutput->flestore=1;
 
   fInput->ResetIterator();
   TGo4MbsSubEvent* psubevt(0);
@@ -299,9 +266,8 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
 
   if (event_number>0){
- //  cout <<"event number " << event_number << endl;
+   
       int subevent_iter = 0;
-
       Int_t PrcID_Conv = 0;
 
       Int_t* pdata = nullptr;
@@ -312,10 +278,6 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
       WR_d=0;
       AIDA_Loop = 0;
       WR_main=0;
-//     for (int i=0; i<8196; i++){
-//         WR_AIDA[i]=0;
-//         WR_diff[i] = 0;
-//       }
 
       while ((psubevt = fInput->NextSubEvent()) != 0) // subevent loop //
       {
@@ -326,12 +288,9 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
         PrcID_Conv = get_Conversion(PrcID);
         fOutput -> fProcID[PrcID_Conv] = PrcID_Conv;
 
-
-
         for (int i =0; i<7;i++){
           fOutput->fUsed_Systems[i] = Used_Systems[i];
-
-        }
+     }
 
         sub_evt_length  = (psubevt->GetDlen() - 2) / 2;
 
@@ -361,7 +320,15 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
             WR_main = WR_tmp;
             //if(fOutput->fGal_WR>0 && fOutput->fbPlas_WR>0){
           //cout<<" event " << event_number << " WR_d " <<WR_d<<" WR_main " <<  WR_main <<" fOutput->fGal_WR " << fOutput->fGal_WR << " fOutput->fbPlas_WR " << fOutput->fbPlas_WR << "dT " << fOutput->fbPlas_WR-fOutput->fGal_WR <<   endl;}
-                     }
+           ///NOTE: IMPLEMENT WR Sync Checks
+           /// if (wr1 != 0x03e1 || wr2 != 0x04e1 || wr3 != 0x05e1 || wr4 != 0x06e1) continue;
+            
+            
+           // Fill_WRSyncs_Histos();        
+            
+            
+            
+        }
 
 ///-----------------------------------------------------------------------------------------------------------///
         //if necessary, directly print MBS for wanted Detector_System
@@ -377,7 +344,6 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
         if(Detector_Systems[PrcID_Conv] !=0){
         Detector_Systems[PrcID_Conv]->Process_MBS(psubevt);
-       //if(PrcID_Conv==0) cout<<"PrcID_Conv " << PrcID_Conv <<endl;
         Detector_Systems[PrcID_Conv]->Process_MBS(pdata);
        // cout<<"Detector_Systems[PrcID_Conv] " <<Detector_Systems[PrcID_Conv] <<" PrcID_Conv " <<PrcID_Conv<<endl;
         ///get mbs stream data from unpacker (pointer copy solution)
@@ -387,17 +353,6 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
         Detector_Systems[PrcID_Conv]->get_Event_data(RAW);
         }
 
-
-        //=================================================================
-
-        //cals_done = Detector_Systems[PrcID_Conv]->calibration_done();
-
-        //=================================================================
-        //Event Building
-    //   if(!SKIP_EVT_BUILDING ) EvtBuilder[0]->set_Event(RAW);
-        //=================================================================
-
-      //  if(cals_done) break;
 
         //=================================================================
         //HISTOGRAM FILLING (only singles)
@@ -525,7 +480,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
             evt.Energy = AIDA_Energy[i];
             evt.FastTime = RAW->get_AIDA_FastTime(i);
             //if(evt.HighEnergy>0){
-	   // cout<<"Event AIDA " << event_number << " evt.Energy " << evt.Energy <<" evt.HighEnergy " << evt.HighEnergy <<endl;}
+       // cout<<"Event AIDA " << event_number << " evt.Energy " << evt.Energy <<" evt.HighEnergy " << evt.HighEnergy <<endl;}
             if (!startTime) startTime = evt.Time;
             stopTime = evt.Time;
             /// Build events from everything until there's a gap of 2000 �s (event window)
@@ -625,59 +580,110 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
           ///--------------------------------------------------------------------------------------------///
                                                 /**Output bPLASTIC TAMEX and FATIMA **/
         ///--------------------------------------------------------------------------------------------///
-
+        int Fatfired[4];
+        int  bPlasfired[2];
+        int Phys_Channel_Lead_Fat[4][256];
+        int Phys_Channel_Trail_Fat[4][256];
+        int Phys_Channel_Lead_bPlas[2][256];
+        int Phys_Channel_Trail_bPlas[2][256];
      if (Used_Systems[2]&& PrcID_Conv==2 && VME_TAMEX_bPlas == false){
+          
+         for(int f=0;f<bPLASTIC_TAMEX_MODULES;f++){       
+           bPlasfired[f]  = 0;
+           for(int g=0; g<bPLASTIC_TAMEX_HITS; g++){
+           Phys_Channel_Lead_bPlas[f][g] = 0;
+           Phys_Channel_Trail_bPlas[f][g] = 0;
+           }
+         }
+           for(int p=0;p<FATIMA_TAMEX_MODULES;p++){
+              Fatfired[p] = 0;         
+             for(int q=0; q<FATIMA_TAMEX_HITS; q++){
+                 Phys_Channel_Lead_Fat[p][q] = 0;
+                 Phys_Channel_Trail_Fat[p][q] = 0;
+                 
+             }
+         }
 
-          int Phys_Channel_Lead_bPlas[bPLASTIC_TAMEX_MODULES][bPLASTIC_TAMEX_HITS] = {0,0};
-          int Phys_Channel_Trail_bPlas[bPLASTIC_TAMEX_MODULES][bPLASTIC_TAMEX_HITS] = {0,0};
+          for (int i=0; i<RAW->get_PLASTIC_tamex_hits(); i++){///Loop over tamex ID's
+         ///--------------------------------------------------------------------------------------------///
+                                                /**Output FATIMA TAMEX **/
+        ///--------------------------------------------------------------------------------------------///
+               
+            if(RAW->get_PLASTIC_TAMEX_ID(i) < FATIMA_TAMEX_MODULES){
+               
+                Fatfired[i] = RAW->get_PLASTIC_am_Fired(i);
 
-          int bPlasfired[bPLASTIC_TAMEX_MODULES] = {0};
+            for(int j = 0;j < Fatfired[i];j++){
 
+              if(RAW->get_PLASTIC_CH_ID(i,j) % 2 == 1){ //Lead odd j
+                Phys_Channel_Lead_Fat[i][j] =TAMEX_bPlasFat_ID[i][RAW->get_PLASTIC_physical_channel(i, j)]; //From allocation file in future
+                int chan_fat = Phys_Channel_Lead_Fat[i][j];
+                // cout<<"RAW->get_PLASTIC_TAMEX_ID(i) " << RAW->get_PLASTIC_TAMEX_ID(i) << " FATIMA_TAMEX_MODULES " <<FATIMA_TAMEX_MODULES <<" Fatfired[i] " <<Fatfired[i] <<" Phys_Channel_Lead_Fat[i][j] " <<Phys_Channel_Lead_Fat[i][j]<<  endl;
+                // PMT allocation succeeded
+                int N1 = fOutput->fFat_PMT_Lead_N[chan_fat]++;
+                fOutput->fFat_Lead_PMT[chan_fat][N1] = RAW->get_PLASTIC_lead_T(i,j);
+               // cout<<"UNPACK " << " fOutput->fFat_PMT_Lead_N[chan_fat] " << fOutput->fFat_PMT_Lead_N[chan_fat] << " chan_fat " << chan_fat << " fOutput->fFat_Lead_PMT[chan_fat][N1] " << fOutput->fFat_Lead_PMT[chan_fat][N1] << endl;
+              }
+              else{ //Trail even j
+                Phys_Channel_Trail_Fat[i][j] = TAMEX_bPlasFat_ID[i][RAW->get_PLASTIC_physical_channel(i, j)];
 
-          for (int i=0; i<RAW->get_PLASTIC_tamex_hits(); i++){
-           fOutput->fbPlas_TAMEX_ID[i] = RAW->get_PLASTIC_TAMEX_ID(i);
-            bPlasfired[i] = RAW->get_PLASTIC_am_Fired(i);
+                int chan_fat = Phys_Channel_Trail_Fat[i][j];
 
+                // PMT allocation succeeded
+                int N1 = fOutput->fFat_PMT_Trail_N[chan_fat]++;
+                fOutput->fFat_Trail_PMT[chan_fat][N1] = RAW->get_PLASTIC_trail_T(i,j);
+              // cout<<"fOutput->fFat_Trail_PMT[chan][N1] " << fOutput->fFat_Trail_PMT[chan][N1] << " chan " << chan << " N1 "<< N1 <<endl;
+                        }
+                    }
+                }
+        
+            
+        
+        ///--------------------------------------------------------------------------------------------///
+                                                /**Output bPLASTIC TAMEX  **/
+        ///--------------------------------------------------------------------------------------------///
+        else{
+            int chan=-1;
+            
+           //fOutput->fbPlas_TAMEX_ID = i;
+            bPlasfired[i] = RAW->get_PLASTIC_am_Fired(i); ///Iterator
+            int bPlasdetnum=i;
             for(int j = 0;j < bPlasfired[i];j++){
 
               if(RAW->get_PLASTIC_CH_ID(i,j) % 2 == 1){ //Lead odd j
                 Phys_Channel_Lead_bPlas[i][j] = RAW->get_PLASTIC_physical_channel(i, j); //From allocation file in future
-                int chan = Phys_Channel_Lead_bPlas[i][j];
                 
+                chan = (Phys_Channel_Lead_bPlas[i][j])/bPlasdetnum-16;
+                fOutput->fbPlaschan=  chan; 
                 // PMT allocation succeeded
-                int N1 = fOutput->fbPlas_PMT_Lead_N[chan]++;
-                fOutput->fbPlas_Lead_PMT[chan][N1] = RAW->get_PLASTIC_lead_T(i,j);
+                int N1 = fOutput->fbPlas_PMT_Lead_N[bPlasdetnum][chan]++;
+                fOutput->fbPlas_Lead_PMT[bPlasdetnum][chan][N1] = RAW->get_PLASTIC_lead_T(i,j);
+            
+            //cout<<"event " << event_number << " chan " << chan <<" bPlasdetnum " << bPlasdetnum<<" Phys_Channel_Lead_bPlas[i][j] " <<Phys_Channel_Lead_bPlas[i][j]<<" fOutput->fbPlas_Lead_PMT[bPlasdetnum][chan][N1]  " << fOutput->fbPlas_Lead_PMT[bPlasdetnum][chan][N1]  << " N1 " << N1<<  " i " << i << " j " << j << endl;
                 
-
-          // cout <<"Unpack event "<<event_number << " fbPlas_Lead_PMT " << fOutput->fbPlas_Lead_PMT[chan][N1] << " N1 " << N1 << " chan " << chan <<" j " << j << " chan " << chan <<endl;
-
-
-                // PMT "0" is the trigger
-//                 if (chan == 0 || chan == 1){
-//                     fOutput->fbPlas_SC41_lead[chan][N1] = RAW->get_FATIMA_lead_T(i,j);
-//
-//                   continue;
-//                 }
-
               }
               else{ //Trail even j
+                  
                 Phys_Channel_Trail_bPlas[i][j] = RAW->get_PLASTIC_physical_channel(i,j);
-                //fOutput->ffing_Trail_Phys_Chan[i][j] = Phys_Channel_Trail_bPlas[i][j]; //Trail Chan.
-                //fOutput->ffing_Trail_T[i][j] = RAW->get_FATIMA_trail_T(i,j); //Trail Time
 
-                int chan = Phys_Channel_Trail_bPlas[i][j];
-
+                 chan = (Phys_Channel_Trail_bPlas[i][j])-(bPlasdetnum*16);
+                 
                 // PMT allocation succeeded
-
-                int N1 = fOutput->fbPlas_PMT_Trail_N[chan]++;
-               if(chan<48)  fOutput->fbPlas_Trail_PMT[chan][N1] = RAW->get_PLASTIC_trail_T(i,j);
-//cout <<"Unpack event "<<event_number << " fbPlas_Trail_PMT " << fOutput->fbPlas_Trail_PMT[chan][N1] << " N1 " << N1 << " chan " << chan <<" j " << j << endl;
-
+                
+                   
+                int N1 = fOutput->fbPlas_PMT_Trail_N[bPlasdetnum][chan]++;
+                
+               
+               
+              fOutput->fbPlas_Trail_PMT[bPlasdetnum][chan][N1] = RAW->get_PLASTIC_trail_T(i,j);
+              // cout<<"event " << event_number << " chan " << chan <<" bPlasdetnum " << bPlasdetnum<<" Phys_Channel_Trail_bPlas[i][j] " <<Phys_Channel_Trail_bPlas[i][j]<<" fOutput->fbPlas_Trail_PMT[bPlasdetnum][chan][N1]  " << fOutput->fbPlas_Trail_PMT[bPlasdetnum][chan][N1]   << " N1 " << N1<<  " i " << i << " j " << j << endl;
+                
               }
-
             }
           }
         }
+       }
+     
         ///--------------------------------------------------------------------------------------------///
                                                 /**Output FATIMA VME **/
         ///--------------------------------------------------------------------------------------------///
@@ -718,70 +724,26 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
           }
         }
 
-       ///--------------------------------------------------------------------------------------------///
-                                                /**Output FATIMA TAMEX **/
-        ///--------------------------------------------------------------------------------------------///
+       
 //         cout<<"VME_TAMEX_Fatima "<< VME_TAMEX_Fatima <<endl;
-      if (Used_Systems[4]&& PrcID_Conv==4 && VME_TAMEX_Fatima==false){
+      if (Used_Systems[2]&& PrcID_Conv==2 && VME_TAMEX_Fatima==false){
 
-          int Phys_Channel_Lead_Fat[FATIMA_TAMEX_MODULES][FATIMA_TAMEX_HITS] = {0,0};
-          int Phys_Channel_Trail_Fat[FATIMA_TAMEX_MODULES][FATIMA_TAMEX_HITS] = {0,0};
-
-          int Fatfired[FATIMA_TAMEX_MODULES] = {0};
-
-
-          for (int i=0; i<RAW->get_FATIMA_tamex_hits(); i++){
-
-            Fatfired[i] = RAW->get_FATIMA_am_Fired(i);
-
-            for(int j = 0;j < Fatfired[i];j++){
-
-              if(RAW->get_FATIMA_CH_ID(i,j) % 2 == 1){ //Lead odd j
-                Phys_Channel_Lead_Fat[i][j] = RAW->get_FATIMA_physical_channel(i, j); //From allocation file in future
-                int chan = Phys_Channel_Lead_Fat[i][j];
-
-                // PMT allocation succeeded
-                int N1 = fOutput->fFat_PMT_Lead_N[chan]++;
-                fOutput->fFat_Lead_PMT[chan][N1] = RAW->get_FATIMA_lead_T(i,j);
-             //  cout <<"Unpack event "<<event_number << " fFat_Lead_PMT " << fOutput->fFat_Lead_PMT[chan][N1] << " N1 " << N1 << " chan " << chan <<" j " << j << endl;
-
-
-                // PMT "0" is the trigger
-//                 if (chan == 0 || chan == 1){
-//                     fOutput->fFat_SC41_lead[chan][N1] = RAW->get_FATIMA_lead_T(i,j);
-//
-//                   continue;
-//                 }
-
-              }
-              else{ //Trail even j
-                Phys_Channel_Trail_Fat[i][j] = RAW->get_FATIMA_physical_channel(i,j);
-                //fOutput->ffing_Trail_Phys_Chan[i][j] = Phys_Channel_Trail_Fat[i][j]; //Trail Chan.
-                //fOutput->ffing_Trail_T[i][j] = RAW->get_FATIMA_trail_T(i,j); //Trail Time
-
-                int chan = Phys_Channel_Trail_Fat[i][j];
-
-                // PMT allocation succeeded
-                int N1 = fOutput->fFat_PMT_Trail_N[chan]++;
-                fOutput->fFat_Trail_PMT[chan][N1] = RAW->get_FATIMA_trail_T(i,j);
-
-              }
-            }
-          }
-        }
+         
+      }
         ///--------------------------------------------------------------------------------------------///
                                             /**Output GALILEO **/
         ///--------------------------------------------------------------------------------------------///
-        if (Used_Systems[5]&& PrcID_Conv==5)
-        {
-          for (int i=fOutput->fGal_fired; i<RAW->get_GALILEO_am_Fired() && i < GALILEO_MAX_HITS; i++){
-            fOutput->fGal_Detector[i] =  RAW->get_GALILEO_Det_id(i);
-            fOutput->fGal_Crystal[i] =  RAW->get_GALILEO_Crystal_id(i);
-            fOutput->fGal_E[i] = RAW->get_GALILEO_Chan_E(i)/1000;
-            fOutput->fGal_T[i] = RAW->get_GALILEO_Chan_T(i);
-            fOutput->fGal_Pileup[i] = RAW->get_GALILEO_Pileup(i);
-            fOutput->fGal_Overflow[i] = RAW->get_GALILEO_Overflow(i);
-            fOutput->fGal_fired++;
+        if (Used_Systems[5]&& PrcID_Conv==5){
+         for (int i=fOutput->fGal_fired; i<RAW->get_GALILEO_am_Fired() && i < GALILEO_MAX_HITS; i++){
+                fOutput->fGal_Detector[i] =  RAW->get_GALILEO_Det_id(i);
+                fOutput->fGal_Crystal[i] =  RAW->get_GALILEO_Crystal_id(i);
+                fOutput->fGal_E[i] = RAW->get_GALILEO_Chan_E(i)/1000;
+                fOutput->fGal_T[i] = RAW->get_GALILEO_Chan_T(i);
+                fOutput->fGal_Pileup[i] = RAW->get_GALILEO_Pileup(i);
+                fOutput->fGal_Overflow[i] = RAW->get_GALILEO_Overflow(i);
+                fOutput->fGal_fired++;
+            
+            
           }
         }
         ///--------------------------------------------------------------------------------------------///
@@ -791,60 +753,17 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
           int Phys_Channel_Lead[FINGER_TAMEX_MODULES][FINGER_TAMEX_HITS] = {0,0};
           int Phys_Channel_Trail[FINGER_TAMEX_MODULES][FINGER_TAMEX_HITS] = {0,0};
-          //int trailHits[4] = {0};
-          //int leadHits[4] = {0};
-          //int MaxHits = 0;
+
           int fingfired[FINGER_TAMEX_MODULES] = {0};
-          //double  testToT[4][256] = {0};
-
-
-          //fOutput->ffing_tamexhits = RAW->get_FINGER_tamex_hits();
 
           for (int i=0; i<RAW->get_FINGER_tamex_hits(); i++){
-            //leadHits[i] =  RAW->get_FINGER_lead_hits(i);
-            //trailHits[i] = RAW->get_FINGER_trail_hits(i);
             fingfired[i] = RAW->get_FINGER_am_Fired(i);
-            //fOutput->ffing_leadHits[i] = leadHits[i];
-            //fOutput->ffing_trailHits[i] = trailHits[i];
-            //fOutput->ffing_iterator[i] = fingfired[i];
-            //fOutput->ffing_Trig[i] = RAW->get_FINGER_trigger_T(i);
-
+     
             for(int j = 0;j < fingfired[i];j++){
-            //cout<<"fingfired[i] " << fingfired[i] <<" i " << i << endl;
-  //      cout <<"event number "<< event_number << " i: " << i << " j: " << j << " Ch_ID: " << RAW->get_FINGER_CH_ID(i,j) <<" tamex ch: "<<RAW->get_FINGER_physical_channel(i,j) <<" lead T: " << RAW->get_FINGER_lead_T(i,j) <<" trail T: " << RAW->get_FINGER_trail_T(i,j) << endl;
-
-                //Get SC41 trig data
-//               if(RAW->get_FINGER_CH_ID(i,j) % 2 == 1 && Phys_Channel_Lead[0][j]==0) {fOutput->fFing_SC41_lead[i][j] = RAW->get_FINGER_lead_T(i,j);
-//                       }
-//               if(RAW->get_FINGER_CH_ID(i,j) % 2 == 0 && Phys_Channel_Trail[i][j]==0){
-//                    cout <<"trail i " << i << " j " << j <<endl;
-//
-//                   fOutput->fFing_SC41_trail[i][j] = RAW->get_FINGER_trail_T(i,j);
-//               }
-              //fOutput->ffing_chID[i][j] = RAW->get_FINGER_CH_ID(i,j);
-              //fOutput->ffing_lead_coarse[i][j] = RAW->get_FINGER_coarse_lead(i,j);
-              //fOutput->ffing_lead_fine[i][j] = RAW->get_FINGER_fine_lead(i,j);
-              //fOutput->ffing_trail_coarse[i][j] = RAW->get_FINGER_coarse_trail(i,j);
-              //fOutput->ffing_trail_fine[i][j] = RAW->get_FINGER_fine_trail(i,j);
-              //fOutput->ffing_tamexCh[i][j] = RAW->get_FINGER_physical_channel(i,j);
-
-              //cout << "TAMEX Module " << i << " Event Number " << j << endl;
-              //cout << "ChID " << fOutput->ffing_chID[i][j] << ", TAMEX Channel " << RAW->get_FINGER_physical_channel(i, j) << ", PMT: " << fingID[i][RAW->get_FINGER_physical_channel(i, j)] << endl;
-
+        
               if(RAW->get_FINGER_CH_ID(i,j) % 2 == 1){ //Lead odd j
                 Phys_Channel_Lead[i][j] = fingID[i][RAW->get_FINGER_physical_channel(i, j)]; //From allocation file
-            //    cout<<"Phys_Channel_Lead[i][j] " << Phys_Channel_Lead[i][j] << " i " << i << " j " << j << endl;
-                //fOutput->ffing_Lead_Phys_Chan[i][j] = Phys_Channel_Lead[i][j];  //Lead Chan.
-                //fOutput->ffing_Lead_T[i][j] = RAW->get_FINGER_lead_T(i,j); //Lead Time
-                //fOutput->ffing_TOT_added[i][j] = RAW->get_FINGER_TOT_added(i,j);
-
                 int chan = Phys_Channel_Lead[i][j];
-
-//                 cout << " -> Leading Edge for chan " << chan << ", Coarse: "
-//                  << RAW->get_FINGER_coarse_lead(i,j) << ", Fine: "
-//                   << RAW->get_FINGER_fine_lead(i, j) << ", Total: "
-//                   << RAW->get_FINGER_lead_T(i,j) <<
-//                   std::endl;
 
                 if (chan < 0)
                   continue;
@@ -852,12 +771,10 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
                 // PMT allocation succeeded
                 int N1 = fOutput->fFing_PMT_Lead_N[chan]++;
                 fOutput->fFing_Lead_PMT[chan][N1] = RAW->get_FINGER_lead_T(i,j);
-              //  cout<<"RAW->get_FINGER_lead_T(i,j) " << RAW->get_FINGER_lead_T(i,j) << " i " << i << " j " <<j << endl;
-
+  
                 // PMT "0" is the trigger
                 if (chan == 0 || chan == 1){
                     fOutput->fFing_SC41_lead[chan][N1] = RAW->get_FINGER_lead_T(i,j);
-//                  cout <<"2event " << event_number << " fOutput->fFing_SC41_lead[chan][N1] " << fOutput->fFing_SC41_lead[chan][N1] << " chan " << chan << " N1 " << N1 << endl;
                   continue;
                 }
                 // chan = "PMT" number
@@ -872,8 +789,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
                   fOutput->fFing_Lead_Up[strip2][N2] = RAW->get_FINGER_lead_T(i,j);
                   fOutput->fFing_Strip_N[strip1]++;
                   fOutput->fFing_Strip_N[strip2]++;
-                  //  cout<<" fOutput->fFing_Lead_Up[strip1][N1] " <<  fOutput->fFing_Lead_Up[strip1][N1] << " strip1 " << strip1 << " chan " <<chan << endl;
-                }
+                                }
                 else // odd = lower PMT
                 {
                   int strip1 = chan + 1;
@@ -882,30 +798,19 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
                   int N2 = fOutput->fFing_Strip_N_LD[strip2]++;
                   fOutput->fFing_Lead_Down[strip1][N1] = RAW->get_FINGER_lead_T(i,j);
                   fOutput->fFing_Lead_Down[strip2][N2] = RAW->get_FINGER_lead_T(i,j);
-         //cout<<" fOutput->fFing_Lead_Down[strip1][N1] " <<  fOutput->fFing_Lead_Down[strip1][N1] << " strip1 " << strip1 << " chan " <<chan << endl;
-                }
+                      }
               }
               else{ //Trail even j
                 Phys_Channel_Trail[i][j] = fingID[i][RAW->get_FINGER_physical_channel(i,j)];
-                //fOutput->ffing_Trail_Phys_Chan[i][j] = Phys_Channel_Trail[i][j]; //Trail Chan.
-                //fOutput->ffing_Trail_T[i][j] = RAW->get_FINGER_trail_T(i,j); //Trail Time
-
+             
                 int chan = Phys_Channel_Trail[i][j];
-
-                //cout << " -> Trail Edge for chan " << chan << ", Coarse: "
-                  //<< RAW->get_FINGER_coarse_trail(i,j) << ", Fine: "
-                  //<< RAW->get_FINGER_fine_trail(i, j) << ", Total: "
-                  //<< RAW->get_FINGER_trail_T(i,j) <<
-                  //std::endl;
-
                 if (chan < 0)
                   continue;
 
                 // PMT allocation succeeded
                 int N1 = fOutput->fFing_PMT_Trail_N[chan]++;
                 fOutput->fFing_Trail_PMT[chan][N1] = RAW->get_FINGER_trail_T(i,j);
-              //  cout<<"RAW->get_FINGER_trail_T(i,j) " << RAW->get_FINGER_trail_T(i,j) << " i " << i << " j " <<j << endl;
-                // PMT "0" is the trigger
+                 // PMT "0" is the trigger
                 if (chan == 0 || chan == 1){
                     fOutput->fFing_SC41_trail[chan][N1] = RAW->get_FINGER_trail_T(i,j);
 
@@ -919,8 +824,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
                   int N2 = fOutput->fFing_Strip_N_TU[strip2]++;
                   fOutput->fFing_Trail_Up[strip1][N1] = RAW->get_FINGER_trail_T(i,j);
                   fOutput->fFing_Trail_Up[strip2][N2] = RAW->get_FINGER_trail_T(i,j);
-               //     cout<<" fOutput->fFing_Trail_Up[strip1][N1] " <<  fOutput->fFing_Trail_Up[strip1][N1] << " strip1 " << strip1 << " chan " <<chan << endl;
-                }
+                 }
                 else // odd = lower PMT
                 {
                   int strip1 = chan + 1;
@@ -929,70 +833,11 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
                   int N2 = fOutput->fFing_Strip_N_TD[strip2]++;
                   fOutput->fFing_Trail_Down[strip1][N1] = RAW->get_FINGER_trail_T(i,j);
                   fOutput->fFing_Trail_Down[strip2][N2] = RAW->get_FINGER_trail_T(i,j);
-               //    cout<<" fOutput->fFing_Trail_Down[strip1][N1] " <<  fOutput->fFing_Trail_Down[strip1][N1] << " strip1 " << strip1 << " chan " <<chan << endl;
                 }
               }
-
-
-              //fOutput->ffing_TOT[i][j] = RAW->get_FINGER_TOT(i,j);
             }
           }
-        }
-//       if (Used_Systems[5]&& PrcID_Conv==5){
-//
-//           int Phys_Channel_Lead[4][32] = {0,0};
-//           int Phys_Channel_Trail[4][32] = {0,0};
-//           int trailHits[4] = {0};
-//           int leadHits[4] = {0};
-//           //int MaxHits = 0;
-//           int fingfired[4] = {0};
-//           double  testToT[4][32] = {0};
-//
-//
-//           fOutput->ffing_tamexhits = RAW->get_FINGER_tamex_hits();
-//
-//           for (int i=0; i<RAW->get_FINGER_tamex_hits(); i++){
-//             leadHits[i] =  RAW->get_FINGER_lead_hits(i);
-//             trailHits[i] = RAW->get_FINGER_trail_hits(i);
-//             fingfired[i] = RAW->get_FINGER_am_Fired(i);
-//             fOutput->ffing_leadHits[i] = leadHits[i];
-//             fOutput->ffing_trailHits[i] = trailHits[i];
-//             fOutput->ffing_iterator[i] = fingfired[i];
-//             fOutput->ffing_Trig[i] = RAW->get_FINGER_trigger_T(i);
-//
-//             for(int j = 0;j < fingfired[i];j++){
-//
-//               fOutput->ffing_chID[i][j] = RAW->get_FINGER_CH_ID(i,j);
-//               fOutput->ffing_lead_coarse[i][j] = RAW->get_FINGER_coarse_lead(i,j);
-//               fOutput->ffing_lead_fine[i][j] = RAW->get_FINGER_fine_lead(i,j);
-//               fOutput->ffing_trail_coarse[i][j] = RAW->get_FINGER_coarse_trail(i,j);
-//               fOutput->ffing_trail_fine[i][j] = RAW->get_FINGER_fine_trail(i,j);
-//               fOutput->ffing_tamexCh[i][j] = RAW->get_FINGER_physical_channel(i,j);
-//
-//               if(fOutput->ffing_chID[i][j] % 2 == 1){ //Lead even j
-//                 Phys_Channel_Lead[i][j] = fingID[i][j/2]; //From allocation file
-//                 fOutput->ffing_Lead_Phys_Chan[i][j] = Phys_Channel_Lead[i][j];  //Lead Chan.
-//                 fOutput->ffing_Lead_T[i][j] = RAW->get_FINGER_lead_T(i,j); //Lead Time
-//                 if( Phys_Channel_Lead[i][j]!=17){
-//                 fOutput->ffing_TOT_added[i][j] = RAW->get_FINGER_TOT_added(i,j);
-//                 }
-//                // cout <<"Phys_Channel_Lead[i][j] " << Phys_Channel_Lead[i][j] << "  fOutput->ffing_Lead_T[i][j] " <<  fOutput->ffing_Lead_T[i][j]<<
-// //               cout <<"1) event " <<event_number <<" fOutput->ffing_TOT_added " << fOutput->ffing_TOT_added[i][j]<<" fOutput->ffing_Lead_T[i][j] " << fOutput->ffing_Lead_T[i][j] <<  <<" i " << i << " j " << j <<endl;
-//           }
-//
-//               else{ //Trail odd j
-//                 Phys_Channel_Trail[i][j] = RAW->get_FINGER_physical_channel(i,j);
-//                 fOutput->ffing_Trail_Phys_Chan[i][j] = Phys_Channel_Trail[i][j]; //Trail Chan.
-//                 fOutput->ffing_Trail_T[i][j] = RAW->get_FINGER_trail_T(i,j); //Trail Time
-//
-//
-//               }
-//
-//
-//               fOutput->ffing_TOT[i][j] = RAW->get_FINGER_TOT(i,j);
-//             }
-//           }
-//         }
+        }      
         ///--------------------------------------------------------------------------------------------///
 
       } //End of subevent loop
@@ -1009,7 +854,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 }
 
 void EventUnpackProc::FILL_HISTOGRAMS(int PrcID_Conv){
-
+    
  // switch(PrcID_Conv){
   //  case 0:
   if(PrcID_Conv==0)  Fill_FRS_Histos();
@@ -1031,8 +876,6 @@ void EventUnpackProc::FILL_HISTOGRAMS(int PrcID_Conv){
     //case 4:
 
     if(VME_AND_TAMEX_Fatima==true && PrcID_Conv==4 || PrcID_Conv==3){ Fill_FATIMA_VME_TAMEX_Histos();
-
-
 
     }
     //cout <<"VME_AND_TAMEX_Fatima " <<VME_AND_TAMEX_Fatima << " PrcID_Conv " << PrcID_Conv<<endl;
@@ -1099,6 +942,30 @@ void EventUnpackProc::load_PrcID_File(){
     sscanf(line.c_str(),"%s %d %d %d %d %d",s_tmp,&id[0],&id[1],&id[2],&id[3],&id[4],&id[5],&id[6]);
     for(int j = 0; j < 6; ++j) PrcID_Array[i][j] = id[j];
     i++;
+  }
+}
+//---------------------------------------------------------------------------------------------------
+void EventUnpackProc::load_FatTamex_Allocationfile(){
+
+  const char* format = "%d %d %d";
+  ifstream data("Configuration_Files/Fatima_TAMEX_allocation.txt");
+  if(data.fail()){
+    cerr << "Could not find Fatima_TAMEX_allocation config file!" << endl;
+    exit(0);
+  }
+  //     int id[5] = {0,0,0,0,0};
+  //int i = 0;
+  int TamID = 0;
+  int TamCh = 0;
+  int Sys_ch =0;
+  string line;
+  //char s_tmp[100];
+  while(data.good()){
+
+    getline(data,line,'\n');
+    if(line[0] == '#') continue;
+    sscanf(line.c_str(),format,&TamID,&TamCh,&Sys_ch);
+    TAMEX_bPlasFat_ID[TamID][TamCh] = Sys_ch;
   }
 }
 //---------------------------------------------------------------------------------------------------
@@ -1241,101 +1108,18 @@ void EventUnpackProc::get_WR_Config(){
   }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------//
-//Implement in future
-void EventUnpackProc::get_interest_arrays(){
-  //SKIP_EVT_BUILDING = false; //this causes the code to crash
-  amount_interest = 0;
-
-  length_interest = new int[10];
-  interest_array = new int*[10];
-  for(int i = 0;i < 10;++i){
-    length_interest[i] = 0;
-    interest_array[i] = new int[6];
-    for(int j = 0;j < 6;++j) interest_array[i][j] = -1;
-  }
-
-  string DET_NAME[8] = {"FRS","AIDA","PLASTIC_TAMEX","FATIMA_TAMEX","FATIMA_VME","GALILEO","FINGER","PLASTIC_VME"};
-
-  const char* format = "%d %d %d %d %d %d";
-
-  int tmp_values[6];
-
-  ifstream data("Configuration_Files/Coincidences_of_Interest.txt");
-
-  //Print statements if loading of data fails
-  if(data.fail()){
-    string input_string;
-    cerr << endl;
-    cerr << "No Detector_System coincidence file found!" << endl;
-    cerr << "Do you want to omit the Time_EventBuilding?  (y/n)\t\t ";
-    getline(cin,input_string);
-    cerr << endl;
-    if(input_string == "y"){
-      cerr << "------------------------------------------------------" << endl;
-      cerr << "!Time_EventBuilding will be skipped! ONLY SINGLES" << endl;
-      cerr << "------------------------------------------------------" << endl;
-      //SKIP_EVT_BUILDING = true;
-      return;
-    }
-    else{
-      cerr << "Not skipping Time_EventBuilding.\n";
-      cerr << "PLEASE CREATE Configuration_Files/Coincidences_of_Interest.txt file!" << endl;
-      cerr << "\nEXITING PROGRAM NOW" << endl;
-      exit(0);
-    }
-  }
-
-  string line;
-
-  cout << "\n=====================================================" << endl;
-  cout << "Coincidences of interest are: " << endl;
-  cout << "-----------------------------------------------------" << endl;
-  while(data.good()){
-    getline(data,line,'\n');
-    if(line[0] == '#') continue;
-    for(int i = 0;i < 6;++i) tmp_values[i] = -1;
-
-    sscanf(line.c_str(),format,&tmp_values[0],&tmp_values[1]
-    ,&tmp_values[2],&tmp_values[3]
-    ,&tmp_values[4],&tmp_values[5]);
-
-    if(tmp_values[0] != -1){
-      if(tmp_values[1] == -1){
-        cerr << endl;
-        cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-        cerr << "SINGLE COINCIDENCE DETECTED! => EDIT Coincidences_of_Interest.txt FILE!" << endl;
-        cerr << "-> EXITING PROGRAM" << endl;
-        cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-        cerr << endl;
-        exit(0);
-      }
-
-      for(int i = 0;i < 6;++i){
-        if(tmp_values[i] != -1){
-          interest_array[amount_interest][length_interest[amount_interest]] = tmp_values[i];
-          length_interest[amount_interest]++;
-          //cout << "interest_array " << interest_array[amount_interest][length_interest[amount_interest]] << " amount_interest "<< amount_interest <<" length_interest "<<length_interest << endl;
-        }
-      }
-      cout << "-> ";
-      for(int i = 0;i < length_interest[amount_interest]-1;++i) cout << DET_NAME[interest_array[amount_interest][i]] << " + ";
-      cout << DET_NAME[interest_array[amount_interest][length_interest[amount_interest]-1]];
-      cout << endl;
-      amount_interest++;
-
-    }
-  }
-  cout << "=====================================================" << endl;
-}
-
-
   //-----------------------------------------------------------------------------------------------------------------------------//
   // ################################################################## //
   // ################################################################## //
   // ################# Raw Histogram Filling Section ################## //
   // ################################################################## //
   // ################################################################## //
+   /**----------------------------------------------------------------------------------------------**/
+  /**---------------------------------------------  White rabbit time sync checks-------------------**/
+  /**----------------------------------------------------------------------------------------------**/
+  
+  
+  
   /**----------------------------------------------------------------------------------------------**/
   /**---------------------------------------------  FRS  ------------------------------------------**/
   /**----------------------------------------------------------------------------------------------**/
@@ -1351,6 +1135,59 @@ void EventUnpackProc::get_interest_arrays(){
   const char *fext2[12]={"01", "11", "21", "22","31", "41",
              "42", "43", "61",
              "62", "81", "82"};
+             
+  ///FRS Scalars           
+  bool scaler_enable_hist[64];
+  char scaler_name[64][256];
+  scaler_ch_1kHz=39; //ch7 of 2nd scaler
+  scaler_ch_spillstart=8; //ch8 of 1st scaler 
+  scaler_check_first_event=1;      
+  for(int ii=0; ii<64; ii++){
+    sprintf(scaler_name[ii],"scaler_ch%d",ii);//default name
+    scaler_enable_hist[ii]=false;
+  }
+  sprintf(scaler_name[0],"IC01curr-old"); 
+  sprintf(scaler_name[1],"SEETRAM-old");
+  sprintf(scaler_name[2],"SEETRAM-new");
+  sprintf(scaler_name[3],"IC01curr-new");
+  sprintf(scaler_name[4],"IC01 count");
+  sprintf(scaler_name[5],"SCI00");
+  sprintf(scaler_name[6],"SCI01");
+  sprintf(scaler_name[7],"SCI02");
+  sprintf(scaler_name[8],"Start Extr");
+  sprintf(scaler_name[9],"Stop Extr");
+  sprintf(scaler_name[10],"Beam Transformer");
+  
+  sprintf(scaler_name[32],"Free Trigger");
+  sprintf(scaler_name[33],"Accept Trigger");
+  sprintf(scaler_name[34],"Spill Counter");
+  sprintf(scaler_name[35],"1 Hz clock");
+  sprintf(scaler_name[36],"10 Hz clock");
+  sprintf(scaler_name[37],"100 kHz X veto dead-time");
+  sprintf(scaler_name[38],"100 kHz clock");
+  sprintf(scaler_name[39],"1 kHz clock");
+  
+  sprintf(scaler_name[48],"SCI21L");
+  sprintf(scaler_name[49],"SCI41L");
+  sprintf(scaler_name[50],"SCI42L");
+  sprintf(scaler_name[51],"SCI43L");
+  sprintf(scaler_name[52],"SCI81L");
+  sprintf(scaler_name[53],"SCI21R");
+  sprintf(scaler_name[54],"SCI41R");
+  sprintf(scaler_name[55],"SCI42R");
+  sprintf(scaler_name[56],"SCI43R");
+  sprintf(scaler_name[57],"SCI81R");
+  sprintf(scaler_name[58],"SCI31L");
+  sprintf(scaler_name[59],"SCI31R");
+  sprintf(scaler_name[60],"SCI11");
+  sprintf(scaler_name[61],"SCI51");
+  
+
+  for(int ii=0; ii<64; ii++){
+    hScaler_per_s[ii]     = MakeH1I("FRS/Scaler/Scaler_per_1s",Form("%s_per_1s",scaler_name[ii]),1000,0,1000,"Time (s)", 2,5, "Count per second");
+    hScaler_per_100ms[ii] = MakeH1I("FRS/Scaler/Scaler_per_0.1s",Form("%s_per_0.1s",scaler_name[ii]),4000,0,400,"Time (s)", 2,5, "Count per 0.1 second");
+    hScaler_per_spill[ii] = MakeH1I("FRS/Scaler/Scaler_per_spill",Form("%s_per_spill",scaler_name[ii]),1000,0,1000,"Spill", 2,5, "Count per spill");
+  }
 
   for (int cnt = 0; cnt<7; cnt++) //changed from 3 to 6 04.07.2018
     {
@@ -1396,14 +1233,6 @@ void EventUnpackProc::get_interest_arrays(){
         sprintf(name,"SCI_21_41_TofRR");
         hSCI_TofRR2 = MakeH1I(fname,name,1500,0,62000,"TAC SC41R-SC21R [ps]",2,3);
 
-//         sprintf(name,"SCI_21_41_Tof2");
-//         hSCI_Tof2 = MakeH1I(fname,name,1000,0,62000,"TAC SC41-SC21 [ps] (pos.corr.)",2,3);
-
-//         sprintf(name, "cSCI%d_TofLL", 2);
-//         cSCI_TofLL2 = MakeWindowCond(fname,name, 2500, 80000, hSCI_TofLL2->GetName());
-//
-//         sprintf(name, "cSCI%d_TofRR", 2);
-//         cSCI_TofRR2 = MakeWindowCond(fname,name, 2500, 80000, hSCI_TofRR2->GetName());
         hSCIdE41_TPC42X= MakeH2I("FRS/SCI_TPC/","SCIdE41_TPC42X", 1024,0,4096, 400,-100.,100, "SC41 dE", "TPC42 X[mm]", 2);
         hSCIdE41L_TPC42X= MakeH2I("FRS/SCI_TPC/","SCIdE41L_TPC42X", 1024,0,4096, 400,-100.,100, "SC41L dE", "TPC42 X[mm]", 2);
         hSCIdE41L_TPC41X= MakeH2I("FRS/SCI_TPC/","SCIdE41L_TPC41X", 1024,0,4096, 400,-100.,100, "SC41L dE", "TPC41 X[mm]", 2);
@@ -1427,11 +1256,6 @@ void EventUnpackProc::get_interest_arrays(){
         sprintf(name,"SCI_21_42_Tof3");
         hSCI_Tof3 = MakeH1I(fname,name,1000,0,62000,"TAC SC42-SC21 [ps] (pos.corr.)",2,3);
 
-//         sprintf(name, "cSCI%d_TofLL", 3);
-//         cSCI_TofLL3 = MakeWindowCond(fname,name, 2500, 80000, hSCI_TofLL3->GetName());
-//
-//         sprintf(name, "cSCI%d_TofRR", 3);
-//         cSCI_TofRR3 = MakeWindowCond(fname,name, 2500, 80000, hSCI_TofRR3->GetName());
     hSCI_dT_21l_41l = MakeTH1('D',"FRS/SCI/dT/SCI_dt_21l_41l","hSCI_dT_21l_41l",5001,0,5000); //from Multihit TDCS
     hSCI_dT_21r_41r = MakeTH1('D',"FRS/SCI/dT/SCI_dt_21r_41r","hSCI_dT_21r_41r",5001,0,5000);
 
@@ -1447,48 +1271,20 @@ void EventUnpackProc::get_interest_arrays(){
    // hID_Z3 = MakeH1I("FRS/ID","ID_Z3",1000,10,93,"Z3 s2-s4",2,6);
     ////////////////////////////////////////////////////////////
 
-
-//     hID_Z_Z3 = MakeH2I("FRS/ID","ID_Z_Z3", 250,10,93, 250,10.,93.,
-//              "Z", "Z3 'old MUSIC'", 2);
-
     hID_Z_dE2 = MakeH2I("FRS/ID","ID_Z_dE2", 250,1,30, 250,0.,4000.,
               "Z", "MUSIC2_dE", 2);
 
     hID_Z_Sc21E = MakeH2I("FRS/ID","ID_Z_Sc21E", 300,0,25.,400,0,4000.,
             "Z s2-s4", "sqrt(Sc21_L*sC21_R)", 2);
-
- //   hID_x2AoQ = MakeH2I("ID","ID_x2AoQ", 300,1.4,2.5, 200,-100.,100.,"A/Q s2-s4", "X at S2 [mm]", 2);
-
-/*    hID_Z_AoQ = MakeH2I("ID","ID_Z_AoQ", 300,1.4,2.5, 400,1.,20.,"A/Q s2-s4", "Z s2-s4", 2);
-    hID_Z_AoQ_zsame = MakeH2I("ID","ID_Z_AoQ_zsame", 600,1.4,2.5, 600,1.,30.,"Z1==Z2 A/Q s2-s4", "Z s2-s4", 2);
-
-    hID_Z_AoQ_corr = MakeH2I("FRS/ID","ID_Z_AoQ_S2-S4corr", 300,1.4,2.5, 300,1.,20., "A/Q s2-s4", "Z s2-s4", 2);*/
-
-//     hID_x4AoQ = MakeH2I("FRS/ID","ID_x4AoQ", 100,1.4,2.5, 100,-100.,100.,"A/Q s2-s4", "X at S4 [mm]", 2);
     hID_x2z = MakeH2I("FRS/ID","ID_x2z", 300,1.,30., 200,-100.,100., "Z s2-s4", "X at S2 [mm]", 2);
     hID_x4z = MakeH2I("FRS/ID","ID_x4z", 300,1.,30., 200,-100.,100., "Z s2-s4", "X at S4 [mm]", 2);
-//     hID_AoQ_ang_s4 = MakeH2I("ID","ID_AoQ_ang_s4", 500,-20.,20., 400,1.,3., "Angle s4", "AoQ", 2);
-//     hID_AoQ_ang_s4corr = MakeH2I("ID","ID_AoQ_ang_s4corr", 500,-20.,20., 400,1.,3., "Angle s4", "AoQ", 2);
-  //  hID_Z_x_s4 = MakeH2I("ID","ID_Z_x_s4", 500,-100.,100., 300,0.,20., "X s4", "Z", 2);
-   // hID_AoQ_Z_corr = MakeH2I("ID","ID_AoQ_Z_corr",600,1.6,2.8,600,40.,60., "AoQ", "Z", 2);
-
     hID_E_Xs4 = MakeH2I("FRS/ID","ID_E_Xs4", 200,-100.,100., 400,0.,4000., "X s4 [mm]", "Delta E", 2);
-
     hID_E_Xs2 = MakeH2I("FRS/ID","ID_E_Xs2", 200,-100.,100., 400,0.,4000., "X s2 [mm]", "Delta E", 2);
-
     hID_x2a2 = MakeH2I("FRS/ID", "ID_x2_a2", 200, -100., 100., 200, -100., 100., "X s2 [mm]", "AngleX s2 [mrad]", 2);
     hID_y2b2 = MakeH2I("FRS/ID", "ID_y2_b2", 200, -100., 100., 200, -100., 100., "Y s2 [mm]", "AngleY s2 [mrad]", 2);
-
     hID_x4a4 = MakeH2I("FRS/ID", "ID_x4_a4", 200, -100., 100., 200, -100., 100., "X s4 [mm]", "AngleX s4 [mrad]", 2);
     hID_y4b4 = MakeH2I("FRS/ID", "ID_y4_b4", 200, -100., 100., 200, -100., 100., "Y s4 [mm]", "AngleY s4 [mrad]", 2);
     hID_x2x4 = MakeH2I("FRS/ID","ID_x2_x4",200,-100,100,200,-100,100,"x2 mm","x4 mm",2);
-    //   hID_Z_Q = MakeH1I("ID","ID_Z_Q",2000,10.,93.,"Z s2-s4 gated on id_x2aoq(2)",2,6);
-
-   /* hID_xz = MakeH2I("ID", "ID_x4z4", 52, 0., 5200., 200,-100.,100., "Z at S4 [mm]", "X at S4 [mm]", 2);
-    hID_yz = MakeH2I("ID", "ID_y4z4", 52, 0., 5200., 200,-100.,100., "Z at S4 [mm]", "Y at S4 [mm]", 2);
-    hID_xzc = MakeH2I("ID", "ID_x4z4c", 52, 0., 5200., 200,-100.,100., "Z at S4 [mm] cond", "X at S4 [mm]", 2);
-    hID_yzc = MakeH2I("ID", "ID_y4z4c", 52, 0., 5200., 200,-100.,100., "Z at S4 [mm] cond", "Y at S4 [mm]", 2);  */
-
     hID_SC41dE_AoQ = MakeH2I("FRS/ID","ID_SC41dE_AoQ", 300,1.2,3.0, 800,0.,4000.,"A/Q s2-s4", "SC41 dE", 2);
   ///////////////////////////////////////////////////////////////////////////////////////////////
 for(int i=0;i<7;i++)
@@ -1556,36 +1352,11 @@ for(int i=0;i<7;i++)
   //-----------------------------------------------------------------------------------------------------------------------------//
   void EventUnpackProc::Fill_FRS_Histos(){
 
-    Float_t Music_dE[3], Music_dE_corr[3];
-
-    Int_t Music_E1[8], Music_E2[8], Music_T1[8], Music_T2[8];
-
-    Float_t sci_l[12], sci_r[12], sci_e[12], sci_tx[12], sci_x[12];
-
-    Float_t sci_tofll2, sci_tofll3, sci_tof2, sci_tofrr2, sci_tofrr3, sci_tof3;
-
-    Float_t ID_x2, ID_y2, ID_a2, ID_b2;
-
-    Float_t ID_x4, ID_y4, ID_a4, ID_b4;
-
-    Float_t TPC_X[7], TPC_Y[7];
-    Int_t TPC_LT[7][2], TPC_RT[7][2];
-    Float_t TPC_X0, TPC_X1;
-
-
-    Int_t sci_dt_21l_21r, sci_dt_41l_41r, sci_dt_42l_42r, sci_dt_43l_43r;
-
-    Int_t sci_dt_21l_41l, sci_dt_21r_41r, sci_dt_21l_42l, sci_dt_21r_42r;
-
-    Float_t ID_brho[2], ID_rho;
-
-    Float_t beta, beta3, gamma;
-
-    Float_t AoQ, AoQ_corr;
-
-    Float_t ID_z, ID_z2, ID_z3;
-
-    Float_t timestamp, ts, ts2;
+     time_in_ms = 0;
+     spill_count = 0;
+     ibin_for_s = 0;
+     ibin_for_100ms = 0;
+     ibin_for_spill = 0;
 
 
     for(int i =0; i<8; i++){
@@ -1668,14 +1439,29 @@ for(int i=0;i<7;i++)
     ID_z = RAW->get_FRS_z();
     ID_z2 = RAW->get_FRS_z2();
     ID_z3 = RAW->get_FRS_z3();
+   
 
     timestamp = RAW->get_FRS_timestamp();
     ts = RAW->get_FRS_ts(); //Spill time structrue
     ts2 = RAW->get_FRS_ts2();
+    
+     /// --------FRS SCALARS-------------------------------- //
 
-    // ---------------------------------------- //
+    
+    time_in_ms           = RAW->get_FRS_time_in_ms();
+    spill_count          = RAW->get_FRS_spill_count();
+    ibin_for_s           = RAW->get_FRS_ibin_for_s();
+    ibin_for_100ms       = RAW->get_FRS_ibin_for_100ms();
+    ibin_for_spill       = RAW->get_FRS_ibin_for_spill();
+    ibin_clean_for_s     = RAW->get_FRS_ibin_clean_for_s();
+    ibin_clean_for_100ms = RAW->get_FRS_ibin_clean_for_100ms();
+    ibin_clean_for_spill = RAW->get_FRS_ibin_clean_for_spill();
+    increase_scaler_temp = RAW->get_FRS_increase_scaler_temp();
+    
 
-    //MUSIC
+    /// ------------MUSIC---------------------------- //
+
+    
      //MUSIC 1 is TUM MUSIC (8 anodes). MUSIC 3 not required
     for(int i=0; i<3; i++){
    //  hMUSIC1_MUSIC2->Fill(Music_dE[0],Music_dE[1]);
@@ -1827,16 +1613,7 @@ for(int i=0;i<7;i++)
      if(ID_z!=0 && Music_dE[1]!=0)hID_Z_dE2->Fill(ID_z,Music_dE[1]);
     // hID_Z_Z3->Fill(ID_z,ID_z3);
      if(ID_z!=0 && sci_l[2]!=0 && sci_r[2]!=0)hID_Z_Sc21E->Fill(ID_z, sqrt(sci_l[2]*sci_r[2]));
-//      hID_Z_AoQ->Fill(AoQ, ID_z);
-//      hID_Z_AoQ_corr->Fill(AoQ_corr, ID_z);  //S2-S4 correlated
-//
-//        if(TMath::Abs(ID_z-ID_z2-0.3)<0.6)
-//             {
-//               hID_Z_AoQ_zsame->Fill(AoQ, ID_z);
-//             }
 
-// //      hID_x2AoQ->Fill(AoQ, ID_x2);
-//      hID_x4AoQ->Fill(AoQ, ID_x4);
      if(ID_x2!=0&&ID_x4!=0 ) hID_x2x4->Fill(ID_x2, ID_x4);
      if(AoQ!=0 && sci_e[5]!=0) hID_SC41dE_AoQ->Fill(AoQ, sci_e[5]);
 
@@ -1856,6 +1633,21 @@ for(int i=0;i<7;i++)
     if(timestamp) htimestamp->Fill(timestamp);
     if(ts) hts->Fill(ts);
     if(ts2) hts2->Fill(ts2);
+    
+    for(int ii=0; ii<64; ii++){
+    
+    //    printf("ch %d: this event = %lld, increase =%lld\n",ii,src.sc_long[ii],increase_scaler_temp);
+    hScaler_per_s[ii]->AddBinContent(ibin_for_s, increase_scaler_temp);
+    hScaler_per_100ms[ii]->AddBinContent(ibin_for_100ms, increase_scaler_temp);
+    hScaler_per_spill[ii]->AddBinContent(ibin_for_spill, increase_scaler_temp);    
+   // if(ii=50)cout<<"ibin_clean_for_s " << ibin_clean_for_s << " increase_scaler_temp " << increase_scaler_temp<< endl;
+  }
+  
+   for(int ii=0; ii<64; ii++){
+    hScaler_per_s[ii]->SetBinContent(ibin_clean_for_s, 0);
+    hScaler_per_100ms[ii]->SetBinContent(ibin_clean_for_100ms, 0);
+    hScaler_per_spill[ii]->SetBinContent(ibin_clean_for_spill, 0);
+  }
 
   }
 
@@ -2375,7 +2167,7 @@ void EventUnpackProc::Fill_GALILEO_Histos(){
      /**------------------GALILEO Raw Energy -----------------------------------------**/
       GALILEO_hits = RAW->get_GALILEO_am_Fired();
          for(int i=0; i<GALILEO_hits; i++){
-        GalID = RAW->get_GALILEO_Det_id(i) * 3 + RAW->get_GALILEO_Crystal_id(i);
+         GalID = RAW->get_GALILEO_Det_id(i) * 3 + RAW->get_GALILEO_Crystal_id(i);
         tmpGAL[GalID] = RAW->get_GALILEO_Chan_E(i)/1000;
         hGAL_Raw_E[GalID]->Fill(tmpGAL[GalID]);
          }

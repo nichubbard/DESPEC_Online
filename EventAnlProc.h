@@ -27,20 +27,19 @@
 #include "AIDA_Data_Types.h"
 #include "TCutG.h"
 #include "TGraph.h"
-#include "DESPEC_Array_Sizes.h"
 #include "Go4ConditionsBase/TGo4WinCond.h"
 #include "Go4ConditionsBase/TGo4PolyCond.h"
+#include "DESPEC_Array_Sizes.h"
 
 #define CYCLE_TIME  (Double_t) 5000
 #define COARSE_CT_RANGE  0x800  // 11 bits
 
 ///Temp definitions for combined crate
-#define bPLAS_TAMEX_NUM 3
+#define bPLAS1_TAMEX_NUM 3
+#define bPLAS2_TAMEX_NUM 3
 #define bPLAS_TAMEX_ID 2
 #define FAT_TAMEX_ID 0
-
-
-
+  
 
 class EventAnlStore;
 class TSCNParameter;
@@ -60,24 +59,41 @@ class EventAnlProc : public TGo4EventProcessor {
 
         double lead_lead_bplas[48][100], trail_trail_bplas[48][100];
         double lead_lead_fat[48][100];
-        double ToT_bplas[48][100];
-        double lead_bplas[48][100], lead_bplas1[48][100], lead_bplas2[48][100] ;
-        double trail_bplas1[48][100], trail_bplas2[48][100];
-        double lead_lead_bplas_gated[48][100], lead_lead_bplas_Ref0[48][100];
-        double lead_lead_fat_Ref0[48][100];
-        int hits_bplas_lead = 0, hits_bplas_trail=0;
+        
+        double ToT_bplas[3][16][10] ;
+        double lead_bplas[3][16][10] ;
+        double trail_bplas[3][16][10] ;
+        double lead_lead_bplas_gated[48][100]; 
+        double lead_lead_bplas_Ref1[16][10];
+        double lead_lead_bplas_Ref2[16][10];
+        
+        
+        double lead_fat[48][10], trail_fat[48][10];
+        double lead_lead_fat_Ref1[48][10];
+        double ToT_fat[48][10];
+        double FatTam_RefCh0[10];
+        double SC41L_ANA_lead_fat[10], SC41R_ANA_lead_fat[10];
+        double SC41L_DIG_lead_fat[10], SC41R_DIG_lead_fat[10];
+        double bPlasDet1_coin_lead_Fat[10], bPlasDet2_coin_lead_Fat[10] ;
+        int hits_fat_lead;
+        
         double SC41L_ANA_lead_bPlas[48][100], SC41R_ANA_lead_bPlas[48][100];
         double SC41L_DIG_lead_bPlas[48][100], SC41R_DIG_lead_bPlas[48][100];
-        double SC41L_ANA_lead_fat[48][100], SC41R_ANA_lead_fat[48][100];
-        double SC41L_DIG_lead_fat[48][100], SC41R_DIG_lead_fat[48][100];
+       
+        
+        
+        double lead_lead_fat_Ref0[48][100];
+        int hits_bplas_lead = 0, hits_bplas_trail=0;
+        
 
         double bPlas_TAM_SC41L_ANA[100];
         double bPlas_TAM_SC41R_ANA[100];
         double bPlas_TAM_SC41L_DIG[100];
         double bPlas_TAM_SC41R_DIG[100];
         double bPlas_AND_Coinc[100];
-        double bPlas_RefCh[100];
-        double Fat_RefCh[100];
+        double bPlas_RefCh0_Det1[10];
+        double bPlas_RefCh0_Det2[10];
+        double Fat_RefCh[10];
       
       //FRS Histograms and conditions setup
         TH1I* MakeH1I(const char* foldername,
@@ -166,18 +182,19 @@ class EventAnlProc : public TGo4EventProcessor {
       Long64_t Fat_WR;
       double SC41, SC41_ns;
 
-      // From unpacker
-      int    GalFired;
-      int    GalDet[GALILEO_MAX_HITS];
-      int    GalCrys[GALILEO_MAX_HITS];
-      double GalE[GALILEO_MAX_HITS];
-      double GalE_Cal[GALILEO_MAX_HITS];
-      double GalT[GALILEO_MAX_HITS];
-      bool GalPileUp[GALILEO_MAX_HITS];
-      bool GalOverFlow[GALILEO_MAX_HITS];
+       // From unpacker
+          int    GalFired;
+          int    GalDet[GALILEO_MAX_HITS];
+          int    GalCrys[GALILEO_MAX_HITS];
+          double GalE[GALILEO_MAX_HITS];
+          double GalE_Cal[GALILEO_MAX_HITS];
+          double GalT[GALILEO_MAX_HITS];
+          bool GalPileUp[GALILEO_MAX_HITS];
+          bool GalOverFlow[GALILEO_MAX_HITS];
 
+     
       Long64_t Gal_WR;
-      //Long64_t Gal_WR_Store[100];
+      Long64_t Gal_WR_Store[100];
 
       int    Fing_firedTamex;
       int    Fing_leadHits[4];
@@ -209,8 +226,8 @@ class EventAnlProc : public TGo4EventProcessor {
      void Make_Aida_Histos();
      void Make_Plastic_VME_Histos();
      void Make_Plastic_Tamex_Histos();
-     void Make_Fatima_Histos();
      void Make_Fatima_Tamex_Histos();
+     void Make_Fatima_Histos();
      void Make_Fatima_VME_Tamex_Histos();
      void Make_Galileo_Histos();
      void Make_Finger_Histos();
@@ -222,8 +239,9 @@ class EventAnlProc : public TGo4EventProcessor {
      void Do_FRS_Histos(EventAnlStore* pOutput);
      void Do_Plastic_VME_Histos(EventAnlStore* pOutput);
      void Do_Plastic_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput);
-     void Do_Fatima_Histos(EventAnlStore* pOutput);
      void Do_Fatima_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput);
+     void Do_Fatima_Histos(EventAnlStore* pOutput);
+     
      void Do_Fatima_VME_Tamex_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput);
      void Do_Galileo_Histos(EventAnlStore* pOutput);
      void Do_Finger_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput);
@@ -359,24 +377,30 @@ class EventAnlProc : public TGo4EventProcessor {
             
             TH1 *hbPlas_ToT_det[3][32];
             
-            TH1 *hbPlas_lead_lead[3][32];
-            TH1 *hbPlas_lead_lead_ref[3][32];
+            TH1 *hbPlas_Lead_T[3][16];
+            TH1 *hbPlas_Trail_T[3][16];
+            TH1 *hbPlas_Multiplicity_Det1;
+            TH1 *hbPlas_Multiplicity_Det2; 
+           
+            //TH1 *hbPlas_lead_lead[3][32];
+            TH1 *hbPlas_lead_lead_ref_det1[2][16];
+            TH1 *hbPlas_lead_lead_ref_det2[2][16];
             TH1 *hbPlas_lead_lead_gated[3][32];       
             TH1 *hbPlas_ToT[3][32];
-            TH1 *hbPlas_ToT_coinc[3][32];
-            TH1 *hbPlas_ToT_coinc_dets[3][32];
-            TH1 *hbPlas_ToT_coinc_dets_perchan[3][32];
+//             TH1 *hbPlas_ToT_coinc[3][32];
+//             TH1 *hbPlas_ToT_coinc_dets[3][32];
+//             TH1 *hbPlas_ToT_coinc_dets_perchan[3][32];
             TH1 *hbPlas_trail_trail[3][32];
             TH1 *hbPlas_Energy_Calib[3][32];
              TH1 *hbPlas_SC41L_Anal_lead[3][32];
              TH1 *hbPlas_SC41R_Anal_lead[3][32];
              TH1 *hbPlas_SC41L_Digi_lead[3][32];
              TH1 *hbPlas_SC41R_Digi_lead[3][32];
-             TH1 *hbPlas_ToT_Sum_Det1;
-             TH1 *hbPlas_ToT_Sum_Det2;
+             TH1 *hbPlas_ToT_Sum[3];
+             
             
-            TH2 *hbPlas_gamma_gamma;
-            TH1 *hbPlas_hit_pattern;
+         
+            TH1 *hbPlas_hit_pattern_det[2];
             TH1 *hbPlas_num_fired_chans;
             TH1 *hSC41_Analogue_Tamex;
             TH1 *hSC41_Digital_Tamex;
@@ -391,7 +415,16 @@ class EventAnlProc : public TGo4EventProcessor {
              TH1 *hFATTEMP_SC41R_Anal_lead[3][32];
              TH1 *hFATTEMP_SC41L_Digi_lead[3][32];
              TH1 *hFATTEMP_SC41R_Digi_lead[3][32];
-
+             
+             
+             
+             TH1 *hFat_Lead_T[48];
+             TH1 *hFat_Trail_T[48];
+             TH1 *hFat_lead_lead_ref[48];
+             TH1 *hFat_ToT_det[48];
+             TH1 *hFat_ToT_Sum;
+             TH1 *hFat_tamex_hit_pattern;
+             TH1 *hFat_tamex_multiplicity;
 
 
             TH1 *hScalar_hit_pattern;
@@ -452,7 +485,7 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1* hFAT_lead_lead_QDC_Gate[50];
 
             TH1 *hFAT_test[50];
-            //Galileo Histograms
+            ///Galileo Histograms
             TH1 *hGAL_Chan_E[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
             //TH1 *hGAL_Chan_E2;
             TH1 *hGAL_Chan_Egate;
@@ -467,9 +500,9 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hGAL_ESum_largerange_all;
             TH1 *hGAL_Hit_Pat;
             TH1 *hGAL_Multi_1;
-	    TH1 *hGAL_Multi_2;
-	    TH1 *hGAL_Multi_3;
-	    TH1 *hGAL_Multi_4;
+            TH1 *hGAL_Multi_2;
+            TH1 *hGAL_Multi_3;
+            TH1 *hGAL_Multi_4;
             TH1 *hGAL_Pileup;
             TH2 *hGAL_Chan_E_Mat;
 
