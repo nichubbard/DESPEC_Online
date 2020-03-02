@@ -104,25 +104,34 @@ private:
 	Float_t timestamp;  // set_DATA_ID_Timestamp
 	Float_t ts;         // set_DATA_ID_Timestamp
 	Float_t ts2;        // set_DATA_ID_Timestamp
-
-
+	
+	Int_t   time_in_ms;
+    Int_t   spill_count;
+    Int_t   ibin_for_s;
+    Int_t   ibin_for_100ms;
+    Int_t   ibin_for_spill;
+    Int_t   ibin_clean_for_s;
+    Int_t   ibin_clean_for_100ms;
+    Int_t   ibin_clean_for_spill;
+    UInt_t  increase_scaler_temp;
+    
 	// ##########################################################
 
 	//White Rabbit
 	ULong64_t WR;
 
     //AIDA
-    double AIDA_Energy[10000];
-    int AIDA_FEE[10000];
-    int AIDA_CHA_ID[10000];
-    ULong64_t AIDA_WR[10000];
-    int AIDA_Hits;
-    bool AIDA_HighE_VETO[10000];
-    int AIDA_SIDE[10000];
-    int AIDA_STRIP[10000];
-    int AIDA_EVT_ID[10000];
-	ULong64_t AIDA_FastTime[10000];
-	int AIDA_ADC[10000];
+    double      AIDA_Energy[10000];
+    int         AIDA_FEE[10000];
+    int         AIDA_CHA_ID[10000];
+    ULong64_t   AIDA_WR[10000];
+    int         AIDA_Hits;
+    bool        AIDA_HighE_VETO[10000];
+    int         AIDA_SIDE[10000];
+    int         AIDA_STRIP[10000];
+    int         AIDA_EVT_ID[10000];
+	ULong64_t   AIDA_FastTime[10000];
+	int         AIDA_ADC[10000];
 
 
 
@@ -183,7 +192,7 @@ private:
 //  	PLASTIC_VME_DataStruct PLASTIC_VME_Data;
 
     //FINGER
-     int amount_hit_tamex;
+    int amount_hit_tamex;
     int iterator[FINGER_TAMEX_MODULES];
     double trigger_coarse[FINGER_TAMEX_HITS];
     double trigger_fine[FINGER_TAMEX_HITS];
@@ -201,7 +210,6 @@ private:
     double fine_T_edge_trail[FINGER_TAMEX_MODULES][FINGER_TAMEX_HITS];
 
     bool fired_tamex[4];
-
 
 	bool VME_Event;
 
@@ -238,17 +246,15 @@ private:
     bool fired_tamex_bPlas[4];
 
 	//GALILEO
-	int GAL_FIRED;
-	int GALILEO_Det_Nums[GALILEO_MAX_HITS];
-	int GALILEO_Crystal_Nums[GALILEO_MAX_HITS];
-	ULong GALILEO_sum_time[GALILEO_MAX_HITS];
-	int GALILEO_hit_pattern[GALILEO_MAX_HITS];
-	ULong GALILEO_chan_time[GALILEO_MAX_HITS];
-	double GALILEO_chan_energy[GALILEO_MAX_HITS];
-  bool GALILEO_Pileup[GALILEO_MAX_HITS];
-	bool GALILEO_Overflow[GALILEO_MAX_HITS];
-
-	bool ch51;
+        int GAL_FIRED;
+        int GALILEO_Det_Nums[GALILEO_MAX_HITS];
+        int GALILEO_Crystal_Nums[GALILEO_MAX_HITS];
+        ULong GALILEO_sum_time[GALILEO_MAX_HITS];
+        int GALILEO_hit_pattern[GALILEO_MAX_HITS];
+        ULong GALILEO_chan_time[GALILEO_MAX_HITS];
+        double GALILEO_chan_energy[GALILEO_MAX_HITS];
+        bool GALILEO_Pileup[GALILEO_MAX_HITS];
+        bool GALILEO_Overflow[GALILEO_MAX_HITS];
 
 	int Event_Type;
 
@@ -270,6 +276,7 @@ public:
 	void set_DATA_ID_Beta_Rho(Float_t*,Float_t*,Float_t,Float_t,Float_t);
 	void set_DATA_ID_Z_AoQ(Float_t,Float_t,Float_t,Float_t,Float_t);
 	void set_DATA_ID_Timestamp(Float_t,Float_t,Float_t);
+    void set_DATA_FRS_SCALERS(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,Int_t,UInt_t);
 	// FRS STUFF //
 
 
@@ -384,7 +391,17 @@ public:
 	Float_t get_FRS_timestamp();
 	Float_t get_FRS_ts();
 	Float_t get_FRS_ts2();
-
+    
+    Int_t   get_FRS_time_in_ms();
+    Int_t   get_FRS_spill_count();
+    Int_t   get_FRS_ibin_for_s();
+    Int_t   get_FRS_ibin_for_100ms();
+    Int_t   get_FRS_ibin_for_spill();
+    Int_t   get_FRS_ibin_clean_for_s();
+    Int_t   get_FRS_ibin_clean_for_100ms();
+    Int_t   get_FRS_ibin_clean_for_spill();
+    UInt_t  get_FRS_increase_scaler_temp();
+    
 	// ####################################################
     double  get_AIDA_Energy(int i);
     int     get_AIDA_FEE_ID(int i);
@@ -509,16 +526,16 @@ public:
 
 
 	//temporary GALILEO getters
-	int         get_GALILEO_am_Fired();
-	ULong64_t   get_GALILEO_Sum_T(int);
-	//int         get_GALILEO_Pileup(int);
-	int         get_GALILEO_Hit_Pattern(int);
-	ULong64_t   get_GALILEO_Chan_T(int);
-	double      get_GALILEO_Chan_E(int);
-    int       get_GALILEO_Det_id(int);
-		int				get_GALILEO_Crystal_id(int);
-    bool      get_GALILEO_Pileup(int);
-    bool      get_GALILEO_Overflow(int);
+        int         get_GALILEO_am_Fired();
+        ULong64_t   get_GALILEO_Sum_T(int);
+     
+        int         get_GALILEO_Hit_Pattern(int);
+        ULong64_t   get_GALILEO_Chan_T(int);
+        double      get_GALILEO_Chan_E(int);
+        int         get_GALILEO_Det_id(int);
+        int         get_GALILEO_Crystal_id(int);
+        bool        get_GALILEO_Pileup(int);
+        bool        get_GALILEO_Overflow(int);
 
 
 	//White Rabbit setter and getter

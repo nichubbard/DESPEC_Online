@@ -25,6 +25,7 @@
 #include "AIDA_Data_Types.h"
 #include "Go4ConditionsBase/TGo4WinCond.h"
 #include "Go4ConditionsBase/TGo4PolyCond.h"
+#include "DESPEC_Array_Sizes.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -131,10 +132,10 @@ class EventCorrelProc : public TGo4EventProcessor {
       TH1 *hA_dT_FRS_Gated_FatE;
       TH2 *hA_dT_FRS_Gated_imp_decay_vs_FatE;
      
-      TH1 *hbPlas_FRS[48];
+      TH1 *hbPlas_FRS[3][16];
       TH1 *dT_bPlas_FRS;
-      TH1 *hA_bPlas_E_Ch[48];
-      TH1 *hA_gatedE_bPlas_E_Ch[48];
+      TH1 *hA_bPlas_E_Ch[3][16];
+      TH1 *hA_gatedE_bPlas_E_Ch[3][16];
       
     //  bool AIDA_implantation_gate;
       TGo4PolyCond  *cAIDA_IMPgate_DSSD1;

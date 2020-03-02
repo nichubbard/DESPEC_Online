@@ -13,8 +13,8 @@
 #include "TGo4Picture.h"
 #include "TGo4MbsEvent.h"
 
-#include "TSCNParameter.h"
-
+#include "TFRSParameter.h"
+#include "TGo4EventProcessor.h"
 
 
 class Detector_System{
@@ -28,6 +28,8 @@ public:
     virtual void Process_MBS(TGo4MbsSubEvent*) = 0;
 
     virtual void get_Event_data(Raw_Event*) = 0;
+    
+  //  virtual void get_parameters(TGo4EventProcessor*) =0;
 
 //    virtual void get_Event_data(Data_Stream*) = 0;
 

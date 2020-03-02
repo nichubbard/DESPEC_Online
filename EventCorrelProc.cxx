@@ -3,7 +3,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -384,38 +384,45 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
 
         ///GALILEO Prompt Isomers
         //for(int j =0; j<cInputMain->pGalFired; j++){
-        //cOutput-> cGalE = cInputMain->pGalE_Addback;
+//        cOutput-> cGalE = cInputMain->pGal_EAddback;
         
         if(bPLAS_WR>0 && aida_imptime_fatgal_noFRS>0){
         bplas_aida_imptimedT = (bPLAS_WR-aida_imptime_fatgal);
         }
         
         hA_implant_bPlasdT->Fill(bplas_aida_imptimedT);
-        // NEEDS UPDATE NH
-          /*if(cInputMain->pGalE_Addback>0 && GAL_WR>0){
-             gal_aida_imptime_dT =  (GAL_WR - aida_imptime_fatgal); 
+        ///Loop over galilieo
+        for(int g=0; g<GALILEO_MAX_DETS; g++){
+            for (int h=0; h<GALILEO_CRYSTALS; h++){
+                
+                if(cInputMain->pGal_EAddback[g][h]>0 && GAL_WR>0){
+                    gal_aida_imptime_dT =  (GAL_WR - aida_imptime_fatgal); 
              
        //  cout<< " GAL_WR " << GAL_WR <<" aida_imptime_fatgal  " << aida_imptime_fatgal <<  " gal_aida_imptime_dT " << gal_aida_imptime_dT << endl;
          
              hA_implant_GaldT->Fill(gal_aida_imptime_dT);
              if(gal_aida_imptime_dT>10 &&  cOutput->cImplantIterator>-1){
-             hA_implant_GalE->Fill(cInputMain->pGalE_Addback);
+             hA_implant_GalE->Fill(cInputMain->pGal_EAddback[g][h]);
              }
              
              ///AIDA Implant - bPlas && Beta E gated Galileo
-             for(int j=0; j<48;j++){
-                   if(j>15) {
-             if(bplas_aida_imptimedT*1e-6>0.5 && bplas_aida_imptimedT*1E-6<25 &&  cInputMain-> pbPlas_ToTCalib[j]>17000&& cInputMain-> pbPlas_ToTCalib[j]<50000){
+             for(int j=1; j<3;j++){
+                   for(int k=0; k<16; k++) {
+                        for(int l=0; l<10; l++) {
+             if(bplas_aida_imptimedT*1e-6>0.5 && bplas_aida_imptimedT*1E-6<25 &&  cInputMain-> pbPlas_ToTCalib[j][k][l]>17000&& cInputMain-> pbPlas_ToTCalib[j][k][l]<50000){
                  
-              hA_implantBplas_GalE->Fill(cInputMain->pGalE_Addback);   
+              hA_implantBplas_GalE->Fill(cInputMain->pGal_EAddback[g][h]);   
+                                }
+                            }
+                        }
                     }
                 }
-             }
-           //  cout<<"event " <<event_number << " cInputMain->pGalE_Addback " <<cInputMain->pGalE_Addback<< " gal_aida_imptime_dT " << gal_aida_imptime_dT<<endl;
-            // hA_implant_GaldT_GalE->Fill( cInputMain->pGalE_Addback,gal_aida_imptime_dT);
+            }
+           //  cout<<"event " <<event_number << " cInputMain->pGal_EAddback " <<cInputMain->pGal_EAddback<< " gal_aida_imptime_dT " << gal_aida_imptime_dT<<endl;
+            // hA_implant_GaldT_GalE->Fill( cInputMain->pGal_EAddback,gal_aida_imptime_dT);
             
             
-          }*/
+          }
    
        aida_imptime_fatgal = 0;   
        aida_imptime_fatgal_noFRS = 0;
@@ -455,19 +462,21 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
       hA_bPlas_decays_strip_xy[i] = MakeTH2('D', Form("Correlations/AIDA-bPlast/AIDA Decay/DSSD%d_decays_strip_XY_Implant+bPlastFires", i+1), Form("DSSD %d decay hit pattern:Implant and bPlast fires", i+1),128, 0, 128, 128, 0, 128, "X strip", "Y strip");
   }
   
-        for (int i =0; i<48; i++)
+        for (int i =1; i<3; i++)
         {
+            for(int j =0; j<16; j++){
 //        sprintf(chis,"Correlation/AIDA-bPlast/Aida_bPlas_CoincEnergy_ch/ToT Ch.%2d", i);
 //        sprintf(chead,"AIDA-bPlas Coincident bPlast Energy Ch. %2d", i);
 //        hA_bPlas_E_Ch[i] = MakeTH1('I', chis,chead, 25000, 0., 150000.);
        
-	hA_bPlas_E_Ch[i] = MakeTH1('D', Form("Correlations/AIDA-bPlast/Aida_bPlas_CoincEnergy_ch/ToT Ch.%2d", i), Form("AIDA-bPlas Coincident bPlast Energy Ch. %2d", i),25000, 0., 1500000.);
+	hA_bPlas_E_Ch[i][j] = MakeTH1('D', Form("Correlations/AIDA-bPlast/Aida_bPlas_CoincEnergy_ch/ToT Det.%2d Ch.%2d", i,j), Form("AIDA-bPlas Coincident bPlast Energy Det.%2d Ch.%2d", i,j),25000, 0., 1500000.);
          
 	  
-       hbPlas_FRS[i] = MakeTH1('D', Form("Correlations/bPlast-FRS/bPlas_FRS_CoincEnergy_ch/ToT_Plas Ch.%2d", i), Form("bPlas FRS AoQ Coincident bPlast Energy Ch. %2d", i),25000, 0., 150000.);
+       hbPlas_FRS[i][j] = MakeTH1('D', Form("Correlations/bPlast-FRS/bPlas_FRS_CoincEnergy_ch/ToT_Plas Det.%2d Ch.%2d", i,j), Form("bPlas FRS AoQ Coincident bPlast Energy Det.%2d Ch.%2d", i,j),25000, 0., 150000.);
        
-       hA_gatedE_bPlas_E_Ch[i] = MakeTH1('D', Form("Correlations/AIDA-bPlast/Aida_ImpEGate_bPlas_CoincEnergy_ch/ToT_AIDAEGate Ch.%2d", i), Form("AIDA-bPlas Implant gated Coincident bPlast Energy Ch. %2d", i),25000, 0., 1500000.);
+       hA_gatedE_bPlas_E_Ch[i][j] = MakeTH1('D', Form("Correlations/AIDA-bPlast/Aida_ImpEGate_bPlas_CoincEnergy_ch/ToT_AIDAEGate Det.%2d Ch.%2d", i,j), Form("AIDA-bPlas Implant gated Coincident bPlast Energy Det.%2d Ch.%2d", i,j),25000, 0., 1500000.);
         }
+ }
      //bPlastic
     /* for(int i =1; i<3; i++){    
         for (int j =0; j<16; j++){
@@ -493,7 +502,7 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
          ///Get Plastic fired
         for(int i=0; i<48; i++){  
 
-       if (cInputMain->pbPlas_QDCGainMatch_i[i]>0 || cInputMain-> pbPlas_ToTCalib[i]>0 && i>15) bPlasfired=true; ///VME-TAMEX 
+       if ( cInputMain-> pbPlas_ToTCalib[i]>0 && i>15) bPlasfired=true; ///VME-TAMEX 
              }
         
        AidaAnlData* cInput = &cInputMain->pAida;
@@ -506,16 +515,20 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
              }
              
              ///FRS bPlas 
-             for(int i=0; i<48; i++){
-	       if(i>15 && cInputMain-> pbPlas_ToTCalib[i]>0 &&  cInputMain->pFRS_ZAoQ_pass==true ) {
-		 hbPlas_FRS[i]->Fill(cInputMain-> pbPlas_ToTCalib[i]);
-	       }
-	     }
+             for(int j=1; j<3; j++){
+                 for(int k=0; k<16; k++) {
+                        for(int l=0; l<10; l++) {
+	       if( cInputMain-> pbPlas_ToTCalib[j][k][l]>0 &&  cInputMain->pFRS_ZAoQ_pass==true ) {
+		 hbPlas_FRS[j][k]->Fill(cInputMain-> pbPlas_ToTCalib[j][k][l]);
+                        }
+                    }
+                 }
+             }
 	       
              
      std::vector<AidaHit> imphits = cInput->Implants;
      std::vector<AidaHit> dechits = cInput->Decays; 
-     if(cInputMain-> pbPlas_ToTCalib[9]>4000) SC41_fired=true;
+    // if(cInputMain-> pbPlas_ToTCalib[9]>4000) SC41_fired=true;
    // if(event_number >0){
      ///IMPLANTS
      for(auto& i : imphits){
@@ -538,19 +551,23 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
            /// AIDA implant energy gated bPlastic
        if(dT_AIDA_bPlas>12000 && dT_AIDA_bPlas < 15000){
            
-           for(int j=0; j<48; j++){
-                if(j>15)  cOutput-> cbPlasE[j] = cInputMain-> pbPlas_ToTCalib[j];
+           for(int j=1; j<3; j++){
+               for(int k=0; k<16; k++) {
+                        for(int l=0; l<10; l++) {
+              cOutput-> cbPlasE[j] = cInputMain-> pbPlas_ToTCalib[j][k][l];
                    
                     
            
        //    cout<<"event " << event_number << "cOutput-> cbPlasE[j] " << cOutput-> cbPlasE[j] << endl;
-            if(imphit.Energy>0 && cInputMain-> pbPlas_ToTCalib[j]>0  && j>15 && ImpIterator==0){
-                 //cout<<"CORR PLAS " << event_number << " cInputMain-> pbPlas_ToTCalib[j] " <<cInputMain-> pbPlas_ToTCalib[j]<<" j " << j <<" imphit.Energy " << imphit.Energy<<  endl;
-                 hA_gatedE_bPlas_E->Fill(cInputMain-> pbPlas_ToTCalib[j]);
-                 hA_gatedE_bPlas_E_Ch[j]->Fill(cInputMain-> pbPlas_ToTCalib[j]);
+            if(imphit.Energy>0 && cInputMain-> pbPlas_ToTCalib[j][k][l]>0  && j>15 && ImpIterator==0){
+                 //cout<<"CORR PLAS " << event_number << " cInputMain-> pbPlas_ToTCalib[j][k][l] " <<cInputMain-> pbPlas_ToTCalib[j][k][l]<<" j " << j <<" imphit.Energy " << imphit.Energy<<  endl;
+                 hA_gatedE_bPlas_E->Fill(cInputMain-> pbPlas_ToTCalib[j][k][l]);
+                 hA_gatedE_bPlas_E_Ch[j][k]->Fill(cInputMain-> pbPlas_ToTCalib[j][k][l]);
          
                     }
                 }
+               }
+            }
            }
              cOutput->cAIDAImplantE[ImpIterator] = imphit.Energy;
 
@@ -573,9 +590,13 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
       
                    ///
                    for(int j=0; j<48; j++){
-                if(j>15)  hADecay_bPlas_E->Fill(cInputMain-> pbPlas_ToTCalib[j]);
-                    }
-               }
+                        for(int k=0; k<16; k++) {
+                         for(int l=0; l<10; l++) {
+                if(j>15)  hADecay_bPlas_E->Fill(cInputMain-> pbPlas_ToTCalib[j][k][l]);
+                            }
+                        }
+                   }
+         }
           
      if( dechit.Time>0 && aida_imptime[DecDSSD][DecstripX][DecstripY]>0 && bPlasfired==true && (AIDA_WR-bPLAS_WR)> 12000&&  (AIDA_WR-bPLAS_WR)<15000){
  
@@ -680,17 +701,7 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
      
       
       for(int j =0; j<cOutput->cAIDA_dT_imp_decay_hits; j++){
-   
-                ///Germanium - Needs update NH 19.02.2020
-        
-              /*if( cOutput->cAIDA_dT_imp_decay[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay[j]*1E-6<24000 && j==1){
-                  if(cInput->pGalE_Addback>0  &&dT_AIDA_Gal>-1000 && dT_AIDA_Gal<500 ){
-                        hA_dT_GeE->Fill(cInput->pGalE_Addback);
-                                /// AIDA Gal
-                    ///disabled for now 02.12.19 AKM
-                  // hA_dT_imp_decay_vs_GeE->Fill(cInput->pGalE_Addback,cOutput->cAIDA_dT_imp_decay[j]*1E-6);
-              }
-            /// AIDA Fat 
+           /// AIDA Fat 
             if(dT_AIDA_Fat>13000 && dT_AIDA_Fat<15000){
                    for(int k=0; k<cInput->pFat_QDCFired; k++){
                        // hA_dT_imp_decay_vs_FatE->Fill(cInput->pFat_QDCGainMatch[cInput->pFat_QDCID[k]],cOutput->cAIDA_dT_imp_decay[j]*1E-6);
@@ -699,15 +710,29 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
                         }
                    }   
                 }
-              } */
+   
+                ///Germanium
+                    for(int g=0; g<GALILEO_MAX_DETS; g++){
+                        for (int h=0; h<GALILEO_CRYSTALS; h++){
+              if( cOutput->cAIDA_dT_imp_decay[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay[j]*1E-6<24000 && j==1){
+                  if(cInput->pGal_EAddback[g][h]>0  &&dT_AIDA_Gal>-1000 && dT_AIDA_Gal<500 ){
+                        hA_dT_GeE->Fill(cInput->pGal_EAddback[g][h]);
+                                /// AIDA Gal
+                    ///disabled for now 02.12.19 AKM
+                  // hA_dT_imp_decay_vs_GeE->Fill(cInput->pGal_EAddback,cOutput->cAIDA_dT_imp_decay[j]*1E-6);
+                    } 
+              }
                        ///FRS Gated AIDA-Gal
-    /* if(cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6<24000 && j==1&&dT_AIDA_Gal>-2000 && dT_AIDA_Gal<2000){
+    if(cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6>500 && cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6<24000 && j==1&&dT_AIDA_Gal>-2000 && dT_AIDA_Gal<2000){
         ///disabled for now 02.12.19 AKM
-      //   hA_dT_FRS_Gated_imp_decay_vs_GeE->Fill(cInput->pGalE_Addback,cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6);
+      //   hA_dT_FRS_Gated_imp_decay_vs_GeE->Fill(cInput->pGal_EAddback,cOutput->cAIDA_dT_imp_decay_FRS_gated[j]*1E-6);
                         
-                      if(cInput->pGalE_Addback>0){
-                         hA_dT_FRS_Gated_GeE->Fill(cInput->pGalE_Addback);
+                      if(cInput->pGal_EAddback[g][h]>0){
+                         hA_dT_FRS_Gated_GeE->Fill(cInput->pGal_EAddback[g][h]);
+                                }
+                            }
                         }
+                    }
                         ///FRS Gated AIDA-Fatima
                         for(int k=0; k<cInput->pFat_QDCFired; k++){
                       if(cInput->pFat_QDCGainMatch[cInput->pFat_QDCID[k]]>0){
@@ -715,10 +740,10 @@ for(int k=0; k<cInputMain->pFat_QDCFired; k++){
                             }
                         }
                    
-                } ///End of FRS condition */
+                } ///End of FRS condition              
              }
           
-        }
+        
  
     
  /**----------------------------------------------------------------------------------------------**/

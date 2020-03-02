@@ -26,6 +26,7 @@
 #include "TGo4StepFactory.h"
 #include "TSCNParameter.h"
 //#include "TSCNUnpackEvent.h"
+#include "TFRSParameter.h"
 #include "EventUnpackStore.h"
 #include "EventAnlStore.h"
 #include "EventCorrelStore.h"
@@ -104,13 +105,146 @@ DESPECAnalysis::DESPECAnalysis(int argc, char** argv) :
    step3->SetErrorStopEnabled(kTRUE);
   // step3->SetStoreEnabled(kTRUE);  // enable output
    AddAnalysisStep(step3);
-
-
-
+/////////////// Parameters //////////////////////////
+  // At this point, autosave file has not yet been read!
+  // Therefore parameter values set here will be overwritten
+  // if an autosave file is there.
+   
    fPar = (TSCNParameter *)MakeParameter("SCNParameter","TSCNParameter");
+   
+   fFRSPar = new TFRSParameter("FRSPar");
+   AddParameter(fFRSPar);
 
+  fMWPar = new TMWParameter("MWPar");
+  AddParameter(fMWPar);
 
+  fMUSICPar = new TMUSICParameter("MUSICPar");
+  AddParameter(fMUSICPar);
+
+  fTPCPar = new TTPCParameter("TPCPar");
+  AddParameter(fTPCPar);
+
+  fSCIPar = new TSCIParameter("SCIPar");
+  AddParameter(fSCIPar);
+
+  fIDPar = new TIDParameter("IDPar");
+  AddParameter(fIDPar);
+
+  fSIPar = new TSIParameter("SIPar");
+  AddParameter(fSIPar);
+
+//   ModPar = new TModParameter("ModPar");
+//   AddParameter(ModPar);
+  
+  MRtofPar = new TMRTOFMSParameter("MRTOFMSPar");
+  AddParameter(MRtofPar);
 }
+Bool_t DESPECAnalysis::InitEventClasses() 
+{
+    Bool_t res = TGo4Analysis::InitEventClasses();
+  std::string nameExperiment;
+  std::ifstream ifs ( "config.txt" );
+  if(ifs.is_open())
+    {
+       
+      const std::string CommentSymbol("#");
+      const std::string ExpNameSymbol("NameExperiment");
+        
+      std::string temp_line;
+      while(std::getline(ifs,temp_line))
+    {
+      std::stringstream stream(temp_line);
+      std::string testComment(stream.str());
+      std::size_t it_comment = testComment.find(CommentSymbol);
+      if(it_comment!=std::string::npos)
+        {
+          //std::cout<<"!> Skip comment"<<temp_line<<std::endl;
+          continue;
+        }
+      std::string key, value;
+      stream >> key >> value ;
+      if(key==ExpNameSymbol)
+        nameExperiment=value;
+    }
+    }
+    
+  std::string nameSetupFile ("Configuration_Files/FRS_Setups/setup_");
+  nameSetupFile+=nameExperiment;
+  nameSetupFile+=".C";
+
+  std::cout << "DESPECAnalysis_FRS::Call "<< nameSetupFile<<" script" << std::endl;
+  
+  std::ifstream testingFileExist(nameSetupFile.c_str());
+  if(testingFileExist.good()==false)
+    {
+      std::cout<<" E> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
+      std::cout<<" E> FRS Setup file "<<nameSetupFile<<" not found ! Please look to directory Configuration_Files/FRS_Setups/ if it exits or set proper name of experiment in config.txt"<<std::endl;
+      std::cout<<" E> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
+
+      std::exit(-1);
+    }
+  
+  std::string processL(".x ");
+  processL += nameSetupFile;
+  gROOT->ProcessLine(processL.c_str());
+   
+ // ModPar->setMap();
+  return res;
+}
+// Bool_t DESPECAnalysis::InitEventClasses() 
+// {
+//   Bool_t res = TGo4Analysis::InitEventClasses();
+//  
+// //   std::string nameExperiment;
+// //   std::ifstream ifs ( "config.txt" );
+// //   if(ifs.is_open())
+// //     {
+// //        
+// //       const std::string CommentSymbol("#");
+// //       const std::string ExpNameSymbol("NameExperiment");
+// //         
+// //       std::string temp_line;
+// //       while(std::getline(ifs,temp_line))
+// //     {
+// //       std::stringstream stream(temp_line);
+// //       std::string testComment(stream.str());
+// //       std::size_t it_comment = testComment.find(CommentSymbol);
+// //       if(it_comment!=std::string::npos)
+// //         {
+// //           //std::cout<<"!> Skip comment"<<temp_line<<std::endl;
+// //           continue;
+// //         }
+// //       std::string key, value;
+// //       stream >> key >> value ;
+// //       if(key==ExpNameSymbol)
+// //         nameExperiment=value;
+// //     }
+// //     }
+// //     
+// //   std::string nameSetupFile ("Configuration_Files/FRS_Setups/setup_");
+// //   nameSetupFile+=nameExperiment;
+// //   nameSetupFile+=".C";
+// // 
+// //   std::cout << "DESPECAnalysis_FRS::Call "<< nameSetupFile<<" script" << std::endl;
+// //   
+// //   std::ifstream testingFileExist(nameSetupFile.c_str());
+// //   if(testingFileExist.good()==false)
+// //     {
+// //       std::cout<<" E> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
+// //       std::cout<<" E> FRS Setup file "<<nameSetupFile<<" not found ! Please look to directory Configuration_Files/FRS_Setups/ if it exits or set proper name of experiment in config.txt"<<std::endl;
+// //       std::cout<<" E> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
+// // 
+// //       std::exit(-1);
+// //     }
+// //   
+// //   std::string processL(".x ");
+// //   processL += nameSetupFile;
+// //   gROOT->ProcessLine(processL.c_str());
+// //    
+// //   ModPar->setMap();
+// 
+//   return res;
+// }
 //***********************************************************
 DESPECAnalysis::~DESPECAnalysis()
 {
@@ -132,6 +266,8 @@ Int_t DESPECAnalysis::UserPreLoop()
    //fOutput = dynamic_cast<EventUnpackStore*> (GetOutputEvent("Unpack"));
    fAnlEvent = dynamic_cast<EventAnlStore*>    (GetOutputEvent("Analysis"));
    fCorrelEvent = dynamic_cast<EventCorrelStore*>    (GetOutputEvent("Correlation"));
+   
+  
      
    fEvents=0;
    fLastEvent=0;
@@ -141,6 +277,7 @@ Int_t DESPECAnalysis::UserPreLoop()
    
       return 0;
 }
+
 //-----------------------------------------------------------
 Int_t DESPECAnalysis::UserPostLoop()
 {

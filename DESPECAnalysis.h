@@ -16,6 +16,7 @@
 
 #include "TGo4Analysis.h"
 #include "EventUnpackFact.h"
+#include "TFRSParameter.h"
 
 class TH1D;
 class TGo4MbsEvent;
@@ -23,6 +24,7 @@ class EventUnpackStore;
 class TSCNParameter;
 class EventAnlStore;
 class EventCorrelStore;
+//class TFRSParameter;
 
 
 class DESPECAnalysis : public TGo4Analysis  {
@@ -33,6 +35,7 @@ class DESPECAnalysis : public TGo4Analysis  {
       virtual Int_t UserPreLoop();
       virtual Int_t UserEventFunc();
       virtual Int_t UserPostLoop();
+       virtual Bool_t InitEventClasses();
       
    private:
       TGo4MbsEvent       *fMbsEvent;
@@ -40,8 +43,19 @@ class DESPECAnalysis : public TGo4Analysis  {
      // EventUnpackStore   *fOutput;
       AIDA_Event          *Aida_inp;
       EventAnlStore       *fAnlEvent;
-      EventCorrelStore       *fCorrelEvent;
-      TSCNParameter      *fPar;
+      EventCorrelStore    *fCorrelEvent;
+      TSCNParameter       *fPar;
+      
+      ///FRS Parameters
+       TFRSParameter         *fFRSPar;    //!
+       TMWParameter          *fMWPar;     //!
+       TTPCParameter         *fTPCPar;     //!
+       TMUSICParameter       *fMUSICPar;  //!
+       TSCIParameter         *fSCIPar;    //!
+       TIDParameter          *fIDPar;     //!
+       TSIParameter          *fSIPar;     //!
+      // TModParameter * ModPar; //!
+       TMRTOFMSParameter* MRtofPar; //!
 
 
       Int_t               fEvents;

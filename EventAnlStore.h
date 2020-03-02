@@ -3,7 +3,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum für Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -68,14 +68,14 @@ class EventAnlStore : public TGo4EventElement {
        AidaAnlData pAida;
    
 
-      ///Plastic AnlProc Outputs
-      Int_t    pbPlas_QDCFired; 
-      Int_t    pbPlas_QDCID[32];
-      Double_t pbPlas_QDCGainMatch_i[32];
-      Int_t    pbPlas_TDCFired;
-      Int_t    pbPlas_TDC_Multiplicity[32]; 
-      Int_t    pbPlas_TDCID[50];
-      Double_t pbPlasTDC_T[32];
+      ///Plastic AnlProc Outputs ///Disabled 18.02.20 AKM 
+//       Int_t    pbPlas_QDCFired; 
+//       Int_t    pbPlas_QDCID[32];
+//       Double_t pbPlas_QDCGainMatch_i[32];
+//       Int_t    pbPlas_TDCFired;
+//       Int_t    pbPlas_TDC_Multiplicity[32]; 
+//       Int_t    pbPlas_TDCID[50];
+//       Double_t pbPlasTDC_T[32];
 //       Double_t pbPlas_SC41_dT[32];
 //       Double_t pbPlas_SiPM_dT_Calib[32];
      
@@ -90,41 +90,32 @@ class EventAnlStore : public TGo4EventElement {
       Int_t    pFat_TDC_Multipl_perCh[50];
       //Double_t pFat_Ch_dT[50];
     //  Double_t pFat_Ch0_TDC;
-      
-      
-      
-      Double_t pFat_ToTCalib[50];
+
+      Double_t pFat_ToTCalib[50][10];
       Double_t pFat_LeadT[50][10];
       Double_t pFat_TrailT[50][10];
       Int_t    pFat_LeadHits;
-      Int_t    pFat_TrailHits;
+      //Int_t    pFat_TrailHits;
       ///Disabled 06.01.20 AKM 
 //       Int_t    pFat_firedQDC_Comb;
 //       Double_t pFat_QDC_E_Comb[50];
 //       Int_t    pFat_QDC_ID_Comb[50];
       
-      Double_t pbPlas_ToTCalib[48];
-      Int_t    pbPlas_PMT_Lead_N[48];
-      Double_t pbPlas_LeadT[48][10];
+      Double_t pbPlas_ToTCalib[3][16][10];
+      Int_t    pbPlas_PMT_Lead_N[3][16];
+      Double_t pbPlas_LeadT[3][16][10];
       Double_t pbPlas_LeadT_Avg;
-      Double_t pbPlas_TrailT[48][10];
+      Int_t    pbPlas_PMT_Trail_N[3][16];
+      Double_t pbPlas_TrailT[3][16][10];
       Int_t    pbPlas_LeadHits;
       Int_t    pbPlas_TrailHits;
       
      
       
-      //Int_t    pGalFired;
-      //Int_t    pGalID[32];
-      //Long64_t pGalT[32];
-      //Double_t pGalE_Cal_i[32];
-     // Double_t pGal_Energy;
-      //Long64_t pGal_dT;
-      //Double_t pGalE_Addback;
-
       // New GALILEO Outputs NH 19.02.2020
-      Long64_t pGal_T[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
-      double   pGal_E[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
-      double   pGal_EAddback[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
+          Long64_t pGal_T[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
+          double   pGal_E[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
+          double   pGal_EAddback[GALILEO_MAX_DETS][GALILEO_CRYSTALS];
       
 //       Int_t pFing_firedTamex; 
 //       Int_t pFing_iterator[4];
@@ -151,3 +142,6 @@ class EventAnlStore : public TGo4EventElement {
    ClassDef(EventAnlStore,1)
 };
 #endif //TSCNCALEVENT_H
+
+
+

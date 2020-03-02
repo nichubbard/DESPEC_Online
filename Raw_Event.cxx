@@ -248,6 +248,7 @@ void Raw_Event::set_DATA_ID_Z_AoQ(Float_t FRS_AoQ,Float_t FRS_AoQ_corr,Float_t F
     z = FRS_z;
     z2 = FRS_z2;
     z3 = FRS_z3;
+    
 
 }
 void Raw_Event::set_DATA_ID_Timestamp(Float_t FRS_timestamp,Float_t FRS_ts,Float_t FRS_ts2){
@@ -256,6 +257,20 @@ void Raw_Event::set_DATA_ID_Timestamp(Float_t FRS_timestamp,Float_t FRS_ts,Float
     ts = FRS_ts;
     ts2 = FRS_ts2;
 
+}
+
+void Raw_Event::set_DATA_FRS_SCALERS(Int_t FRS_time_in_ms, Int_t FRS_spill_count,Int_t FRS_ibin_for_s, Int_t FRS_ibin_for_100ms, Int_t FRS_ibin_for_spill,Int_t FRS_ibin_clean_for_s, Int_t FRS_ibin_clean_for_100ms,Int_t FRS_ibin_clean_for_spill, UInt_t FRS_increase_scaler_temp){
+    
+    time_in_ms = FRS_time_in_ms;
+    spill_count = FRS_spill_count;
+    ibin_for_s = FRS_ibin_for_s;
+    ibin_for_100ms = FRS_ibin_for_100ms;
+    ibin_for_spill = FRS_ibin_for_spill;
+    ibin_clean_for_s = FRS_ibin_clean_for_s;
+    ibin_clean_for_100ms = FRS_ibin_clean_for_100ms;
+    ibin_clean_for_spill = FRS_ibin_clean_for_spill;
+    increase_scaler_temp = FRS_increase_scaler_temp;
+  
 }
 
 // #################################################################
@@ -439,6 +454,7 @@ void Raw_Event::set_DATA_PLASTIC_TAMEX(int* it_bPlas,double** Edge_Coarse_bPlas,
 
                 coarse_T_edge_lead_bPlas[i][j] = (double) Edge_Coarse_bPlas[i][j];
                 fine_T_edge_lead_bPlas[i][j] = (double) Edge_fine_bPlas[i][j];
+
                 leading_array_bPlas[i][j] = Lead_Arr_bPlas[i][j];
                 phys_channel_bPlas[i][j] =(tamex_id_bPlas[i]*16)+((ch_ID_bPlas[i][j]+1)/2-1);
                // cout<<"RAW Lead " << " phys_channel_bPlas[i][j] " << phys_channel_bPlas[i][j] << endl;
@@ -503,6 +519,7 @@ void Raw_Event::set_DATA_FATIMA(int QDC_FIRED,int TDC_FIRED,
     for (int i=0; i<TDC_FIRED; i++) {
         this->FAT_TDC_id[i]        = det_ids_TDC[i];
         this->FAT_TDC_timestamp[i] = TDC[i];
+
 
 
     }
@@ -571,10 +588,10 @@ void Raw_Event::set_DATA_FATIMA_TAMEX(int* it_fat,double** Edge_Coarse_fat,doubl
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Raw_Event::set_DATA_GALILEO(int GAL_FIRED,ULong64_t* sum_time,int* hit_pattern,ULong64_t* chan_time,double* chan_en, int* det_ids, int* crystal_ids, bool* pileup, bool* overflow){
-    this->GAL_FIRED = GAL_FIRED;
-
-    for(int i = 0;i < GAL_FIRED;++i){
-
+        this->GAL_FIRED = GAL_FIRED;
+    
+        for(int i = 0;i < GAL_FIRED;++i){
+    
         GALILEO_Det_Nums[i] = det_ids[i];
         GALILEO_Crystal_Nums[i] = crystal_ids[i];
         GALILEO_sum_time[i] = sum_time[i];
@@ -583,7 +600,6 @@ void Raw_Event::set_DATA_GALILEO(int GAL_FIRED,ULong64_t* sum_time,int* hit_patt
         GALILEO_chan_energy[i] = chan_en[i];
         GALILEO_Pileup[i] = pileup[i];
         GALILEO_Overflow[i] = overflow[i];
-      // cout << "2) i " <<i<<" GALILEO_chan_energy[i] "<< GALILEO_chan_energy[i]<< endl;
 
     }
 
@@ -661,6 +677,17 @@ Float_t Raw_Event::get_FRS_z3(){return z3;}
 Float_t Raw_Event::get_FRS_timestamp(){return timestamp;}
 Float_t Raw_Event::get_FRS_ts(){return ts;}
 Float_t Raw_Event::get_FRS_ts2(){return ts2;}
+
+Int_t Raw_Event::get_FRS_time_in_ms(){return time_in_ms;}
+Int_t Raw_Event::get_FRS_spill_count(){return spill_count;}
+Int_t Raw_Event::get_FRS_ibin_for_s(){return ibin_for_s;}
+Int_t Raw_Event::get_FRS_ibin_for_100ms(){return ibin_for_100ms;}
+Int_t Raw_Event::get_FRS_ibin_for_spill(){return ibin_for_spill;}
+Int_t Raw_Event::get_FRS_ibin_clean_for_s(){return ibin_clean_for_s;}
+Int_t Raw_Event::get_FRS_ibin_clean_for_100ms(){return ibin_clean_for_100ms;}
+Int_t Raw_Event::get_FRS_ibin_clean_for_spill(){return ibin_clean_for_spill;}
+UInt_t Raw_Event::get_FRS_increase_scaler_temp(){return increase_scaler_temp;}
+
 
 // #######################################################
 
@@ -921,20 +948,20 @@ PLASTIC_DataStruct* Raw_Event::PassPLASTIC(){ return &PLASTIC_Data;}*/
 //------------------------------------------ GALILEO FEBEX ------------------------------------------//
 
 
-int Raw_Event::get_GALILEO_am_Fired(){return GAL_FIRED;}
-
-ULong64_t Raw_Event::get_GALILEO_Sum_T(int i){return GALILEO_sum_time[i];}
-
-bool Raw_Event::get_GALILEO_Pileup(int i){return GALILEO_Pileup[i];}
-
-bool Raw_Event::get_GALILEO_Overflow(int i){return GALILEO_Overflow[i];}
-
-int Raw_Event::get_GALILEO_Hit_Pattern(int i){return GALILEO_hit_pattern[i];}
-
-ULong64_t Raw_Event::get_GALILEO_Chan_T(int i){return GALILEO_chan_time[i];}
-
-double Raw_Event::get_GALILEO_Chan_E(int i){return GALILEO_chan_energy[i];}
-
-int Raw_Event::get_GALILEO_Det_id(int i){return GALILEO_Det_Nums[i];}
-
-int Raw_Event::get_GALILEO_Crystal_id(int i){return GALILEO_Crystal_Nums[i];}
+    int Raw_Event::get_GALILEO_am_Fired(){return GAL_FIRED;}
+    
+    ULong64_t Raw_Event::get_GALILEO_Sum_T(int i){return GALILEO_sum_time[i];}
+    
+    bool Raw_Event::get_GALILEO_Pileup(int i){return GALILEO_Pileup[i];}
+    
+    bool Raw_Event::get_GALILEO_Overflow(int i){return GALILEO_Overflow[i];}
+    
+    int Raw_Event::get_GALILEO_Hit_Pattern(int i){return GALILEO_hit_pattern[i];}
+    
+    ULong64_t Raw_Event::get_GALILEO_Chan_T(int i){return GALILEO_chan_time[i];}
+    
+    double Raw_Event::get_GALILEO_Chan_E(int i){return GALILEO_chan_energy[i];}
+    
+    int Raw_Event::get_GALILEO_Det_id(int i){return GALILEO_Det_Nums[i];}   
+    
+    int Raw_Event::get_GALILEO_Crystal_id(int i){return GALILEO_Crystal_Nums[i];}

@@ -30,15 +30,53 @@
 #include "TGo4AnalysisObjectManager.h"
 #include "TGo4EventProcessor.h"
 #include "DESPECAnalysis.h"
-#include "TXRSParameter.h"
+#include "TFRSParameter.h"
+#include "Go4StatusBase/TGo4Parameter.h"
 
 #include "Detector_System.cxx"
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <TRandom3.h>
 
 
 class FRS_Detector_System : public Detector_System{
+    
+    public:
+    FRS_Detector_System();
+   // void  get_params(TGo4Parameter* name);
+        
+virtual ~FRS_Detector_System();
+    
+    //void Process_FRS(TModParameter* , TGo4MbsSubEvent* , TGo4MbsEvent*){};
+    void Process_MBS(TGo4MbsSubEvent* psubevt);
+    void Process_MBS_Anl();
+    //void Process_FRS(TGo4MbsSubEvent* psubevt);
+  //  TModParameter* ModSetup;
+    TMWParameter* mw;
+    TTPCParameter* tpc;
+    TSIParameter* si;
+   // TModParameter* ModPar;
+    
+    TMUSICParameter* music;
+    TSCIParameter* sci;
+    TFRSParameter* frs;
+    TIDParameter* id;
+    TMRTOFMSParameter* mrtof;
+    
+    int            scaler_ch_1kHz=0;
+    int            scaler_ch_spillstart=0;
+    UInt_t         scaler_initial[64];
+    UInt_t         scaler_previous[64];
+    int            scaler_check_first_event = 1;
+
+    void Process_MBS(int*){};
+    void get_Event_data(Raw_Event*);
+    int* get_pdata();
+    
+    bool calibration_done(){return false;}
+    void write(){return;};
+    void set_Gain_Match_Filename(std::string){return;};
 
 typedef unsigned long long ULong64_t;
 
@@ -51,17 +89,8 @@ private:
     Int_t vme_chn;
     Int_t lenMax;
         
-    TModParameter* ModSetup;
-    TMWParameter* mw;
-    TTPCParameter* tpc;
-    TSIParameter* si;
-    TModParameter* ElecMod;
+  
     
-    TMUSICParameter* music;
-    TSCIParameter* sci;
-    TXRSParameter* frs;
-    TIDParameter* id;
-    TMRTOFMSParameter* mrtof;
     
     
     /**************************************************************/
@@ -85,6 +114,9 @@ private:
     UInt_t vme_tpc[21][32];
     UInt_t vme_frs[21][32];
     UInt_t vme_main[21][32];
+    
+    UInt_t vme_trmu_adc[16];              // Travel Music crate
+    UInt_t vme_trmu_tdc[16];              // Travel Music crate
     //UInt_t*** vme0;         // FRS crate                                
     //UInt_t*** vme1;         // TPC crate 
     //UInt_t*** vme3;         // Mtof crate
@@ -200,13 +232,8 @@ private:
     Int_t         de_43r;          /* de SCI43 right           */
     Int_t         de_81l;          /* de SCI81 left            */
     Int_t         de_81r;          /* de SCI81 right           */  
-    Int_t         de_21ld;         /* dE SCI21 left delayed    */  
-    Int_t         de_21rd;         /* de SCI21 right delayed   */ 
-    Int_t         de_v1l;          /* dE veto1 left            */  
-    Int_t         de_v1r;          /* de veto1 right           */ 
-    Int_t         de_v2l;          /* dE veto2 left            */
-    Int_t         de_v2r;          /* dE veto2 right           */
-    Int_t         de_v3;           /* dE veto3                 */
+    Int_t         de_31l;          /* de SCI31 left            */
+    Int_t         de_31r;          /* de SCI31 right           */  
     
     
     Int_t         dt_21l_21r;      /*                          */ 
@@ -234,6 +261,9 @@ private:
     Int_t* tdc_sc43r;
     Int_t* tdc_sc81l;
     Int_t* tdc_sc81r;
+    Int_t* tdc_sc31l;
+    Int_t* tdc_sc31r;
+    Int_t* tdc_sc11;
     
     // MUSIC1 part
     Int_t*         music_e1;     /* Raw energy signals       */
@@ -396,6 +426,7 @@ private:
     Int_t         extraction_cycle;
     Int_t*        coin;
     Float_t       seetram;
+    Int_t         extraction_time_ms;
     
     // MW part
     Float_t*      mw_xsum;     /*                          */
@@ -414,6 +445,11 @@ private:
     
     Bool_t*        b_mw_xsum;   /*  wc on sum               */
     Bool_t*        b_mw_ysum;   /*                          */
+    
+    Float_t   mw_sc21_x;
+    Float_t   mw_sc21_y;
+    Float_t   mw_sc22_x;
+    Float_t   mw_sc22_y;
     
     Float_t       focx_s2;         /*  FRS foci                */  
     Float_t       focy_s2;         /*                          */  
@@ -434,6 +470,8 @@ private:
     Float_t* tpc_y;
     Bool_t** b_tpc_csum;
     Bool_t* b_tpc_xy;
+    Float_t* tpc_de;
+    Bool_t* b_tpc_de;
     Float_t x0;
     Float_t x1;
     
@@ -471,7 +509,19 @@ private:
     Float_t tpc_x_s4_target2;
     Float_t tpc_y_s4_target2;
     
-    
+  Float_t       tpc21_22_sc21_x;      /* SC21 x                    */
+  Float_t       tpc21_22_sc21_y;    /* SC21 y                    */
+  Float_t       tpc23_24_sc21_x;      /* SC21 x                    */
+  Float_t       tpc23_24_sc21_y;    /* SC21 y                    */
+  Float_t       tpc22_24_sc21_x;      /* SC21 x                    */
+  Float_t       tpc22_24_sc21_y;    /* SC21 y                    */
+
+  Float_t       tpc21_22_s2target_x;      /* S2TARGET x                    */
+  Float_t       tpc21_22_s2target_y;    /* S2TARGET y                    */
+  Float_t       tpc23_24_s2target_x;      /* S2TARGET x                    */
+  Float_t       tpc23_24_s2target_y;    /* S2TARGET y                    */
+  Float_t       tpc22_24_s2target_x;      /* S2TARGET x                    */
+  Float_t       tpc22_24_s2target_y;    /* S2TARGET y                    */
     //TPCs 3 & 4 @ S2 first Si tracking detector (exp s388)
     Float_t tpc_x_s2_target1;
     Float_t tpc_y_s2_target1;
@@ -479,10 +529,20 @@ private:
     //      Float_t tpc_angle_y_s4_target2;
     
     
-    Float_t       tpc_sc21_x;      /* SC21 x                    */
-    Float_t       tpc_sc41_x;      /* SC41 x                    */
-    Float_t       tpc_sc21_y;      /* SC21 y                    */
-    Float_t       tpc_sc41_y;      /* SC41 y                    */
+  Float_t       tpc_sc41_x;      /* SC41 x                    */
+  Float_t       tpc_sc41_y;      /* SC41 y                    */
+  Float_t       tpc_sc42_x;      /* SC42 x                    */
+  Float_t       tpc_sc42_y;      /* SC42 y                    */
+  Float_t       tpc_sc43_x;      /* SC43 x                    */
+  Float_t       tpc_sc43_y;      /* SC43 y                    */
+  Float_t       tpc_music41_x;      /* MUSIC41 x                    */
+  Float_t       tpc_music41_y;      /* MUSIC41 y                    */
+  Float_t       tpc_music42_x;      /* MUSIC42 x                    */
+  Float_t       tpc_music42_y;      /* MUSIC42 y                    */
+  Float_t       tpc_music43_x;      /* MUSIC43 x                    */
+  Float_t       tpc_music43_y;      /* MUSIC43 y                    */
+  Float_t       tpc_s4target_x;      /* S4 target x                    */
+  Float_t       tpc_s4target_y;      /* S4 target y                    */
     
     
     Float_t       sc21_x;          /* SC21                     */
@@ -561,13 +621,17 @@ private:
     Float_t*  cID_x2;
     Float_t*  cID_x4;
     Float_t*  cID_Z_Z;
-    
+    //Float_t*  cID_x8;
     Float_t** cID_dEToF;
 
     Float_t** cID_x4AoQ_Z;
     
     Float_t*** cID_x2AoQ;
+    Float_t*** cID_x4AoQ;
     Float_t*** cID_Z_AoQ;
+    
+    Float_t rand3(void);
+    TRandom3 random3;
     
       /*sprintf(name, "cSCI%s_L", count_title1[index]);
       cSCI_L[index] = MakeWindowCond(fname,name, 10, 4000, hSCI_L[index]->GetName());
@@ -621,6 +685,10 @@ private:
 	Bool_t*       music_b_t2;
 	Bool_t*       music_b_e3;
 	Bool_t*       music_b_t3;
+    Float_t       music1_x_mean;
+    Float_t       music2_x_mean ;
+    Float_t       music3_x_mean ;
+
 	Bool_t        b_de1;
 	Bool_t        b_de2;
 	Bool_t        b_de3;
@@ -644,12 +712,15 @@ private:
 	Float_t       sci_tofll2;
 	Float_t       sci_tofrr2;
 	Float_t       sci_tof2;
+    Float_t       sci_tof2_calib;
 	Float_t       sci_tofll3;
 	Float_t       sci_tofrr3;
 	Float_t       sci_tof3;
+    Float_t       sci_tof3_calib;
 	Float_t       sci_tofll4;  
 	Float_t       sci_tofrr4;
 	Float_t       sci_tof4;
+    Float_t       sci_tof4_calib;
 	
 	Float_t*      sci_veto_l;
 	Float_t*      sci_veto_r;
@@ -674,6 +745,26 @@ private:
 	Bool_t*       sci_b_veto_r;  
 	Bool_t*       sci_b_veto_e;  
     
+     // MultiHitTDC
+  Float_t       mhtdc_tof8121;
+  Float_t       mhtdc_tof4121;
+  Float_t       mhtdc_tof4221;
+  Float_t       mhtdc_tof4321;
+  Float_t       mhtdc_tof3121;
+
+  Float_t       mhtdc_sc21lr_dt;
+  Float_t       mhtdc_sc31lr_dt;
+  Float_t       mhtdc_sc41lr_dt;
+  Float_t       mhtdc_sc42lr_dt;
+  Float_t       mhtdc_sc43lr_dt;
+  Float_t       mhtdc_sc81lr_dt;
+
+  Float_t       mhtdc_sc21lr_x;
+  Float_t       mhtdc_sc31lr_x;
+  Float_t       mhtdc_sc41lr_x;
+  Float_t       mhtdc_sc42lr_x;
+  Float_t       mhtdc_sc43lr_x;
+  Float_t       mhtdc_sc81lr_x;
     // ID part
     
 	Float_t       id_x2;
@@ -709,6 +800,15 @@ private:
 	Float_t       id_z;
 	Float_t       id_z2;
 	Float_t       id_z3;
+    
+    Float_t       id_de_s2tpc;
+    Bool_t        id_b_de_s2tpc;
+    Float_t       id_z_sc81;
+    Float_t       id_v_cor_sc81;
+    Float_t       id_b_z_sc81;
+    Float_t       id_z_s2tpc;
+    Float_t       id_v_cor_s2tpc;
+    Float_t       id_b_z_s2tpc;
 	Float_t       id_energy_geL;
 	Float_t       id_tac_41_geL;
 	Float_t       id_stopper_x;
@@ -724,13 +824,37 @@ private:
 	Int_t         id_scal_sc81;
 	
 	Bool_t        id_b_AoQ;
+    Bool_t        id_b_AoQ_s2s8;
 	Bool_t        id_b_z;
 	Bool_t        id_b_z2;
 	Bool_t        id_b_z3;
-	Bool_t        id_b_x2AoQ;
+	Bool_t*       id_b_x2AoQ;
+    Bool_t*       id_b_x4AoQ;
 	Bool_t*       id_b_x4AoQ_Z; 
 	Bool_t*       id_b_z_AoQ;
 	Bool_t*       id_b_music_z;
+    
+    Float_t       id_mhtdc_beta_s2s8;
+  Float_t       id_mhtdc_gamma_s2s8;
+  Float_t       id_mhtdc_delta_s2s8;
+  Float_t       id_mhtdc_aoq_s2s8;
+  Float_t       id_mhtdc_z_s2tpc;
+  Float_t       id_mhtdc_zcor_s2tpc;
+  Float_t       id_mhtdc_v_cor_s2tpc;
+  Float_t       id_mhtdc_z_sc81;
+  Float_t       id_mhtdc_zcor_sc81;
+  Float_t       id_mhtdc_v_cor_sc81;
+
+  Float_t       id_mhtdc_beta_s2s4;
+  Float_t       id_mhtdc_gamma_s2s4;
+  Float_t       id_mhtdc_delta_s2s4;
+  Float_t       id_mhtdc_aoq_s2s4;
+  Float_t       id_mhtdc_z_music41;
+  Float_t       id_mhtdc_zcor_music41;
+  Float_t       id_mhtdc_v_cor_music41;
+  Float_t       id_mhtdc_z_music42;
+  Float_t       id_mhtdc_zcor_music42;
+  Float_t       id_mhtdc_v_cor_music42;
 	
 	Long64_t      firsttimestamp;
 	Bool_t        firstevent;
@@ -738,6 +862,15 @@ private:
 	Double_t      ts;  // relative time from start of the spill 
 	Double_t      ts2;  // relative time from start of the spill does not reset at end extraction
 	
+	Int_t time_in_ms;
+    Int_t spill_count;
+    Int_t ibin_for_s;
+    Int_t ibin_for_100ms;
+    Int_t ibin_for_spill;
+    Int_t ibin_clean_for_s;
+    Int_t ibin_clean_for_100ms;
+    Int_t ibin_clean_for_spill;
+	UInt_t increase_scaler_temp;
     // MRTOF part :
     
 	Float_t       mrtof_tof;
@@ -767,7 +900,7 @@ private:
 
     Int_t get2bits(Int_t, int, int, int);
  
-    Float_t rand0_5();
+    
     
     Bool_t Check_WinCond(Float_t P, Float_t* V);
     Bool_t Check_WinCond_Multi(Float_t P, Float_t** V, int cond_num);
@@ -781,23 +914,7 @@ private:
 
     void Setup_Conditions();
     
-public:
-	FRS_Detector_System();
-	~FRS_Detector_System();
-	
-	//void Process_FRS(TModParameter* , TGo4MbsSubEvent* , TGo4MbsEvent*){};
-	void Process_MBS(TGo4MbsSubEvent* psubevt);
-    void Process_MBS_Anl();
-    //void Process_FRS(TGo4MbsSubEvent* psubevt);
 
-
-	void Process_MBS(int*){};
-	void get_Event_data(Raw_Event*);
-	int* get_pdata();
-	
-    bool calibration_done(){return false;}
-    void write(){return;};
-    void set_Gain_Match_Filename(std::string){return;};
 
 
 };
