@@ -28,11 +28,12 @@
 #include "TGo4PolyCond.h"
 #include "TGo4CondArray.h"
 #include "TGo4EventProcessor.h"
+#include "TGo4Parameter.h"
 
-#include "TXRSParameter.h"
 
-#include "Detector_System.cxx"
+#include "TFRSParameter.h"
 
+#include "DESPECAnalysis.h"
 #include "TH2.h"
 #include "TCutG.h"
 
@@ -46,73 +47,83 @@ using namespace std;
 
 //---------------------------------------------------------------
 
+
 FRS_Detector_System::FRS_Detector_System(){
     
+     DESPECAnalysis* an = dynamic_cast<DESPECAnalysis*> (TGo4Analysis::Instance());
     
-    
-   // read_config_variables("Configuration_Files/Detector_System_Setup_File.txt");
-    
-    frs = new TXRSParameter("FRSPar");
-    
-    mw = new TMWParameter("MWPar");
-    
-    music = new TMUSICParameter("MUSICPar");
-    
-    tpc = new TTPCParameter("TPCPar");
-    
-    sci = new TSCIParameter("SCIPar");
-    
-    id = new TIDParameter("IDPar");
-    
-    si = new TSIParameter("SIPar");
-    
-    ElecMod = new TModParameter("ModPar");
-    
-    mrtof = new TMRTOFMSParameter("MRTOFMSPar");
+  if (an==0) {
+    cout << "!!!  Script should be run in FRS analysis" << endl;
+    return;
+  }
+  
+   frs = dynamic_cast<TFRSParameter*> (an->GetParameter("FRSPar"));
+  if (frs==0) {
+    cout << "!!!  Parameter FRSPar not found" << endl;
+    return;
+  }
+  
+ //  ModSetup = dynamic_cast<TModParameter*>(an->GetParameter("ModPar"));
+  
+   mw = dynamic_cast<TMWParameter*> (an->GetParameter("MWPar"));
+  if (mw==0) {
+    cout << "!!!  Parameter MWPar not found" << endl;
+    return;
+  }
 
-    
-    /*for(int i; i < 6; ++i){
-    vme     = new UInt_t**[i];         // FRS crate
-    vme[i]  = new UInt_t*[21];                             
+   music = dynamic_cast<TMUSICParameter*> (an->GetParameter("MUSICPar"));
+  if (music==0) {
+    cout << "!!!  Parameter MUSICPar not found" << endl;
+    return;
+  }
+
+  sci = dynamic_cast<TSCIParameter*> (an->GetParameter("SCIPar"));
+  if (sci==0) {
+    cout << "!!!  Parameter SCIPar not found" << endl;
+    return;
+  }
+
+   id = dynamic_cast<TIDParameter*> (an->GetParameter("IDPar"));
+  if (id==0) {
+    cout << "!!!  Parameter IDPar not found" << endl;
+    return;
+  }
+   
+   tpc = dynamic_cast<TTPCParameter*> (an->GetParameter("TPCPar"));
+  if (tpc==0) {
+    cout << "!!!  Parameter TPCPar not found" << endl;
+    return;
+  }
+
+   si = dynamic_cast<TSIParameter*> (an->GetParameter("SIPar"));
+  if (si==0) {
+    cout << "!!!  Parameter SIPar not found" << endl;
+    return;
+  }
+
+   mrtof = dynamic_cast<TMRTOFMSParameter*> (an->GetParameter("MRTOFMSPar"));
+  if (mrtof==0) {
+    cout << "!!!  Parameter MR-TOF-MSPar not found" << endl;
+    return;
+  }
+  
+  //TModParameter* ElecMod = dynamic_cast<TModParameter*>(an->GetParameter("ModPar"));
+  if(frs == nullptr)
+    {
+     std::cout<<"E> FRS parameters not set properly, it is nullptr !"<<std::endl;
+     std::exit(-1);
     }
-    
-    
 
-    //set amount of Germanium Detectors
-    vme0 = new UInt_t*[21];         // FRS crate                                
-    vme1 = new UInt_t*[21];         // TPC crate 
-    vme3 = new UInt_t*[21];         // Mtof crate
-    vme5 = new UInt_t*[21];          //Main Crate or User Crate
-    vme4 = new UInt_t*[21] ; // SOFIA crate temp need multiplicity for both MDPP and vftx
-    */
-    
-    
-    /*for(int i; i < 21; ++i){
-                                
-    vme_frs[i] = new UInt_t[32];         // FRS crate                                
-    vme_tpc[i] = new UInt_t[32];         // TPC crate 
-    vme[2][i] = new UInt_t[32];         // Mtof crate
-    vme[3][i] = new UInt_t[32];          //Main Crate or User Crate
-    vme[4][i] = new UInt_t[32];          //Main Crate or User Crate
-    vme_main[i] = new UInt_t[32];          //Main Crate or User Crate
-    
-    }*/
-    
+ 
+
     vme2s = new Int_t*[32];           // User TDC (V1290) 
     vme2s_trailing = new Int_t*[32];  // User TDC (V1290) 
+    
+    
 
     nhit5 = new Int_t*[32];            // multiplicity (V1290)
     
-    //nhit5[0] = new Int_t[32];            // multiplicity (V1290)
-    //nhit5[1] = new Int_t[32];            // multiplicity (V1290)
-
-  //  nhit_v1290_main = new Int_t*[32];       // multiplicity (V1290)
-    
-    //nhit_v1290_main[0] = new Int_t[32];            // multiplicity (V1290)
-    //nhit_v1290_main[1] = new Int_t[32];            // multiplicity (V1290)
-    
-   // leading_v1290_main = new Int_t*[32];           // Mtof TDC (V1290) 
-  //  leading_v1290_main_trailing = new Int_t*[32];  // Mtof TDC (V1290) 
+   
     
     for(int i = 0; i < 32; ++i){
     
@@ -130,8 +141,8 @@ FRS_Detector_System::FRS_Detector_System(){
     }
     
     
-    vme2scaler = new Int_t[32];         // User Crate Messhure
-    vme3scaler = new Int_t[32];         // User Crate Messhure
+    vme2scaler = new Int_t[32];         // User Crate Messhute
+    vme3scaler = new Int_t[32];         // User Crate Messhute
 
     firstTS = new bool[3];
     
@@ -147,6 +158,11 @@ FRS_Detector_System::FRS_Detector_System(){
     qdummy  = 0;          /*                       */
     qtrigger    = 0;        /*                       */
     qevent_nr   = 0;       /*                       */
+    
+    for(int i=0; i<16; i++){
+     vme_trmu_tdc[i] = 0;  
+     vme_trmu_adc[i] = 0;
+    }
     
  //   Proc_iterator=0;
 
@@ -262,7 +278,9 @@ FRS_Detector_System::FRS_Detector_System(){
     tdc_sc43r = new Int_t[10];
     tdc_sc81l = new Int_t[10];
     tdc_sc81r = new Int_t[10];
-
+    tdc_sc31l = new Int_t[10];
+    tdc_sc31r = new Int_t[10];
+    tdc_sc11 = new Int_t[10];
     // MUSIC1 part
     music_e1 = new Int_t[8];     /* Raw energy signals       */
     music_t1 = new Int_t[8];     /* Raw drift time           */
@@ -277,30 +295,6 @@ FRS_Detector_System::FRS_Detector_System(){
     music_e3 = new Int_t[4];     /* Raw energy signals       */
     music_t3 = new Int_t[4];     /* Raw drift times          */
 
-    // Single Anode
-   // SingleAnode_adc = 0;
-    
-    //Si detectors
-//     si_adc1 = 0;
-//     si_adc2 = 0;
-//     si_adc3 = 0;
-//     si_adc4 = 0;
-//     si_adc5 = 0;
-//     dssd_adc = new Int_t[32];
-
-    //Channeltron detector
-//     ct_signal = 0;
-//     ct_time = 0;
-//     ct_trigger_DU  = false;
-//     ct_trigger_SY = false;
-    
-    //Electron current measurement
-   // ec_signal = 0;
-    
-    // MR-TOF
-//     mrtof_start = 0;
-//     mrtof_stop = 0;
-//     mrtof_stopDelay = 0;
     
     /******************************************************************/
     /**CALIBRATION Parameters**/
@@ -318,7 +312,9 @@ FRS_Detector_System::FRS_Detector_System(){
     scaler_increase_event    = new Long64_t[64];//UInt_t
     scaler_last_event        = new Long64_t[64];
     
-    
+    scaler_ch_1kHz=39; //ch7 of 2nd scaler
+    scaler_ch_spillstart=8; //ch8 of 1st scaler 
+    scaler_check_first_event=1;
     //TGo4WinCond   *cMW_XSUM[13];
     //TGo4WinCond   *cMW_YSUM[13];  
     
@@ -405,10 +401,60 @@ FRS_Detector_System::FRS_Detector_System(){
     angle_x_s8 = 0;      /*                          */
     angle_y_s8 = 0;      /*                          */
     
+    tpc_x_s2_foc_21_22=-999.;
+  tpc_y_s2_foc_21_22=-999.;
+  tpc_x_s2_foc_23_24=-999.;
+  tpc_y_s2_foc_23_24=-999.;
+  tpc_x_s2_foc_22_24=-999.;
+  tpc_y_s2_foc_22_24=-999.; 
+  tpc_x_s4=-999.;
+  tpc_y_s4=-999.;
+  tpc_angle_x_s2_foc_21_22=-999.;
+  tpc_angle_y_s2_foc_21_22=-999.;
+  tpc_angle_x_s2_foc_23_24=-999.;
+  tpc_angle_y_s2_foc_23_24=-999.;
+  tpc_angle_x_s2_foc_22_24=-999.;
+  tpc_angle_y_s2_foc_22_24=-999.; 
+  tpc_angle_x_s4=-999.;
+  tpc_angle_y_s4=-999.;
+  
+  tpc21_22_sc21_x = -999.;      /* SC21                     */
+  tpc23_24_sc21_x = -999.;      /* SC21                     */
+  tpc22_24_sc21_x = -999.;      /* SC21                     */
+  tpc21_22_sc21_y = -999.;      /* SC21                     */
+  tpc23_24_sc21_y = -999.;      /* SC21                     */
+  tpc22_24_sc21_y = -999.;      /* SC21                     */
+  
+  tpc21_22_s2target_x = -999.;      /* S2TARGET                     */
+  tpc23_24_s2target_x = -999.;      /* S2TARGET                     */
+  tpc22_24_s2target_x = -999.;      /* S2TARGET                     */
+  tpc21_22_s2target_y = -999.;      /* S2TARGET                     */
+  tpc23_24_s2target_y = -999.;      /* S2TARGET                     */
+  tpc22_24_s2target_y = -999.;      /* S2TARGET                     */
+  
+  tpc_sc41_x = -999.;      /* SC41                     */
+  tpc_sc41_y = -999.;      /* SC41 Y                   */
+  tpc_sc42_x = -999.;      /* SC42                     */
+  tpc_sc42_y = -999.;      /* tracked SC42 Y pos       */
+  tpc_sc43_x = -999.;      /* SC43                     */
+  tpc_sc43_y = -999.;      /* SC43 Y                   */
+
+  tpc_music41_x = -999.;      /* MUSIC41 x                     */
+  tpc_music41_y = -999.;      /* tracked MUSIC41 Y pos       */
+  tpc_music42_x = -999.;      /* MUSIC42 x                     */
+  tpc_music42_y = -999.;      /* tracked MUSIC42 Y pos       */
+  tpc_music43_x = -999.;      /* MUSIC43 x                     */
+  tpc_music43_y = -999.;      /* tracked MUSIC43 Y pos       */
+  tpc_s4target_x = -999.;     /* S4 target */
+  tpc_s4target_y = -999.;     /* S4 target */
+
+    
     // TPC part
     tpc_x    = new Float_t[7];
     tpc_y    = new Float_t[7];
     b_tpc_xy = new Bool_t[7];
+    tpc_de = new Float_t[7];
+    b_tpc_de = new Bool_t[7];
 
     tpc_csum = new Int_t*[7];
     b_tpc_csum = new Bool_t*[7];
@@ -466,14 +512,14 @@ FRS_Detector_System::FRS_Detector_System(){
     //      Float_t tpc_angle_y_s4_target2;
     
     
-    tpc_sc21_x = 0;      /* SC21 x                   */
+   // tpc_mw_sc21_x = 0;      /* SC21 x                   */
     tpc_sc41_x = 0;      /* SC41 x                   */
-    tpc_sc21_y = 0;      /* SC21 y                   */
+  //  tpc_sc21_y = 0;      /* SC21 y                   */
     tpc_sc41_y = 0;      /* SC41 y                   */
     
     
-    sc21_x = 0;          /* SC21                     */
-    sc22_x = 0;          /* SC22 (LAND finger)       */
+    mw_sc21_x = 0;          /* SC21                     */
+    mw_sc22_x = 0;          /* SC22 (LAND finger)       */
     sc41_x = 0;          /* SC41                     */
     itag_stopper_x = 0;  /* ITAG Stopper             */
     sc42_x = 0;          /* SC42                     */
@@ -520,6 +566,10 @@ FRS_Detector_System::FRS_Detector_System(){
         music1_anodes_cnt = 0;
         music2_anodes_cnt = 0;
         music3_anodes_cnt = 0;
+        
+        music1_x_mean = -999.;
+        music2_x_mean = -999.;
+        music3_x_mean = -999.;
         
         music_b_e1 = new Bool_t[8];
         music_b_t1 = new Bool_t[8];
@@ -579,6 +629,7 @@ FRS_Detector_System::FRS_Detector_System(){
     sci_tofll4 = 0;  
     sci_tofrr4 = 0;
     sci_tof4 = 0;
+    sci_tof2 = 0; sci_tof3 = 0; sci_tof4 = 0;
     
     sci_veto_l = new Float_t[3];
     sci_veto_r = new Float_t[3];
@@ -629,34 +680,68 @@ FRS_Detector_System::FRS_Detector_System(){
         
         }
         
-        if(i < 4) sci_b_veto_r[i] = false;  
-
-        
+        if(i < 4) sci_b_veto_r[i] = false;          
     }
-    
-    
-    
+
     // ID part
     
-    id_x2 = 0;
-    id_y2 = 0;
-    id_a2 = 0;
-    id_b2 = 0;
-    id_x4 = 0;
-    id_y4 = 0;
-    id_a4 = 0;
-    id_b4 = 0;
-    id_x8 = 0;
-    id_y8 = 0;
-    id_a8 = 0;
-    id_b8 = 0;
+    id_x2 = 999;
+    id_y2 = 999;
+    id_a2 = 999;
+    id_b2 = 999;
+    id_x4 = 999;
+    id_y4 = 999;
+    id_a4 = 999;
+    id_b4 = 999;
+    id_x8 = 999;
+    id_y8 = 999;
+    id_a8 = 999;
+    id_b8 = 999;
     for(int i=0; i<7; ++i){
-    tpc_x[i] = 0;
-    tpc_y[i] = 0;
+    tpc_x[i] = 999;
+    tpc_y[i] = 999;
     }
+    
+    tpc_sc41_x = -999.;      /* SC41                     */
+  tpc_sc41_y = -999.;      /* SC41 Y                   */
+  tpc_sc42_x = -999.;      /* SC42                     */
+  tpc_sc42_y = -999.;      /* tracked SC42 Y pos       */
+  tpc_sc43_x = -999.;      /* SC43                     */
+  tpc_sc43_y = -999.;      /* SC43 Y                   */
+
+  tpc_music41_x = -999.;      /* MUSIC41 x                     */
+  tpc_music41_y = -999.;      /* tracked MUSIC41 Y pos       */
+  tpc_music42_x = -999.;      /* MUSIC42 x                     */
+  tpc_music42_y = -999.;      /* tracked MUSIC42 Y pos       */
+  tpc_music43_x = -999.;      /* MUSIC43 x                     */
+  tpc_music43_y = -999.;      /* tracked MUSIC43 Y pos       */
+  tpc_s4target_x = -999.;     /* S4 target */
+  tpc_s4target_y = -999.;     /* S4 target */
+  
+   // MultiHitTDC
+   mhtdc_tof8121 = -999.9;
+   mhtdc_tof4121 = -999.9;
+   mhtdc_tof4221 = -999.9;
+   mhtdc_tof4321 = -999.9;
+   mhtdc_tof3121 = -999.9;
+
+   mhtdc_sc21lr_dt = -999.9;
+   mhtdc_sc31lr_dt = -999.9;
+   mhtdc_sc41lr_dt = -999.9;
+   mhtdc_sc42lr_dt = -999.9;
+   mhtdc_sc43lr_dt = -999.9;
+   mhtdc_sc81lr_dt = -999.9;
+
+   mhtdc_sc21lr_x = -999.9;
+   mhtdc_sc31lr_x = -999.9;
+   mhtdc_sc41lr_x = -999.9;
+   mhtdc_sc42lr_x = -999.9;
+   mhtdc_sc43lr_x = -999.9;
+   mhtdc_sc81lr_x = -999.9;
+  
     id_b_x2 = false;
     id_b_x4 = false;
-    id_b_x8 = false;
+   // id_b_x8 = false;
     id_b_detof2 = false;
     
     id_brho = new Float_t[2];      /* position-corr. BRho      */
@@ -692,19 +777,54 @@ FRS_Detector_System::FRS_Detector_System(){
     id_scal_sc42 = 0;
     id_scal_sc43 = 0;
     id_scal_sc81 = 0;
-    
+    id_de_s2tpc =0.0;
+    id_b_de_s2tpc = kFALSE;
+    id_z_sc81 = 0.0;
+    id_v_cor_sc81 = 0.0;
+    id_b_z_sc81 = kFALSE;
+    id_z_s2tpc =0.0;
+    id_v_cor_s2tpc =0.0;
+    id_b_z_s2tpc = kFALSE;
+  
     id_b_AoQ = false;
     id_b_z = false;
+    id_b_AoQ_s2s8    = kFALSE;
+    
     id_b_z2 = false;
     id_b_z3 = false;
-    id_b_x2AoQ = false;
+    //id_b_x2AoQ = false;
     
+    id_b_x2AoQ = new Bool_t[5];
+    id_b_x4AoQ = new Bool_t[5];
     id_b_x4AoQ_Z = new Bool_t[5]; 
     id_b_z_AoQ = new Bool_t[5];
     id_b_music_z = new Bool_t[5];
     
+    id_mhtdc_beta_s2s8  = -999;
+  id_mhtdc_gamma_s2s8 = -999;
+  id_mhtdc_delta_s2s8 = -999;
+  id_mhtdc_aoq_s2s8   = -999;
+  id_mhtdc_z_s2tpc    = -999;
+  id_mhtdc_zcor_s2tpc = -999;
+  id_mhtdc_z_sc81     = -999;
+  id_mhtdc_zcor_sc81  = -999;
+  id_mhtdc_v_cor_s2tpc = 0.;
+  id_mhtdc_v_cor_sc81 = 0.;
+  
+  id_mhtdc_beta_s2s4  = -999;
+  id_mhtdc_gamma_s2s4 = -999;
+  id_mhtdc_delta_s2s4 = -999;
+  id_mhtdc_aoq_s2s4   = -999;
+  id_mhtdc_z_music41  = -999;
+  id_mhtdc_zcor_music41  =-999;
+  id_mhtdc_v_cor_music41 =0;
+  id_mhtdc_z_music42 =-999;
+  id_mhtdc_zcor_music42 =-999;
+  id_mhtdc_v_cor_music42 =0;
+    
     for(int i = 0; i < 5; i++){
-        
+        id_b_x2AoQ[i] = false;
+        id_b_x4AoQ[i] = false;
         id_b_x4AoQ_Z[i] = false; 
         id_b_z_AoQ[i] = false;
         id_b_music_z[i] = false;
@@ -717,6 +837,14 @@ FRS_Detector_System::FRS_Detector_System(){
     ts = 0;  // relative time from start of the spill 
     ts2 = 0;  // relative time from start of the spill does not reset at end extraction
     
+    time_in_ms =0;
+    spill_count =0;
+    ibin_for_s =0;
+    ibin_for_100ms =0;
+    ibin_for_spill =0;
+    ibin_clean_for_s=0;
+    ibin_clean_for_100ms=0;
+    ibin_clean_for_spill=0;
     // MRTOF part :
     
     mrtof_tof = 0;
@@ -727,25 +855,7 @@ FRS_Detector_System::FRS_Detector_System(){
     mrtof_si_e4 = 0;
     mrtof_si_e5 = 0;
     
-    Setup_Conditions();
-    
-  //  if (!FRS_File_Setup){
-    
-    Setup_Parameters();
-    
-    ElecMod->setMap();
-
-    //ElecMod->Print();
-  
-    cout << "Setup done " << endl;
-
-   // }
-//     cout<<"FRS_File_Setup " << FRS_File_Setup <<endl;
-//     if (!FRS_File_Setup) Write_Setup_Parameters();
-    
-    if (FRS_File_Setup) read_setup_variables_from_file();
-
-    
+    Setup_Conditions();   
 }
 
 //---------------------------------------------------------------
@@ -835,6 +945,9 @@ FRS_Detector_System::~FRS_Detector_System(){
     delete[] tdc_sc43r;
     delete[] tdc_sc81l;
     delete[] tdc_sc81r;
+    delete[] tdc_sc31l;
+    delete[] tdc_sc31r;
+    delete[] tdc_sc11;
 
     // MUSIC1 part
     delete[]  music_e1;     /* Raw energy signals       */
@@ -892,6 +1005,8 @@ FRS_Detector_System::~FRS_Detector_System(){
     delete[] tpc_x;
     delete[] tpc_y;
     delete[] b_tpc_xy;
+    delete[] tpc_de;
+    delete[] b_tpc_de;
 
     for(int i=0; i < 7; ++i){
     
@@ -946,6 +1061,9 @@ FRS_Detector_System::~FRS_Detector_System(){
     delete[] id_brho;      /* position-corr. BRho      */
     delete[] id_rho;       /* Position-corrected Rho   */
     
+    delete[] id_b_x2AoQ;
+    delete[] id_b_x4AoQ;
+    
     delete[] id_b_x4AoQ_Z; 
     delete[] id_b_z_AoQ;
     delete[] id_b_music_z;
@@ -956,7 +1074,8 @@ FRS_Detector_System::~FRS_Detector_System(){
 
 void FRS_Detector_System::Process_MBS(TGo4MbsSubEvent* psubevt){
  skip=false;
-   
+     // cout<<"frs->dist_focS4 !!!!!!!!" << frs->dist_focS4<< endl;
+   // cout<<"frs->bfield[0] " << frs->bfield[0]<< " frs->bfield[1]  " << frs->bfield[1] <<" frs->bfield[2] " << frs->bfield[2]<< " frs->bfield[3]  " << frs->bfield[3]<< endl;
    // Setup_Parameters();
 
     FRS_Unpack(psubevt);
@@ -979,18 +1098,20 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
    len = 0;      
    //vme_chn;
    lenMax = (psubevt->GetDlen()-2)/2;
-  const auto it_Crate = ElecMod->MapCrates.find(psubevt->GetProcid());
-  if(it_Crate == ElecMod->MapCrates.end())
-    std::cout<<"E> Crate Mapping does not have this ProcID :"<<psubevt->GetProcid()<<std::endl;
+   Int_t event_flag = *pdata++;  len++; // 0x200 or 0x000 etc. 20200123MERGE
+  //const auto it_Crate = ModSetup->MapCrates.find(psubevt->GetProcid());
   
-  if(ElecMod->EventFlags.size()!=0)
-    {
-      Int_t  event_flag = *pdata++;  len++; // 0x200 
-      bool foundFlag = false;
-      for(int setupFlag : ElecMod->EventFlags)
-    if(event_flag == setupFlag){  foundFlag = true; }
-        if(foundFlag){  EventFlag = event_flag; }
-    }
+  //if(it_Crate == ModSetup->MapCrates.end())
+   // std::cout<<"E> Crate Mapping does not have this ProcID :"<<psubevt->GetProcid()<<std::endl;
+  
+//   if(ModSetup->EventFlags.size()!=0)
+//     {
+//       Int_t  event_flag = *pdata++;  len++; // 0x200 
+//       bool foundFlag = false;
+//       for(int setupFlag : ModSetup->EventFlags)
+//     if(event_flag == setupFlag){  foundFlag = true; }
+//         if(foundFlag){  EventFlag = event_flag; }
+//     }
 
   
   switch(psubevt->GetProcid())
@@ -998,200 +1119,54 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 
       
     //===========
-    case 30:
-       
-    //case 10: //10 was changed to 30; (06.07.2018)
-    // (FRS CRATE)
-
-      
-      // if( (psubevt->GetType() != 10) )// 88 -> 10  YT, 20191113
-      //    break;     
-
-      //pdata++; len++; // remove 0xbaba.baba    
-      //      std::cout<<"Nb_scaler" <<  ElecMod->Nb_Scaler << std::endl;
-      
-      if(ElecMod->Nb_Scaler > 0) //v830 scaler
-    {
-      // \note FRS SCALER module data (1 longword per channel)   
-       //  This module has sequential readout therefore no channel
-       //  number contained in the data longwords. 
-       //
-      // read the header longword and extract slot, type & length  
-      Int_t vme_geo = getbits(*pdata,2,12,5);
-      Int_t vme_type = getbits(*pdata,2,9,3);
-      Int_t vme_nlw =  getbits(*pdata,2,3,6);
-
-      //printf("Event_flag_test=0x%08x\n",  EventFlag);
-          
-      pdata++; len++;
-
-      const auto it_Module = it_Crate->second.find(vme_geo);
-      int IdMod = it_Module->second;
-      if(it_Module == it_Crate->second.end())
-        std::cout<<"E> Crate Mapping does not have this module (vmeGEO==) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-
-      if(vme_type!=4)
-        std::cout<<"E> Scaler type missed match ! GEO"<<vme_geo<<" "<<" type 4 =/="<<vme_type<<std::endl;
-
-#ifdef DEBUG
-      std::cout<<"Scaler :"<<vme_geo<<" "<<vme_type<<" "<<vme_nlw<<std::endl;
-#endif
-      // read the data 
-      if (vme_nlw > 0)
-        {
-          for(int i=0;i<vme_nlw;i++)
-        {
-          if(ElecMod->Scaler32bit) 
-          {
-            // vme_frs[vme_geo][i] = *pdata;
-             scaler_frs[i] = *pdata;
-              // vme2scaler[i] = *pdata;
-
-#ifdef DEBUG
-              std::cout<<" Ch "<<i<<"# "<< vme_frs[vme_geo][i] <<std::endl;
-#endif
-              }
-          else
-            
-            {
-              Int_t sc_data = get2bits(*pdata,1,1,26);
-              Int_t  sc_ch = get2bits(*pdata,1,27,5);
-              if(sc_ch != i)
-            std::cout<<"E> Scaler missed match channel !"<<sc_ch<<" "<<i<<" "<<psubevt->GetProcid()<<std::endl;
-              // vme_frs[vme_geo][i] = sc_data;
-               scaler_frs[i] = sc_data;
-              // vme2scaler[i] = sc_data;
-#ifdef DEBUG
-              std::cout<<" Ch "<<sc_ch<<"# "<<sc_data<<std::endl;
-#endif
-            }
-          pdata++; len++;
-        }
-          // std::cout<<"1Hz unpack, "<<tgt->vme_frs[6][3]<<std::endl;
-          // read and ignore the expected "end-of-block" longword   
-          //pdata++; len++;
-        }
-    }
-
-
-        
-      //=============================== (Added on 07.07.2018)
-      /* v775 TDC/V785 ADC */
-      
-    while (len < lenMax){          
-        
-
-            /* read the header longword and extract slot, type & length  */
-            Int_t vme_chn = 0;
-        Int_t vme_geo = getbits(*pdata,2,12,5);
-        Int_t vme_type = getbits(*pdata,2,9,3);
-        Int_t vme_nlw =  getbits(*pdata,1,9,6); 
-
-        pdata++; len++;
-
-        /* read the data */
-        if ((vme_type == 2) && (vme_nlw > 0)) {
-            for(int i=0;i<vme_nlw;i++) {  
-                vme_geo = getbits(*pdata,2,12,5);
-                vme_type = getbits(*pdata,2,9,3);
-                vme_chn = getbits(*pdata,2,1,5);
-                 vme_frs[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
-
-                //if(vme_geo==11 && vme_chn==1){
-                //std::cout<<" debug000 "<< vme_geo <<  "   "  << vme_chn  << "  "  <<  vme_frs[vme_geo][vme_chn]  <<std::endl;
-            //}
-
-                    pdata++; len++;
-            }
-      
-        }
-
-        /* read and ignore the expected "end-of-block" longword */
-        pdata++; len++;
+    case 30: ///FRS Crate
     
-    }  /* end of the while... loop  */
+   
+    { // start of v830 (do not remove this bracket)
+            Int_t vme_geo = getbits(*pdata,2,12,5);
+            Int_t vme_type = getbits(*pdata,2,9,3);
+            Int_t vme_nlw =  getbits(*pdata,2,3,6);
+            pdata++; len++;
+            if(vme_type!=4){   std::cout<<"E> Scaler type missed match ! GEO"<<vme_geo<<" "<<" type 4 =/="<<vme_type<<std::endl; }
+            for(int i_ch=0; i_ch<vme_nlw; i_ch++){
+              scaler_frs[i_ch] = *pdata;
+              ////               printf("scaler_frs[ch=%d] = %d\n",i_ch,*pdata);
+              pdata++; len++;
+            }
+        } //end of V830
+        
+        //----- v775 TDC/V785 ADC -----//
+        while (len < lenMax){          
+          /* read the header longword and extract slot, type & length  */
+          Int_t vme_chn = 0; 
+          Int_t vme_geo = getbits(*pdata,2,12,5);
+          Int_t vme_type = getbits(*pdata,2,9,3);
+          Int_t vme_nlw =  getbits(*pdata,1,9,6); 
+    
+    
+    
+          pdata++; len++;
      
-       //===============================
-
-      //All the ADCs are read with the code just above..(07.07.2018)
-    
-      //  now start with the REST of the unpacking...
-      while (len < (psubevt->GetDlen()-2)/2)
-    {
-              
-      // read the header longword and extract slot, type & length  
-#ifdef DEBUG
-      std::cout<<"word :"<<std::bitset<32>(*pdata)<<" "<<std::endl;
-#endif
-      Int_t vme_geo = getbits(*pdata,2,12,5);
-      Int_t vme_type = getbits(*pdata,2,9,3);
-      Int_t vme_nlw =  getbits(*pdata,1,9,6);
-      pdata++; len++;
-      const auto it_Module = it_Crate->second.find(vme_geo);
-      int IdMod = it_Module->second;
-#ifdef DEBUG
-      std::cout<<"data "<<vme_geo<<" "<<vme_type<<" "<<vme_nlw<<" idmod:"<<IdMod<<std::endl;
-#endif
-      if(it_Module == it_Crate->second.end())
-        std::cout<<"E> Crate Mapping does not have this module (vmeGEO--) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-
-      // read the data
-      if(vme_type == 6)
-        {
-          // not valid data !
-          const auto MaxCh = ElecMod->Nb_Channels.find(vme_geo); 
-          for(int i=0;i<MaxCh->second;++i)
-        {
-          //h_UnpackStatus->Fill(IdMod*32+i,"not valid/Header",1.);
-          //h_UnpackStatus->Fill(IdMod*MaxCh->second+i,6.);
-        }
-         
-        }
-      if ((vme_type == 2) && (vme_nlw > 0))
-        {
-          for(int i=0;i<vme_nlw;i++)
-        {  
-          vme_geo = getbits(*pdata,2,12,5);
-          vme_type = getbits(*pdata,2,9,3);
-          vme_chn = getbits(*pdata,2,1,5);
-          
-           vme_frs[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
-          Int_t vme_statusVD = getbits(*pdata,14,1,1);
-          Int_t vme_statusUN = getbits(*pdata,13,1,1);
-          Int_t vme_statusOV = getbits(*pdata,12,1,1);
-
-          //if(vme_statusVD == 1)
-           // h_UnpackStatus->Fill(IdMod*32.+vme_chn,"valid",1.);
-//          else
-            //h_UnpackStatus->Fill(IdMod*32.+vme_chn,"not valid/Data",1.);
-
-         // if(vme_statusUN == 1)
-           // h_UnpackStatus->Fill(IdMod*32.+vme_chn,"UnderThreshold",1.);
-
-        //  if(vme_statusOV == 1)
-          //  h_UnpackStatus->Fill(IdMod*32.+vme_chn,"Overflow",1.);
-
-#ifdef DEBUG
-          std::cout<<" Ch "<<vme_chn<<" "<< vme_frs[vme_geo][vme_chn]<<" status ["<<vme_statusVD<<", "<<vme_statusUN<<", "<<vme_statusOV<<"]"<<std::endl;
-#endif
-          pdata++; len++;
-        }
-                  
-          // read and ignore the expected "end-of-block" longword 
-          pdata++; len++;
-        }
-              
-    }  // end of the while... loop  
-                  
-      break; 
-      // end proc ID=30 //changed from 10 to 30 (06.07.2018)
-      //==========
+          /* read the data */
+          if ((vme_type == 2) && (vme_nlw > 0)) {
+            for(int i=0;i<vme_nlw;i++) {  
+              vme_geo = getbits(*pdata,2,12,5);
+              vme_type = getbits(*pdata,2,9,3);
+              vme_chn = getbits(*pdata,2,1,5);
+              vme_frs[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
+              ////        printf("vme_frs[geo=%d][ch=%d] = %d\n",vme_geo,vme_chn,getbits(*pdata,1,1,16));
+              pdata++; len++;
+            }
+          }
+          // read and ignore the expected "end-of-block" longword   
+           pdata++; len++;
+           }  /* end of the while... loop  */
+           break;
+      
       
     //==========  
-    case 10:
+    case 10:  /// Main crate
          
-      // Main crate
-  
       if((psubevt->GetType() == 10) && (psubevt->GetSubtype() == 1) && lenMax < 15) // in this case, time stamp data.
       {
     int ii =0;
@@ -1202,42 +1177,44 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
     break;
       }
       
-      //
+      ///1st babababa
       if(*pdata != 0xbabababa){ 
-          //std::cout<<"1E> ProcID 10 : Barrier missed !" << std::endl;
+         // std::cout<<"1E> ProcID 10 : Barrier-1 missed !" << std::endl;
           //break;
           skip=true;
     }
   
       pdata++; len++;
       //----------
-      // there are 2 words (time stamp) but these are redundant
-      // skip 2 words;
+      /// there are 2 words (time stamp) but these are redundant
+      /// skip 2 words;
         pdata++; len++;
     pdata++; len++;
 
 
-    // addional babababa request by JoseLuis
+   /// additional babababa request by JoseLuis
     if(*pdata == 0xbabababa){
       pdata++; len++;
-    }else{
-       //std::cout<<"2E> ProcID 10 : Barrier missed !" << std::endl;
-       break;
     }
+         else{ 
+              //std::cout<<"E> ProcID 10 : Barrier-2 missed !" << *pdata  << std::endl; 
+              break;
+        }
+          pdata++; len++;
     
 
-      if(ElecMod->Nb_TDC>0)
-    {
-      //v1290 TDC              
+     // if(ModSetup->Nb_TDC>0)
+    if (len < lenMax){
+      ///v1290 TDC              
       Int_t vme_geo = getbits(*pdata,1,1,5);
       Int_t vme_type = getbits(*pdata,2,12,5);
       pdata++; len++;
       Int_t multihit = 0;//, counter = 0;
      // if(vme_geo==0) break;
-      const auto it_Module = it_Crate->second.find(vme_geo);
-      int IdMod = it_Module->second;
-      if(it_Module == it_Crate->second.end())
-      std::cout<<"E> Crate Mapping does not have this module (vmeGEO**) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
+//       const auto it_Module = it_Crate->second.find(vme_geo);
+//       int IdMod = it_Module->second;
+//       if(it_Module == it_Crate->second.end())
+//       std::cout<<"E> Crate Mapping does not have this module (vmeGEO**) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
 
 #ifdef DEBUG
       std::cout<<"mTDC geo = "<<vme_geo<<", type = "<<vme_type<<std::endl;
@@ -1265,7 +1242,7 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 #endif
           if(vme_type == 0)
             {
-              // this indicates a TDC measurement
+              /// this indicates a TDC measurement
               Int_t vme_chn = getbits(*pdata,2,6,5);
               Int_t LeadingOrTrailing = getbits(*pdata,2,11,1);
               Int_t value = getbits(*pdata,1,1,21);
@@ -1324,13 +1301,14 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
             }
               pdata++; len++;
             }
-        }
-        }
-    }
+           } ///while len loop
+         }///if type==8
+       }///end if len more due to strange logic // end of V1290
+    
       
 
   if(*pdata != 0xbabababa) {
-    std::cout<<"3E> ProcID 10 : Barrier missed !" << std::endl;
+    //std::cout<<"E> ProcID 10 : Barrier-3 missed !" << std::endl;
   
       break;
 }
@@ -1339,9 +1317,9 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 
       
    
-      
-      if(ElecMod->Nb_Scaler > 0)
-      {
+      //----- Next is V830 Scaler-----
+     // if(ModSetup->Nb_Scaler > 0)
+      {// start of v830 (do not remove this bracket)
       /** \note FRS SCALER module data (1 longword per channel)   
        *  This module has sequential readout therefore no channel
        *  number contained in the data longwords. 
@@ -1352,132 +1330,58 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
       Int_t vme_nlw =  getbits(*pdata,2,3,6);
 
           pdata++; len++;
-
-      const auto it_Module = it_Crate->second.find(vme_geo);
-      int IdMod = it_Module->second;
-      if(it_Module == it_Crate->second.end())
-        std::cout<<"E> Crate Mapping does not have this module (vmeGEO==) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-
-      if(vme_type!=4)
-        std::cout<<"E> Scaler type missed match ! GEO"<<vme_geo<<" "<<" type 4 =/="<<vme_type<<std::endl;
-
-#ifdef DEBUG
-      std::cout<<"Scaler :"<<vme_geo<<" "<<vme_type<<" "<<vme_nlw<<std::endl;
-#endif    
-      // read the data 
-      if (vme_nlw > 0)
-        {
-          for(int i=0;i<vme_nlw;i++)
-        {
-          if(ElecMod->Scaler32bit)
-            {
-
-               scaler_main[i] = *pdata;
-
-#ifdef DEBUG
-              std::cout<<" Ch "<<i<<"# "<< vme5[vme_geo][i] <<std::endl;
-#endif
-            }
-          else
-            {
-              Int_t sc_data = get2bits(*pdata,1,1,26);
-              Int_t  sc_ch = get2bits(*pdata,1,27,5);
-              if(sc_ch != i)
-            std::cout<<"E> Scaler missed match channel !"<<sc_ch<<" "<<i<<" "<<psubevt->GetProcid()<<std::endl;
-               scaler_main[i] = sc_data;
-#ifdef DEBUG
-              std::cout<<" Ch "<<sc_ch<<"# "<<sc_data<<std::endl;
-#endif
-            }
+if(vme_type!=4){   std::cout<<"E> Scaler type missed match ! GEO"<<vme_geo<<" "<<" type 4 =/="<<vme_type<<std::endl; }
+        for(int i_ch=0; i_ch<vme_nlw; i_ch++){
+          scaler_main[i_ch] = *pdata;
+          //////         printf("scaler_main[ch=%d] = %d\n",i_ch,*pdata);
           pdata++; len++;
         }
-          // std::cout<<"1Hz unpack, "<<tgt->vme_frs[6][3]<<std::endl;
-          // read and ignore the expected "end-of-block" longword   
-          //pdata++; len++;
-          }
-       }
-      //  now start with the REST of the unpacking...     
+          } ///end of V830
+
+     ///--------the rest of the unpacking...V792--------    
 
 
       while (len < (psubevt->GetDlen()-2)/2)
     {
-              
-      // read the header longword and extract slot, type & length  
-#ifdef DEBUG
-      std::cout<<"word :"<<std::bitset<32>(*pdata)<<" "<<std::endl;
-#endif
+             
       Int_t vme_chn = 0;
       Int_t vme_geo = getbits(*pdata,2,12,5);
       Int_t vme_type = getbits(*pdata,2,9,3);
       Int_t vme_nlw =  getbits(*pdata,1,9,6); 
       
       pdata++; len++;
+      #ifdef DEBUG
+          std::cout<<"data "<<vme_geo<<" "<<vme_type<<" "<<vme_nlw<<" idmod:"<<IdMod<<std::endl;
+    #endif
+     
       
-      const auto it_Module = it_Crate->second.find(vme_geo);
-
-          if(it_Module == it_Crate->second.end())
-      std::cout<<"E> Crate Mapping does not have this module (vmeGEO) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-      
-      int IdMod = it_Module->second;
-      
-#ifdef DEBUG
-     std::cout<<"data "<<vme_geo<<" "<<vme_type<<" "<<vme_nlw<<" idmod:"<<IdMod<<std::endl;
-#endif
-      
-      // read the data
-       if(vme_type == 6)
-        {
-          // not valid data !
-          const auto MaxCh = ElecMod->Nb_Channels.find(vme_geo); 
-          for(int i=0;i<MaxCh->second;++i)
-          {
-             //h_UnpackStatus->Fill(IdMod*32+i,"not valid/Header",1.);
-          //h_UnpackStatus->Fill(IdMod*MaxCh->second+i,6.);
+      /// read the data
+     if(vme_type == 6){
+    
+              // not valid data !
           }
-         
-        }
-      if ((vme_type == 2) && (vme_nlw > 0))
-        {
-          for(int i=0;i<vme_nlw;i++)
-        {  
-          vme_geo = getbits(*pdata,2,12,5);
-          vme_type = getbits(*pdata,2,9,3);
-          vme_chn = getbits(*pdata,2,1,5);
-          
-           vme_main[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
-        //  std::cout<< "vme_geo " << vme_geo <<std::endl;
-          Int_t vme_statusVD = getbits(*pdata,14,1,1);
-          Int_t vme_statusUN = getbits(*pdata,13,1,1);
-          Int_t vme_statusOV = getbits(*pdata,12,1,1);
-/*
-          if(vme_statusVD == 1)
-        //  h_UnpackStatus->Fill(IdMod*32.+vme_chn,"valid",1.);
-          else
-         // h_UnpackStatus->Fill(IdMod*32.+vme_chn,"not valid/Data",1.);
-
-          if(vme_statusUN == 1)
-         // h_UnpackStatus->Fill(IdMod*32.+vme_chn,"UnderThreshold",1.);
-
-          if(vme_statusOV == 1)*/
-         // h_UnpackStatus->Fill(IdMod*32.+vme_chn,"Overflow",1.);
-
-          pdata++; len++;
-        }
-          
-          // read and ignore the expected "end-of-block" longword 
-          pdata++; len++;
-        }
+          if ((vme_type == 2) && (vme_nlw > 0)){
+            for(int i=0;i<vme_nlw;i++){  
+              vme_geo = getbits(*pdata,2,12,5);
+              vme_type = getbits(*pdata,2,9,3);
+              vme_chn = getbits(*pdata,2,1,5);
+              vme_main[vme_geo][vme_chn] = getbits(*pdata,1,1,16);
               
-    }  // end of the while... loop  
+               pdata++; len++;
+            }
+             /// read and ignore the expected "end-of-block" longword 
+            pdata++; len++;
+          }
+        }  /// end of the while... loop  
+    
+       
+          break; /// proc ID 10
 
-      break;
- 
-      
-      //=========       
+      ///====================================       
     case 20:
     case 25:
  
-      //=============================== (Added on 07.07.2018)
+      ///=============================== (Added on 07.07.2018)
       /* v775 TDC/V785 ADC */
       
       while (len < lenMax){
@@ -1508,8 +1412,8 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
     pdata++; len++;
       }  /* end of the while... loop  */
       
-       //===============================      
-      //All the ADCs are read with the code just above..(07.07.2018)
+       ///===============================      
+      ///All the ADCs are read with the code just above..(07.07.2018)
         
       /* rest of the unpacking */
       while (len < (psubevt->GetDlen()-2)/2)
@@ -1524,187 +1428,64 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 #ifdef DEBUG
       std::cout<<"data "<<vme_geo<<" "<<vme_type<<" "<<vme_nlw;
 #endif      
-      const auto it_Module = it_Crate->second.find(vme_geo);
-      if(it_Module == it_Crate->second.end()){
-        std::cout<<"E> Crate Mapping does not have this module (vmeGEO$$) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-      } 
-    }  /* end of the while... loop  */
+      
+    }  /// end of the while... loop  
       break;
-      //=========
-      
-
-      //============
-    // // case 40 :
-      
-// //       if(ElecMod->Nb_TimeStamp > 0 && (psubevt->GetType() == 12) )
-// //   {
-// //     /** \note FRS TIME STAMP module data (3 longwords)   
-// //      *   has no header or end-of-block info, we must hardwire GEO = 20.
-// //      */
-//    Long64_t tempTS = 0;
-//    static const Long64_t bit_weight[4] = {0x1,0x10000,0x100000000,0x1000000000000};
-//    for (int i=0;i<4;++i)
-//      {
-//         vme3[20][i] = getbits(*pdata,1,1,16);
-//        tempTS +=  vme3[20][i]*bit_weight[i];
-//        // vme_frs[20][vme_chn++] = getbits(*pdata,2,1,16);
-//        pdata++; len++;
-//      }
-//    previousTimeStamp[1] = currentTimeStamp;
-//    currentTimeStamp = tempTS;      
-//  }
-
-//       if( (psubevt->GetType() != 88) )
-//  break;
-
-//       pdata++; len++; // remove 0xbaba.baba
-
-      
-//    // v820 -> no header 16 ch of 32 bits.
-//       for(int i=0;i<16;++i)
-//  {
-//     vme3scaler[i] = *pdata;
-// #ifdef DEBUG
-//    std::cout<<" Ch "<<i<<"# "<< vme3scaler[i] <<std::endl;
-// #endif
-//    pdata++; len++;
-//  }
-
-
-//       static std::bitset<32> barrier_test(0xbabababa);
-//       if(std::bitset<32>(*pdata) !=barrier_test)
-//  std::cout<<"E> ProcID 40 : Barrier missed !"<<std::bitset<32>(*pdata)<<" =/= 0xbabababa | "<<barrier_test<<std::endl;
-//       pdata++; len++;
-      
-      
-//       if(ElecMod->Nb_TDC>0)
-//  {
-//    //v1290 TDC              
-//    Int_t vme_geo = getbits(*pdata,1,1,5);
-//    Int_t vme_type = getbits(*pdata,2,12,5);
-//    pdata++; len++;
-//    Int_t multihit = 0;//, counter = 0;
-
-//    const auto it_Module = it_Crate->second.find(vme_geo);
-//    if(it_Module == it_Crate->second.end())
-//      std::cout<<"E> Crate Mapping does not have this module (vmeGEO//) "<<vme_geo<<" in Crate :"<<psubevt->GetProcid()<<std::endl;
-      
-// #ifdef DEBUG
-//    std::cout<<"mTDC geo = "<<vme_geo<<", type = "<<vme_type<<std::endl;
-// #endif  
-
-//    if (vme_type == 8)
-//      {
-//        while (len < lenMax) 
-//      {
-// #ifdef DEBUG
-//        std::cout<<"word : "<<std::bitset<32>(*pdata)<<" ";
-// #endif
-//        vme_type = getbits(*pdata,2,12,5);
-//        if(vme_type==1) // headerTDC
-//          { 
-//            pdata++; len++;
-//          }
-//        //multihit = 0;
-// #ifdef DEBUG
-//        std::cout<<"reading "<<vme_type<<std::endl;
-// #endif
-//        vme_type = getbits(*pdata,2,12,5);
-// #ifdef DEBUG
-//        std::cout<<" word : "<<std::bitset<32>(*pdata)<<" type:"<<vme_type<<" ";
-
-// #endif
-//        if(vme_type == 0)
-//          {
-//            // this indicates a TDC measurement
-//            Int_t vme_chn = getbits(*pdata,2,6,5);
-//            Int_t LeadingOrTrailing = getbits(*pdata,2,11,1);
-//            Int_t value = getbits(*pdata,1,1,21);
-//            multihit =  nhit_v1290_main[vme_chn][LeadingOrTrailing];
-// #ifdef DEBUG
-//            std::cout << "     tdc vme_chn = " << vme_chn;
-//            std::cout << " multihit: " << multihit << " ";
-// #endif
-//            if (multihit >= 10)
-//          {
-//            pdata++; len++;
-//            continue;
-//          }
-//            if(LeadingOrTrailing == 0)
-//          {
-// #ifdef DEBUG
-//            std::cout << " +-> tdc L value = " << value << std::endl;
-// #endif
-//            if (value > 0)
-//              {
-//                 leading_v1290_main[vme_chn][multihit] = value;
-//                //hVME2_TDC[vme_chn]->Fill(value);
-//              }
-//          }
-          
-//            else
-//          {
-// #ifdef DEBUG
-//            std::cout << " +-> tdc T value = " << value << std::endl;
-// #endif
-//            if (value > 0)
-//               leading_v1290_main_trailing[vme_chn][multihit] = value;
-//          }
-//             nhit_v1290_main[vme_chn][LeadingOrTrailing]++;
-            
-//            pdata++; len++;
-//          }
-//        else
-//          {
-//            // TDC trailer vme_type == 3
-// #ifdef DEBUG
-//            std::cout<<"\n";
-// #endif
-//            if(vme_type != 3 && vme_type !=16)
-//          std::cout<<"E> MTDC strange type :"<<vme_type<<std::endl;
-//            if(vme_type==16)
-//          {
-//            Int_t vme_geoEnd = getbits(*pdata,1,1,5);
-//            if(vme_geo!=vme_geoEnd)
-//              std::cout<<"E> MTDC strange end buffer header :"<<vme_type<<" "<<vme_geo<<" != "<<vme_geoEnd<<std::endl; 
-//            break;
-//          }
-//            pdata++; len++;
-
-//          }
-//      }
-//      }
-//  }
-//       break;
-      //===========
-
-      //===========
-      // case 50:
-      // if(ElecMod->Nb_TimeStamp > 0 && (psubevt->GetType() == 12) )
-      //    {
-      //      /** \note FRS TIME STAMP module data (3 longwords)   
-      //       *   has no header or end-of-block info, we must hardwire GEO = 20.
-      //       */
-      //      Long64_t tempTS = 0;
-      //      static const Long64_t bit_weight[4] = {0x1,0x10000,0x100000000,0x1000000000000};
-      //      for (int i=0;i<4;++i)
-      //        {
-      //           vme4[20][i] = getbits(*pdata,1,1,16);
-      //          tempTS +=  vme4[20][i]*bit_weight[i];
-      //          // vme_frs[20][vme_chn++] = getbits(*pdata,2,1,16);
-      //          pdata++; len++;
-      //        }
-      //      previousTimeStamp[2] = currentTimeStamp;
-      //      currentTimeStamp = tempTS;      
-      //    }
-
-    default :
-      break;
-    } // end switch prodID
-
-//  return kTRUE;
-
-}
+      ///===============================================================================
+      ///================================================================ =============     
+         case 45: /// Travel music crate (2020/Jan/23)
+           
+           { ///-----MDPP module----- (do not remove this bracket)
+ // header
+         Int_t header = *pdata;
+         Int_t nword_mdpp = (0x3FF & header);
+         pdata++;
+           
+         // main data (data or time information or end counter)
+         for(int ii=0; ii<nword_mdpp; ii++){
+           int tmp_data = *pdata;
+           if( 1 == (0xF & (tmp_data>>28))   ){
+             //      printf("real data 0x%08x\n",tmp_data);
+             int ch = 0x3F & (tmp_data >> 16);
+             if(0<=ch && ch<=15){
+               int adc_data = 0xFFFF & tmp_data;
+               //    printf("ADC data !!! ch = %2d, ADC = %d \n",ch, adc_data);
+               if( (vme_trmu_adc[ch]) <= 0 ){ //first-come-first-served, for detailed multi-hit analysis, investigation needed.
+              vme_trmu_adc[ch] = adc_data;
+             //// printf(" vme_trmu_adc[%d] = 0x%08x; \n",ch,adc_data);
+               }
+             }else if(16<=ch && ch<=31){
+               int tdc_data = 0xFFFF & tmp_data;
+               //printf("TDC data !!! ch = %2d, TDC = %d \n",ch-16, tdc_data);
+               if( ( vme_trmu_tdc[ch-16]) <= 0 ){//first-come-first-served, for detailed multi-hit analysis, investigation needed.
+              vme_trmu_tdc[ch-16] = tdc_data;
+             //////          printf("vme_trmu_tdc[%d] = 0x%08x; \n",ch-16,tdc_data);
+               }
+             }         
+           }else if( 2 == (0xF & (tmp_data>>28))){
+             // printf("ext time stamp 0x%08x\n",tmp_data);
+           }else if(0x0 == tmp_data ){
+             // printf("dummy 0x%08x\n",tmp_data);
+           }else if( 3 == (0x3 & (tmp_data>>30))){
+             // printf("end counter 0x%08x\n",tmp_data);
+           }else{
+             // printf("unknown data0x%08x\n",tmp_data);
+           } 
+           pdata++;
+         }
+           }//---end of MDPP module ---
+           
+           break;
+         
+         //=========
+         default :
+           break;
+           
+      } // end switch prodID
+    
+//      return kTRUE;
+    
+    }     
 
 //---------------------------------------------------------------
 
@@ -1752,8 +1533,8 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 //     len++;
 //     
 //     
-//     const auto it_Crate = ElecMod->MapCrates.find(psubevt->GetProcid());
-//     if(it_Crate == ElecMod->MapCrates.end())
+//     const auto it_Crate = ModPar->MapCrates.find(psubevt->GetProcid());
+//     if(it_Crate == ModPar->MapCrates.end())
 //         std::cout<<"E> Crate Mapping does not have this ProcID :"<<psubevt->GetProcid()<<std::endl;
 //     
 // 
@@ -1774,7 +1555,7 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 //     
 //     for(int i=0;i<vme_nlw;i++){
 //         
-//         if(ElecMod->Scaler32bit){
+//         if(ModPar->Scaler32bit){
 //         
 //         vme[ID][vme_geo][i] = *pdata;
 //       //  cout<<" vme[ID][vme_geo][i] " << vme[ID][vme_geo][i] << " ID " << ID << " geo " << vme_geo <<endl;
@@ -1864,8 +1645,8 @@ void FRS_Detector_System::FRS_Unpack(TGo4MbsSubEvent* psubevent){
 //     
 //     len++;
 //     
-//     const auto it_Crate = ElecMod->MapCrates.find(psubevt->GetProcid());
-//     if(it_Crate == ElecMod->MapCrates.end())
+//     const auto it_Crate = ModPar->MapCrates.find(psubevt->GetProcid());
+//     if(it_Crate == ModPar->MapCrates.end())
 //         std::cout<<"E> Crate Mapping does not have this ProcID :"<<psubevt->GetProcid()<<std::endl;
 //     
 //     const auto it_Module = it_Crate->second.find(vme_geo);
@@ -1932,8 +1713,9 @@ void FRS_Detector_System::FRS_Sort(){
                    vme_frs[i][j]=0; 
                   // vme_main[i][j]=0; 
                }    
-           }    
-                
+           }   
+        id_x2=999;
+        id_x4 =999;        
         id_AoQ=0;   
         id_AoQ_corr=0;     
  
@@ -1942,7 +1724,8 @@ void FRS_Detector_System::FRS_Sort(){
            tpc_a[i][j]=0;   
            tpc_l[i][j]=0;   
            tpc_r[i][j]=0;   
-           tpc_lt[i][j]=0;  
+           tpc_lt[i][j]=0; 
+         //  cout<<"CLEAR " <<" tpc_lt[i][j] " <<  tpc_lt[i][j] <<" i " << i  << " j " << j << endl;
            tpc_rt[i][j]=0;  
              }  
             for(int k=0; k<4; k++){     
@@ -1975,9 +1758,8 @@ void FRS_Detector_System::FRS_Sort(){
         music_t1[i] =0; 
         music_t2[i] =0; 
             
-        }   
-            
-       
+                }   
+      
         }
         if(psubevt->GetProcid()==30){
             
@@ -2005,7 +1787,7 @@ void FRS_Detector_System::FRS_Sort(){
         }
    if(psubevt->GetProcid()==20||psubevt->GetProcid()==25||psubevt->GetProcid()==30){
         
-            de_21l = 0;
+    de_21l = 0;
     de_21r = 0;
  
     de_41l = 0;
@@ -2017,6 +1799,8 @@ void FRS_Detector_System::FRS_Sort(){
   
     de_81l = 0;
     de_81r = 0;
+    de_31l = 0; 
+    de_31r = 0;
         }
       
 
@@ -2209,7 +1993,7 @@ void FRS_Detector_System::FRS_Sort(){
    tpc_rt[0][0]= vme_tpc[8][5] & 0xfff;
    tpc_lt[0][1]= vme_tpc[8][6] & 0xfff;
    tpc_rt[0][1]= vme_tpc[8][7] & 0xfff;
-
+   
   //TPC 2 at S2 (TPC 22) in vaccuum
    tpc_dt[1][0]= vme_tpc[8][8] & 0xfff;
    tpc_dt[1][1]= vme_tpc[8][9] & 0xfff;
@@ -2276,21 +2060,26 @@ void FRS_Detector_System::FRS_Sort(){
    tpc_timeref[3] =  vme_tpc[0][27] & 0xfff;
 
 //  printf("timeref[0] (sc41) = %d \n", tpc_timeref[0] );
-
-  
-    /* ### SCI dE:  */
-    de_21l = vme_main[11][2] & 0xfff;
-    de_21r = vme_main[11][3] & 0xfff;
- //cout<<"de_21l " << de_21l << endl;
-    de_41l = vme_main[11][0] & 0xfff;
-    de_41r = vme_main[11][1] & 0xfff;
-    de_42l = vme_main[11][4] & 0xfff; 
-    de_42r = vme_main[11][5] & 0xfff;
-    de_43l = vme_main[11][11] & 0xfff;
-    de_43r = vme_main[11][12] & 0xfff;  
-  
-    de_81l = vme_main[11][13] & 0xfff;
-    de_81r = vme_main[11][14] & 0xfff;
+//    for(int i=0; i<7; i++){
+//        for(int j=0; j<2; j++){
+//  cout<<"tpc_lt[i][j] " << tpc_lt[i][j] << " i " << i << " j " << j << endl;
+//        }
+//    }
+    /// SCI dE: 
+      de_41l = vme_main[11][0] & 0xfff;
+      de_41r = vme_main[11][1] & 0xfff;
+      de_21l = vme_main[11][2] & 0xfff;
+      de_21r = vme_main[11][3] & 0xfff;
+      de_42l = vme_main[11][4] & 0xfff; 
+      de_42r = vme_main[11][5] & 0xfff;
+    
+    
+      de_31l = vme_main[11][6] & 0xfff;
+      de_31r = vme_main[11][7] & 0xfff;
+      de_43l = vme_main[11][11] & 0xfff;
+      de_43r = vme_main[11][12] & 0xfff;  
+      de_81l = vme_main[11][13] & 0xfff;
+      de_81r = vme_main[11][14] & 0xfff;
    
     
 //     de_v1l = 0;
@@ -2300,19 +2089,18 @@ void FRS_Detector_System::FRS_Sort(){
 //     de_v3  = 0;
 
     
-    /* ### SCI times:  */
+    ///  SCI times: 
     dt_21l_21r = vme_frs[12][0] & 0xfff;
-    dt_41l_41r = vme_frs[12][1] & 0xfff;
-    dt_21l_41l = vme_frs[12][5] & 0xfff;
- //   std::cout<<"vme_frs[12][5] & 0xfff " << dt_21l_41l <<std::endl;
-    dt_21r_41r = vme_frs[12][6] & 0xfff;
-    dt_42l_42r = vme_frs[12][2] & 0xfff;  
-    dt_42l_21l = vme_frs[12][7] & 0xfff; //
-    dt_42r_21r = vme_frs[12][8] & 0xfff; //
-    dt_43l_43r = vme_frs[12][3] & 0xfff; //
-    dt_81l_81r = vme_frs[12][4] & 0xfff;
-    dt_21l_81l = vme_frs[12][9] & 0xfff;
-    dt_21r_81r = vme_frs[12][10] & 0xfff;
+      dt_41l_41r = vme_frs[12][1] & 0xfff;
+      dt_42l_42r = vme_frs[12][2] & 0xfff;
+      dt_43l_43r = vme_frs[12][3] & 0xfff; //
+      dt_81l_81r = vme_frs[12][4] & 0xfff;
+      dt_21l_41l = vme_frs[12][5] & 0xfff;
+      dt_21r_41r = vme_frs[12][6] & 0xfff;
+      dt_42l_21l = vme_frs[12][7] & 0xfff; //
+      dt_42r_21r = vme_frs[12][8] & 0xfff; //
+      dt_21l_81l = vme_frs[12][9] & 0xfff;
+      dt_21r_81r = vme_frs[12][10] & 0xfff;
 //cout<<"dt_41l_41r " << dt_41l_41r <<endl;
  
   /* ### SCI Multihit TDC time:  */
@@ -2328,444 +2116,99 @@ void FRS_Detector_System::FRS_Sort(){
     tdc_sc43r[i] = vme2s[7][i];
     tdc_sc81l[i] = vme2s[8][i];
     tdc_sc81r[i] = vme2s[9][i];
+    tdc_sc31l[i] = vme2s[10][i];
+    tdc_sc31r[i] = vme2s[11][i];
+    tdc_sc11[i]  = vme2s[12][i];
     
     }
   
 
-  /* ### MUSIC OLD:  */
-    for(int i=0;i<4;i++){
+ //---MUSIC configuration. 2x TUM-MUSIC from FRS crate and 1 TRavel-MUsic from TRMU crate (2020/Jan/23, YT)
+       for(int i=0;i<8;i++)
+        {
+          music_e1[i] = (vme_frs[3][i]) & 0xfff;   // 
+          music_e2[i] = (vme_trmu_adc[i])        ; // Travel-MUSIC (from special VME crate)
+          music_e3[i] = (vme_frs[3][8+i]) & 0xfff; // 
+          music_t1[i] = leading_v1290_main[16+i][0] & 0xfff; //TUM-MUSIC
+          music_t2[i] = (vme_trmu_tdc[i]);                   //Travel-MUSIC (from special VME crate)
+          music_t3[i] = leading_v1290_main[24+i][0] & 0xfff; //TUM-MUSIC
+        }
+        
+      /* ### MUSIC temp & pressure:  */
+      // music_pres[0] = 0; 
+      // music_temp[0] = 0;
+      // music_pres[1] = 0;
+      // music_temp[1] = 0;
+      // music_pres[2] = 0;
+      // music_temp[2] = 0;
+    
+      // //Channeltron detectors (vme must be adjusted)
+      // ct_time = vme3s_MT[2][0] & 0xfff;
+      // ct_signal = vme2scaler[20] & 0xfff; 
+      // ct_trigger_DU = vme2scaler[5]& 0xfff;
+      // ct_trigger_SY = vme2scaler[6]& 0xfff;
+    
+      // //Electron current measurement (vme must be adjused)
+      // ec_signal = vme0[10][1]& 0xfff;
       
-    music_t3[i] = vme_tpc[11][16+i] & 0xfff;    //TIME
-    //music_t3[i] = 0;
-    music_e3[i] = vme_frs[10][16+i] & 0xfff;    //ENERGY
-    //music_e3[i] = 0;
-
-    }
-               
-    /* ### TUM MUSIC dE:  */
-    for(int i=0;i<8;i++){
-    
-    music_e1[i] = vme_frs[3][i] & 0xfff;
-    music_e2[i] = vme_frs[3][8+i] & 0xfff;
-     //printf("anode value= %d\n",music_e1[i]);
-    //music_e2[i] = vme_frs[12][24+i] & 0xfff;
-    
-    music_t1[i] = vme2s[16+i][0] & 0xfff; //TIME
-    music_t2[i] = vme2s[24+i][0] & 0xfff; //TIME
-    
-    }
-    
-    /* ### MUSIC temp & pressure:  */
-//     music_pres[0] = 0; 
-//     music_temp[0] = 0;
-//     
-//     /*  not included in readout! */
-//     music_pres[1] = 0;
-//     music_temp[1] = 0;
-//     
-//     /*  not included in readout! */
-//     music_pres[2] = 0;
-//     music_temp[2] = 0;
-    
-    //Single anode 
-//     SingleAnode_adc = vme_frs[10][20] & 0xfff; 
-//     
-//     //Si detectors 
-//     si_adc1 = vme_frs[10][24] & 0xfff; 
-//     si_adc2 = vme_frs[10][25] & 0xfff;
-//     si_adc3 = vme_frs[10][26] & 0xfff; 
-//     si_adc4 = vme_frs[10][27] & 0xfff;
-//     si_adc5 = vme_frs[10][28] & 0xfff;
-    
-    //Si detectors DSSD = alpha tagger
-//     for(int i=0;i<32;i++){
-//  
-//  dssd_adc[i] = vme_frs[7][i] & 0xfff;
-//     
-//     }
-
-    //Channeltron detectors (vme must be adjusted)
-//     ct_time = leading_v1290_main[2][0] & 0xfff;
-//     ct_signal = vme2scaler[20] & 0xfff; 
-//     ct_trigger_DU = vme2scaler[5]& 0xfff;
-//     ct_trigger_SY = vme2scaler[6]& 0xfff;
+      // // mrtof
+      // mrtof_start = vme3s_MT[0][0] ;//& 0x7ffff;
+      // mrtof_stopDelay = vme3s_MT[1][0];// & 0x7ffff;
+      // mrtof_stop = vme3s_MT[2][0] ;//& 0x7ffff;
     
     //Electron current measurement (vme must be adjused)
-    ec_signal = vme_frs[10][1]& 0xfff;
+    //ec_signal = vme_frs[10][1]& 0xfff;
     
     // mrtof
-    mrtof_start = leading_v1290_main[0][0] ;//& 0x7ffff;
-    mrtof_stopDelay = leading_v1290_main[1][0];// & 0x7ffff;
-    mrtof_stop = leading_v1290_main[2][0] ;//& 0x7ffff;
+   // mrtof_start = leading_v1290_main[0][0] ;//& 0x7ffff;
+   // mrtof_stopDelay = leading_v1290_main[1][0];// & 0x7ffff;
+   // mrtof_stop = leading_v1290_main[2][0] ;//& 0x7ffff;
     
     
 }
 
 
 void FRS_Detector_System::FRS_Calib(){
+    ///Scalars
+    for(int jj=0; jj<64; jj++){
+    scaler_initial[jj] = sc_long[jj];
     
-  //----- from here added by YKT 23.05 --------//   
-  /////// 
-  ///////  scaler_time_count,  scaler_spill_count,  scaler_time_check_last,   scaler_spill_check_last,  scaler_increase_event[64]     UInt_t
-  ///////  check_increase_time[i]   check_increase_spill[i],   scaler_last_event[i]    UInt_t 
-
-  // special channels for normalization
-  int scaler_channel_spill_all[2] = {8, 5}; double normalization_factor_spill_all[2] = {1.0,1.0}; //   YKT 23.05
-  //int scaler_channel_time_all[2]  = {36,1}; double normalization_factor_time_all[2] = {10.0,100.}; //  36 for 10 Hz clock
-  int scaler_channel_time_all[2]  = {36,1}; double normalization_factor_time_all[2] = {1.,100.}; //  36 for 10 Hz clock (normalization 100ms)
-  // int scaler_channel_time_all[2]  = {38,1}; double normalization_factor_time_all[2] = {100000.0,100.}; //38 for 100kHz clock
-  
-  scaler_channel_10khz = 25; //YT 20Jun.
-  Long64_t nmax_V830 = 0x100000000;
-
-  //printf("Event_flag_test=0x%08x\n", EventFlag);
-
-  int index_flag = -1;
-  if(EventFlag==0x100)
-    index_flag=0;
-  /*else if(EventFlag==0x200)
-    index_flag=1;
-  else if(EventFlag==0x300)
-  index_flag=1;*/
-  else
-    std::cout<<"E> EventFlag unknown !"<<EventFlag<<std::endl;
-
-
-  int scaler_channel_spill = scaler_channel_spill_all[index_flag];
-  // unused // double normalization_factor_spill = normalization_factor_spill_all[index_flag]; //   YKT 23.05
-  int scaler_channel_time  = scaler_channel_time_all[index_flag];
-  double normalization_factor_time = normalization_factor_time_all[index_flag] ; //  YKT 23.05 
-
-  //UInt_t tempCurrentTime = index_flag == 0 ? sc_long[scaler_channel_time] : sc_long2[scaler_channel_time];
-  UInt_t tempCurrentTime = sc_long[scaler_channel_time];
-  
-  //----initialize values defined in this file---
-  if(1==check_first_event[index_flag]) // if first event has 0 (for all channels) >> use next event as a first event 
-    {
-      //      std::cout<<"Init Scaler :"<<index_flag<<" "<<EventFlag<<" | "<<check_first_event[index_flag]<<" "<<tempCurrentTime<<"\n";
-      if(0!=tempCurrentTime)
-    {
-      //std::cout<<" +--> set initial values ";
-      scaler_time_count[index_flag]  = 0; //UInt_t
-      scaler_spill_count[index_flag] = 0; //UInt_t
-      scaler_time_check_last[index_flag] = 0;//UInt_t
-      scaler_spill_check_last[index_flag] = 0;//UInt_t
-      for(size_t i=0; i<64; i++) //changed from 32 to 64 (10.07.2018)
-        {
-          check_increase_time[i]   =0;//UInt_t
-          check_increase_spill[i]  =0;//UInt_t
-          scaler_increase_event[i] =0;//UInt_t
-          scaler_last_event[i] = static_cast<Long64_t>(sc_long[i]);//UInt_t
+    }
+      if(13 == trigger || 12 == trigger) return; // skip spill trigger
+    
+      if(1==scaler_check_first_event){
+        for(int ii=0; ii<64; ii++){
+           scaler_previous[ii] = sc_long[ii];
+           
         }
-      /*
-      for(size_t i=32;i<64;++i)
-        {
-          check_increase_time[i]   =0;//UInt_t
-          check_increase_spill[i]  =0;//UInt_t
-          scaler_increase_event[i] =0;//UInt_t
-          scaler_last_event[i] = static_cast<Long64_t>(sc_long2[i-32]);//UInt_t
-        }
-      */
-
-      //std::cout<<" done !\n";
-    }
-    }
-  for(int i=0; i<64; i++)
-    scaler_increase_event[i]=0;  
-  
-  //------------ scaler_increase_event[i] and scaler_last_event[i] -----------
-  //////
-  // sometimes V830 data from sort is empty (all 0)
-  // in such case, we skip updating { scaler_increase_event[i] and scaler_last_event[i] }
-  if(0!=tempCurrentTime)
-    {
-      if(0==check_first_event[index_flag])
-    {
-      if(index_flag==0)
-        {
-          for(size_t i=0; i<64; i++) //changed from 32 to 64 (10.07.2018)
-        {
-          if(static_cast<Long64_t>(sc_long[i]) >= scaler_last_event[i])
-            scaler_increase_event[i] = sc_long[i] - scaler_last_event[i];
-          else
-            {
-              //printf("sc_long[i], scaler_last_event[i]:%d %d\n", sc_long[i] , scaler_last_event[i]);
-              scaler_increase_event[i] =  sc_long[i]  + nmax_V830 - scaler_last_event[i];
-            }
-          scaler_last_event[i]     = sc_long[i];
-        }
-        }
-      /*
-      if(index_flag==1)
-        {
-          for(size_t i=32; i<64; i++)
-        {
-          if(static_cast<Long64_t>(sc_long2[i-32]) >= scaler_last_event[i])
-            scaler_increase_event[i] = sc_long2[i-32] - scaler_last_event[i];
-          else
-            {
-              //printf("sc_long[i], scaler_last_event[i]:%d %d\n", sc_long[i] , scaler_last_event[i]);
-              scaler_increase_event[i] =  sc_long2[i-32]  + nmax_V830 - scaler_last_event[i];
-            }
-          scaler_last_event[i]     = sc_long2[i-32];
-        }     
-        }*/
-    }
-    }
-  //-----switch off initial event check---
-  if(1==check_first_event[index_flag] && (0!=tempCurrentTime)) // if first event has 0 (for all channels) >> use next event as a first event
-    { 
-      check_first_event[index_flag] = 0;
-    }
-
-
-  // add {increase from last event} to the counters.
-  if(0!=tempCurrentTime)
-    {
-      for(int i=0; i<64; i++)
-    {
-      check_increase_spill[i] += scaler_increase_event[i];  
-      check_increase_time[i]  += scaler_increase_event[i];
-    }
-    }
- 
-  // integrated count from the beginning
-  if(0!=tempCurrentTime)
-    {
-      scaler_time_count[index_flag]  += scaler_increase_event[scaler_channel_time]; //
-      scaler_spill_count[index_flag] += scaler_increase_event[scaler_channel_spill];//
-    }
-  
-  int scaler_time_check  = scaler_time_count[index_flag]/((int)normalization_factor_time);
-  int scaler_spill_check = scaler_spill_count[index_flag];
-
-  //  printf("scaler_time_count = %d, sc_long[4]=%d, sc_long[3]=%d, \n",scaler_time_count, sc_long[4], sc_long[3]);
- 
-
-  // when scaler_time_check is increased
-  if( 0<(scaler_time_check - scaler_time_check_last[index_flag]) )
-    {
-      //   printf("scaler_time_check = %d, scaler_time_check_last = %d \n",scaler_time_check,scaler_time_check_last);
-      //if(10<(scaler_time_check - scaler_time_check_last[index_flag])) //10 Hz clock
-      if(1<(scaler_time_check - scaler_time_check_last[index_flag])) //10 Hz clock //for normalization 100ms
-      //if(100000<(scaler_time_check - scaler_time_check_last[index_flag])) //100 kHz clock
-    {
-      //printf("scaler_time_check - scaler_time_check_last = %d ...\n",);
-      std::cout<<"EventFlag"<<EventFlag<<"|"<<index_flag<<"scaler_time_check - scaler_time_check_last = "<<(scaler_time_check - scaler_time_check_last[index_flag])<<"...\n";
-    } 
-      for(int i=0; i<64; i++)
-    {
-      //int x_bin = (scaler_time_check % 3000);
-      //int x_bin_short = (scaler_time_check % 300);
-      // unused //int y_set;
-      if(check_increase_time[i]>0)
-        {
-          // unused //int y_set =  (int)(normalization_factor_time*((Float_t)( check_increase_time[i] ))/((Float_t)( check_increase_time[scaler_channel_time] ))); 
-        }
-      else
-        {
-          // unused //int y_set = 0;
-        }
-    }
-      for(int i=0; i<64; i++)
-    {
-      check_increase_time[i]=0;
-    }//reset
-      scaler_time_check_last[index_flag] = scaler_time_check;  
-    }
-
-  // when scaler_time_check is increased
-  if( 0<(scaler_spill_check - scaler_spill_check_last[index_flag]) )
-    {
-      if(10<(scaler_spill_check - scaler_spill_check_last[index_flag]))
-    {
-      //printf("scaler_spill_check - scaler_spill_check_last = %d ...\n",(scaler_spill_check - scaler_spill_check_last));
-      std::cout<<"EventFlag"<<EventFlag<<"|"<<index_flag<<"scaler_spill_check - scaler_spill_check_last = "<<(scaler_spill_check - scaler_spill_check_last[index_flag])<<"...\n";
-    }
-      for(int i=0; i<64; i++)
-    {
-      //int x_bin = (scaler_spill_check % 300);
-      //int x_bin_short = (scaler_spill_check % 30);
-      // unused //int y_set;
-      if(check_increase_spill[i]>0)
-        {
-          // unused //int y_set =  (int)(normalization_factor_spill*((Float_t)( check_increase_spill[i] ))/((Float_t)( check_increase_spill[scaler_channel_spill] )));
-        }
-      else
-        {
-          // unused //int y_set = 0;
-        }
-    }
-      //
-      if(index_flag==0)
-    {
-      check_total_sc21 += check_increase_spill[7];
-      check_total_sc41 += check_increase_spill[8];
-      check_total_seetram += check_increase_spill[10];
-      //printf("Total SC41 = %d,  Total SC21 = %d, Total SEETRAM = %d \n",check_total_sc41,check_total_sc21,check_total_seetram);
-    }
-      if(index_flag==1)
-    {
-      check_total_mrtof_start += check_increase_spill[38];
-      check_total_mrtof_stop += check_increase_spill[39];
-        
-    }
-      for(int i=0; i<64; i++)
-    {
-      check_increase_spill[i]=0;
-    }//reset                                                                                                                                                       
-      scaler_spill_check_last[index_flag] = scaler_spill_check;
-      //           
-    }
-  //----- up to here added by YKT 23.05 --------// 
-   
-  // unused //  UInt_t first[64];
-  //  Int_t  first[64]; 
-
-  if (fbFirstEvent)
-    { //
-      for (int i=0;i<64;i++)  //changed here from 32 to 64 (10.07.2018)
-    {
-      //std::cout <<"In first event loop"<<std::endl ; 
-      scaler_save[i] = sc_long[i];
-      //         std::cout <<"  "<<scaler_save[i] <<"  "<<sc_long[i]<<std::endl ; 
-      // unused // first[i]=sc_long[i];
-    }
-      /*
-      for (int i=32;i<64;i++)
-    {
-      scaler_save[i] = sc_long2[i-32];
-      first[i]=sc_long2[i-32];
-    }
-      */
-
-      //    std::cout <<"1Hz  "<<sc_long[3]<<std::endl;
-      //    std::cout <<"10Hz "<<sc_long[4]<<std::endl;  
-
-      if(sc_long[35]!=0)
-    {     
-      firstsec = sc_long[35]; // TIME //
-      firsttenthsec = sc_long[36];
-      firsthundrethsec = sc_long[38];   //mik
-      firstcycle = sc_long[34];
-      firstseetram= sc_long[2]; // new SE01
-      //      firstseetram= sc_long[9]; // old SE01
-
-      fbFirstEvent = kFALSE; 
-    }
-    }
-
-
-  //  Int_t mon_inc[64];
-
-  Double_t over_scale=  4000000000.;
-  //  printf("%15f",over_scale);
-
-  // for 1st module
-  for (int i=0;i<32;i++)
-    if(0!=sc_long[scaler_channel_time])
-      {
-    // unused //Int_t overload = 0; 
-    //  if(sc_long[i]!=0){            
-    if ( scaler_save[i] > static_cast<Long64_t>(sc_long[i]))
-      {
-        if (trigger==12 || trigger==13)
-          continue ;
-
-        //std::cout <<"Hey I got overloaded !!! channel "<<i<<std::endl ; 
-        //std::cout <<scaler_save[i] <<"  "<<sc_long[i]<<std::endl ;
-        //std::cout <<"trigger is : "<<trigger<<std::endl ; 
-        //scaler_save[i] = scaler_save[i] - 4294967295;
-        mon_inc[i] = static_cast<Long64_t>(sc_long[i])+4294967295 - scaler_save[i]; //
-        //scaler_save[i] = (Long64_t)sc_long[i]);
-        // unused //Int_t overload = 1;
+        scaler_check_first_event = 0;
       }
-    else
-      mon_inc[i] = static_cast<Long64_t>(sc_long[i]) - scaler_save[i]; //
-     
-    scaler_save[i] = static_cast<Long64_t>(sc_long[i]);
-    //
-    // unused //if(overload != 0)
-    //std::cout<<"case overload"<<std::endl;
-    if (mon_inc[i]<0)
-      {
-        //std::cout <<"  "<<i<<"  "<<mon_inc[i]<<"  "<<sc_long[i]<<"  "<<scaler_save[i]<<" | "<<overload<<std::endl ; 
-       // std::cout <<"!> mon_inc["<<i<<"] -> WRONG"<<std::endl ;
-      } 
-
-
-    /* save the current value so that it can be used next time around... */
-    //if(mon_inc[i]>4000000000)mon_inc[i]=0; 
-    //  if(mon_inc[i]>over_scale)mon_inc[i]=0; 
-      
-      } 
-
-  // for 2nd module
-  for (int i=32;i<64;i++)
-    if(0!=sc_long[scaler_channel_time])
-      {
-    // unused //Int_t overload = 0;
-    //if (scaler_save[i] > sc_long2[i-32])
-    if (scaler_save[i] > sc_long[i])
-      { 
-        //scaler_save[i] = scaler_save[i] - 4294967295;
-        //mon_inc[i] = static_cast<Long64_t>(sc_long2[i-32]) + 4294967295 - scaler_save[i];
-        mon_inc[i] = static_cast<Long64_t>(sc_long[i]) + 4294967295 - scaler_save[i];
-        // unused //Int_t overload =1;
-      }
-    else
-      //mon_inc[i] = sc_long2[i-32] - scaler_save[i];
-      mon_inc[i] = sc_long[i] - scaler_save[i];
+      //  cout<<"sc_long[scaler_ch_1kHz] " << sc_long[scaler_ch_1kHz] << endl;
+       time_in_ms  = sc_long[scaler_ch_1kHz]  - scaler_initial[scaler_ch_1kHz];
+       spill_count = sc_long[scaler_ch_spillstart] - scaler_initial[scaler_ch_spillstart];
+       ibin_for_s      = ((time_in_ms / 1000) % 1000) + 1;
+       ibin_for_100ms  = ((time_in_ms / 100) % 4000) + 1;
+       ibin_for_spill  = (spill_count % 1000) +1; 
        
-    
-    if(mon_inc[i] > over_scale)
-      mon_inc[i]=0;
-
-    //save the current value so that it can be used next time around... 
-    //scaler_save[i] = sc_long2[i-32];
-    scaler_save[i] = sc_long[i];
-
-      
+       for(int kk=0; kk<64; kk++){
+       increase_scaler_temp =  sc_long[kk]  - scaler_previous[kk];
+     // if(increase_scaler_temp>0) cout<<"increase_scaler_temp " <<increase_scaler_temp <<" sc_long[kk] " <<sc_long[kk]<< " scaler_previous[kk] " << scaler_previous[kk] <<  " kk " << kk << endl;
+       }
+      extraction_time_ms += sc_long[scaler_ch_1kHz] - scaler_previous[scaler_ch_1kHz];
+      if(0 != sc_long[scaler_ch_spillstart] - scaler_previous[scaler_ch_spillstart]){
+        extraction_time_ms = 0; 
       }
 
-  //Store scalers for later
-  freeTrig=mon_inc[32];
-  acptTrig=mon_inc[33];
-  
-  
-//   if(sc_long[35]!=0)
-//     {
-//       if(sc_long[35]<firstsec)
-//  ++scalercycle_Sec;
-//       //firstsec = sc_long[3];     
-//       
-//       if(sc_long[36]<firsttenthsec)
-//  ++scalercycle_TenthSec;
-//  
-//       if(sc_long[38]<firsthundrethsec)       //mik
-//  ++scalercycle_HundrethSec;
-//  
-//       if(sc_long[34]<firstcycle)
-//  ++scalercycle_Cycle;
-// 
-// 
-//       seconds = sc_long[35] + 4294967295*scalercycle_Sec -firstsec;
-//       tenthsecs = sc_long[36] + 4294967295*scalercycle_TenthSec - firsttenthsec;
-//       hundrethsecs = sc_long[38] + 4294967295*scalercycle_HundrethSec - firsthundrethsec;  //mik
-//       extraction_cycle = sc_long[34] + 4294967295*scalercycle_Cycle - firstcycle;
-//     }
+      
+       ibin_clean_for_s      = (((time_in_ms / 1000) +20) % 1000) + 1; // 
+       ibin_clean_for_100ms  = (((time_in_ms / 100) +200 ) % 4000) + 1; //
+       ibin_clean_for_spill  = ((spill_count + 990 )% 20) +1; // 
+      
+      // put current data into _previous for the next event
+      for(int ii=0; ii<64; ii++){
+        scaler_previous[ii] = sc_long[ii];
+      }
 
-
-  for(int i=0;i<16;i++)
-    {
-      coin[i]=pattern>>i & 0x0001;
-
-    }
-
-
-
-
-  
   /**  for SeeTram calibration purposes:   **/
 
 
@@ -2799,19 +2242,12 @@ void FRS_Detector_System::FRS_Calib(){
       
       if(mw_an[i] && mw_xl[i] && mw_xr[i])
     {
-      // if(mw_xl[i]&&mw_xr[i]) {
       mw_xsum[i] = 1000+(mw_xl[i] - mw_an[i]) + (mw_xr[i] - mw_an[i]);
       
-      // mw_xsum[i] = (mw_xl[i]) + (mw_xr[i]); //when an doesn't work
     }
-
 
     b_mw_xsum[i] = Check_WinCond_Multi(mw_xsum[i], lim_xsum, i);
 
-      //if(mw_xsum[i] >= lim_xsum[i][0] && mw_xsum[i] <= lim_xsum[i][1]) b_mw_xsum[i] =  true; //cMW_XSUM[i]->Test(mw_xsum[i]);
-      //else b_mw_xsum[i] =  false;
-      
-      
       /* better test first existence of yu, yd, an before filling of ysum */
       
       if(mw_an[i] && mw_yu[i] && mw_yd[i])
@@ -2876,10 +2312,10 @@ void FRS_Detector_System::FRS_Calib(){
       focx_s2 = mw_x[2] + dist_MW22_focS2 * angle_x_s2/1000.;
       
       /*  X at SC21 position:    */
-      sc21_x = mw_x[2] + dist_MW22_SC21 * angle_x_s2/1000.;
+      mw_sc21_x = mw_x[2] + dist_MW22_SC21 * angle_x_s2/1000.;
 
       /*  X at SC22 position:    */
-      sc22_x = mw_x[2] + dist_MW22_SC22 * angle_x_s2/1000.;
+      mw_sc22_x = mw_x[2] + dist_MW22_SC22 * angle_x_s2/1000.;
       
 
       /* 'real' z-position of S2 X focus (cm) */
@@ -2892,6 +2328,9 @@ void FRS_Detector_System::FRS_Calib(){
       /* keep values for next event */
       focx_s2m = focx_s2; 
       angle_x_s2m = angle_x_s2;
+      
+    
+      
     }
   
   if (b_mw_ysum[1] && b_mw_ysum[2])
@@ -2941,7 +2380,7 @@ void FRS_Detector_System::FRS_Calib(){
 
   for(int i=0;i<7;i++)
     {  
-
+//cout<<"mw->x_factor[0] " << mw->x_factor[0] << endl;
       int count =0;
       Int_t r_y = 0;
       
@@ -3047,22 +2486,23 @@ void FRS_Detector_System::FRS_Calib(){
   //Float_t dist_TPC4_target1 = 455.;  // 8.8.12, s388: taget1 is first Si detector at S2 
                                      // using: TPC4->chamber= 150 mm, chamber->Si(1)= 305 mm
 
-  //==========================
-  // Distances of TPCs at S2
-  //==========================
+  //================================
+  // Distances of TPCs at S2 and S4
+  //================================
 
-  Float_t dist_TPC21_TPC22 = 1782.5 - 604.0; //check
-  Float_t dist_TPC23_TPC24 = 1782.5 - 604.0; //check
-  Float_t dist_TPC22_TPC24 = 1782.5 - 604.0; //check
-
-  Float_t dist_TPC21_focS2 = 604.-2165.; //check
-  Float_t dist_TPC22_focS2 = 604.-2165.; //check
-  Float_t dist_TPC23_focS2 = 604.-2165.; //check
+  Float_t dist_TPC21_TPC22 = frs->dist_TPC22 - frs->dist_TPC21; 
+  Float_t dist_TPC23_TPC24 = frs->dist_TPC24 - frs->dist_TPC23; 
+  Float_t dist_TPC22_TPC24 = frs->dist_TPC24 - frs->dist_TPC22; 
+  Float_t dist_TPC21_focS2 = frs->dist_TPC21 - frs->dist_focS2; 
+  Float_t dist_TPC22_focS2 = frs->dist_TPC22 - frs->dist_focS2; 
+  Float_t dist_TPC23_focS2 = frs->dist_TPC23 - frs->dist_focS2; 
+  Float_t dist_TPC41_TPC42 = frs->dist_TPC42 - frs->dist_TPC41; 
+  Float_t dist_TPC42_focS4 = frs->dist_focS4 - frs->dist_TPC42; 
 
 
   //Float_t dist_TPC3_TPC4 = 1782.0- 604.; //old value for old tracking 
   //Float_t dist_TPC3_focS2 = 604.-2165. ; //old value for old tracking  
-
+/*
   //==================================
   //Distance of TPCs at S4
   //==================================
@@ -3071,7 +2511,7 @@ void FRS_Detector_System::FRS_Calib(){
   //Float_t dist_TPC41_TPC42 = 1660.0 - 360.0;  //check
 
   Float_t dist_TPC42_focS4 = 3300.0 - 1525.0; //check
-  //Float_t dist_TPC42_focS4 = 3300.0 - 1660.0; //check
+  //Float_t dist_TPC42_focS4 = 3300.0 - 1660.0; //check*/
 
   
   //Float_t dist_TPC5_TPC6 = 2063.5 - 382.5 ; 
@@ -3114,6 +2554,17 @@ void FRS_Detector_System::FRS_Calib(){
       tpc_x_s2_foc_21_22 = -tpc_angle_x_s2_foc_21_22 * dist_TPC21_focS2/1000. + tpc_x[0]; //check
       tpc_y_s2_foc_21_22 = -tpc_angle_y_s2_foc_21_22 * dist_TPC21_focS2/1000. + tpc_y[0]; //check
       
+        ///This stuff is new, check why its needed 
+      Float_t dist_SC21_focS2 = frs->dist_SC21 - frs->dist_focS2; 
+      
+      tpc21_22_sc21_x = (tpc_angle_x_s2_foc_21_22/1000.*dist_SC21_focS2)+tpc_x_s2_foc_21_22;
+      tpc21_22_sc21_y = (tpc_angle_y_s2_foc_21_22/1000.*dist_SC21_focS2)+tpc_y_s2_foc_21_22; 
+      
+      Float_t dist_S2target_focS2 = frs->dist_S2target - frs->dist_focS2;   
+      
+      tpc21_22_s2target_x = (tpc_angle_x_s2_foc_21_22/1000.*dist_S2target_focS2)+tpc_x_s2_foc_21_22;
+      tpc21_22_s2target_y = (tpc_angle_y_s2_foc_21_22/1000.*dist_S2target_focS2)+tpc_y_s2_foc_21_22;  
+      
     }
   else  tpc_x_s2_foc_21_22= -999 ;
 
@@ -3128,6 +2579,14 @@ void FRS_Detector_System::FRS_Calib(){
       tpc_angle_y_s2_foc_23_24 = (tpc_y[3] - tpc_y[2])/dist_TPC23_TPC24*1000.;
       tpc_x_s2_foc_23_24 = -tpc_angle_x_s2_foc_23_24 * dist_TPC23_focS2/1000. + tpc_x[2]; //check
       tpc_y_s2_foc_23_24 = -tpc_angle_y_s2_foc_23_24 * dist_TPC23_focS2/1000. + tpc_y[2]; //check
+      
+      ///This stuff is new, check why its needed 
+       Float_t dist_SC21_focS2 = frs->dist_SC21 - frs->dist_focS2;
+       tpc23_24_sc21_x = (tpc_angle_x_s2_foc_23_24/1000.*dist_SC21_focS2)+tpc_x_s2_foc_23_24;
+       tpc23_24_sc21_y = (tpc_angle_y_s2_foc_23_24/1000.*dist_SC21_focS2)+tpc_y_s2_foc_23_24;
+       Float_t dist_S2target_focS2 = frs->dist_S2target - frs->dist_focS2;   
+       tpc23_24_s2target_x = (tpc_angle_x_s2_foc_23_24/1000.*dist_S2target_focS2)+tpc_x_s2_foc_23_24;
+       tpc23_24_s2target_y = (tpc_angle_y_s2_foc_23_24/1000.*dist_S2target_focS2)+tpc_y_s2_foc_23_24; 
 
     }
   else  tpc_x_s2_foc_23_24= -999 ;
@@ -3144,6 +2603,14 @@ void FRS_Detector_System::FRS_Calib(){
       tpc_x_s2_foc_22_24 = -tpc_angle_x_s2_foc_22_24 * dist_TPC22_focS2/1000. + tpc_x[1]; //check
       tpc_y_s2_foc_22_24 = -tpc_angle_y_s2_foc_22_24 * dist_TPC22_focS2/1000. + tpc_y[1]; //check
       
+      ///This stuff is new, check why its needed 
+        Float_t dist_SC21_focS2 = frs->dist_SC21 - frs->dist_focS2;   
+      tpc22_24_sc21_x = (tpc_angle_x_s2_foc_22_24/1000.*dist_SC21_focS2)+tpc_x_s2_foc_22_24;
+      tpc22_24_sc21_y = (tpc_angle_y_s2_foc_22_24/1000.*dist_SC21_focS2)+tpc_y_s2_foc_22_24;     
+      Float_t dist_S2target_focS2 = frs->dist_S2target - frs->dist_focS2;   
+      tpc22_24_s2target_x = (tpc_angle_x_s2_foc_22_24/1000.*dist_S2target_focS2)+tpc_x_s2_foc_22_24;
+      tpc22_24_s2target_y = (tpc_angle_y_s2_foc_22_24/1000.*dist_S2target_focS2)+tpc_y_s2_foc_22_24; 
+      
     }
   else  tpc_x_s2_foc_22_24= -999 ;
   
@@ -3158,16 +2625,46 @@ void FRS_Detector_System::FRS_Calib(){
       tpc_angle_y_s4 = (tpc_y[5] - tpc_y[4])/dist_TPC41_TPC42*1000.;
       tpc_x_s4 = tpc_angle_x_s4 * dist_TPC42_focS4/1000. + tpc_x[5];
       tpc_y_s4 = tpc_angle_y_s4 * dist_TPC42_focS4/1000. + tpc_y[5];
+    
       
-      music1_x1 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa1)/1000. + tpc_x[5];
-      music1_x2 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa2)/1000. + tpc_x[5];
-      music1_x3 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa3)/1000. + tpc_x[5];
-      music1_x4 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa4)/1000. + tpc_x[5];
-
-      music1_y1 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa1)/1000. + tpc_y[5];
-      music1_y2 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa2)/1000. + tpc_y[5];
-      music1_y3 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa3)/1000. + tpc_y[5];
-      music1_y4 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa4)/1000. + tpc_y[5];
+      //This is new stuff, check
+        Float_t dist_SC41_focS4 = frs->dist_SC41 - frs->dist_focS4;
+       tpc_sc41_x = (tpc_angle_x_s4/1000.*dist_SC41_focS4)+tpc_x_s4;
+       tpc_sc41_y = (tpc_angle_y_s4/1000.*dist_SC41_focS4)+tpc_y_s4;
+       
+       Float_t dist_SC42_focS4 = frs->dist_SC42 - frs->dist_focS4;
+       tpc_sc42_x = (tpc_angle_x_s4/1000.*dist_SC42_focS4)+tpc_x_s4;
+       tpc_sc42_y = (tpc_angle_y_s4/1000.*dist_SC42_focS4)+tpc_y_s4;
+       
+       Float_t dist_SC43_focS4 = frs->dist_SC43 - frs->dist_focS4;
+       tpc_sc43_x = (tpc_angle_x_s4/1000.*dist_SC43_focS4)+tpc_x_s4;
+       tpc_sc43_y = (tpc_angle_y_s4/1000.*dist_SC43_focS4)+tpc_y_s4;
+       
+       Float_t dist_MUSIC41_focS4 = frs->dist_MUSIC41 - frs->dist_focS4;
+       tpc_music41_x = (tpc_angle_x_s4/1000.*dist_MUSIC41_focS4)+tpc_x_s4;
+       tpc_music41_y = (tpc_angle_y_s4/1000.*dist_MUSIC41_focS4)+tpc_y_s4;
+       
+       Float_t dist_MUSIC42_focS4 = frs->dist_MUSIC42 - frs->dist_focS4;
+       tpc_music42_x = (tpc_angle_x_s4/1000.*dist_MUSIC42_focS4)+tpc_x_s4;
+       tpc_music42_y = (tpc_angle_y_s4/1000.*dist_MUSIC42_focS4)+tpc_y_s4;
+       
+       Float_t dist_MUSIC43_focS4 = frs->dist_MUSIC43 - frs->dist_focS4;
+       tpc_music43_x = (tpc_angle_x_s4/1000.*dist_MUSIC43_focS4)+tpc_x_s4;
+       tpc_music43_y = (tpc_angle_y_s4/1000.*dist_MUSIC43_focS4)+tpc_y_s4;
+       
+       Float_t dist_S4target_focS4 = frs->dist_S4target - frs->dist_focS4;
+       tpc_s4target_x = (tpc_angle_x_s4/1000.* dist_S4target_focS4)+tpc_x_s4;
+       tpc_s4target_y = (tpc_angle_y_s4/1000.* dist_S4target_focS4)+tpc_y_s4;
+       
+//       music1_x1 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa1)/1000. + tpc_x[5];
+//       music1_x2 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa2)/1000. + tpc_x[5];
+//       music1_x3 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa3)/1000. + tpc_x[5];
+//       music1_x4 = tpc_angle_x_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa4)/1000. + tpc_x[5];
+// 
+//       music1_y1 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa1)/1000. + tpc_y[5];
+//       music1_y2 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa2)/1000. + tpc_y[5];
+//       music1_y3 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa3)/1000. + tpc_y[5];
+//       music1_y4 = tpc_angle_y_s4 * (frs->dist_MUSIC3+frs->dist_MUSICa4)/1000. + tpc_y[5];
 
       
       //S4 entrance of OTPC tracked with TPCs 5 and 6 for s388    
@@ -3183,7 +2680,7 @@ void FRS_Detector_System::FRS_Calib(){
 
   // X position at SC21 position:
   // SC21 is before TPC3 and TPC4
-  //tpc_sc21_x = tpc_x[2] - dist_TPC3_SC21 * tpc_angle_x_s2_foc/1000.;
+  //tpc_mw_sc21_x = tpc_x[2] - dist_TPC3_SC21 * tpc_angle_x_s2_foc/1000.;
  
 
   // Y position at SC21
@@ -3273,6 +2770,9 @@ void FRS_Detector_System::FRS_Calib(){
 
 void FRS_Detector_System::FRS_Anal(){
     
+    ///==================================================================================///
+                    /// Start of MUSIC  analysis
+///==================================================================================///
   music1_anodes_cnt = 0;  
   music2_anodes_cnt = 0;  
   music3_anodes_cnt = 0;
@@ -3374,7 +2874,7 @@ void FRS_Detector_System::FRS_Anal(){
     }
        
 
-  if (music3_anodes_cnt == 4)
+  if (music3_anodes_cnt == 8)
     {         // OLD MUSIC
       
       Float_t r1 = ((music_e3[0])*music->e3_gain[0] + music->e3_off[0])*((music_e3[1])*music->e3_gain[1] + music->e3_off[1]);
@@ -3397,50 +2897,123 @@ void FRS_Detector_System::FRS_Anal(){
 
     //hMUSIC1_MUSIC2->Fill(de[0],de[1]);
 
-      /* Position (X) correction by TPC */       //TO DO!!!
-    
-
-
-      //if(!music->b_selfcorr1 && b_de3) {
-      //if(b_mw_xsum[4] && b_mw_xsum[5] && b_de3) {
-      if(b_de3 && b_tpc_xy[4]&&b_tpc_xy[5])
-    {
-      Float_t p1 = music1_x1;
-      Float_t p2 = music1_x2;
-      Float_t p3 = music1_x3;
-      Float_t p4 = music1_x4;
-
-      //Float_t p5 = music1_x5; //added on 22.05.2018 SB
-      //Float_t p6 = music1_x6; //added on 22.05.2018 SB
-      //Float_t p7 = music1_x7; //added on 22.05.2018 SB
-      //Float_t p8 = music1_x8; //added on 22.05.2018 SB
+      /* Position (X) correction by TPC */      
       
-      x1_mean = (p1+p2+p3+p4)/4.;   // Mean position
-      //x1_mean = (p1+p2+p3+p4+p5+p6+p7+p8)/8.; // Mean position  //added on 22.05.2018 SB
- 
-      
-      Float_t power = 1., Corr = 0.;
+     if(b_tpc_xy[4]&&b_tpc_xy[5]){
+
+    music1_x_mean = tpc_music41_x;
+    music2_x_mean = tpc_music42_x;
+    music3_x_mean = tpc_music43_x;
+
+    Float_t power, Corr;
+    // correction for MUSIC41
+    if(b_de1){
+      power = 1., Corr = 0.;
       for(int i=0;i<4;i++) {
-        Corr += music->pos_a1[i] * power;
-        power *= x1_mean;  
+	Corr += music->pos_a1[i] * power;
+	power *= music1_x_mean;
       }
-      
       if (Corr!=0) {
-        Corr = music->pos_a1[0] / Corr;
-        de_cor[2] = de[2] * Corr;
+	Corr = music->pos_a1[0] / Corr;
+	de_cor[0] = de[0] * Corr;
       }
       
     }
-    //}
-      
 
-      /* Special gate on corrected music for cleaning x2 vs. AoQ spectrum */
-    //  b_decor = Check_WinCond(de_cor[2], cMusic3_dec);// cMusic3_dec->Test(de_cor[2]);
-      
-    
+    // correction for MUSIC42
+    if(b_de2){
+      power = 1., Corr = 0.;
+      for(int i=0;i<4;i++) {
+	Corr += music->pos_a2[i] * power;
+	power *= music2_x_mean;
+      }
+      if (Corr!=0) {
+	Corr = music->pos_a2[0] / Corr;
+	de_cor[1] = de[1] * Corr;
+      }
+        }
+    // correction for MUSIC43
+    if(b_de3){
+      power = 1., Corr = 0.;
+      for(int i=0;i<4;i++) {
+	Corr += music->pos_a3[i] * power;
+	power *= music3_x_mean;
+      }
+      if (Corr!=0) {
+	Corr = music->pos_a3[0] / Corr;
+	de_cor[2] = de[2] * Corr;
+      }
+     
+            }
+        }    
     }
+///==================================================================================///
+                    /// Start of Scintillator  analysis
+///==================================================================================///
 
 
+   
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0]){
+    mhtdc_sc21lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc21l[0]  -  tdc_sc21r[0] );
+    mhtdc_sc21lr_x  = mhtdc_sc21lr_dt * sci->mhtdc_factor_21l_21r + sci->mhtdc_offset_21l_21r;
+    float sc21pos_from_tpc    = -999.9;
+    if(b_tpc_xy[0]&&b_tpc_xy[1]){
+      sc21pos_from_tpc =  tpc21_22_sc21_x ;
+    }else if(b_tpc_xy[2]&&b_tpc_xy[3]){
+      sc21pos_from_tpc =  tpc23_24_sc21_x ;
+    }
+  }
+
+  if(0!=tdc_sc41l[0] && 0!=tdc_sc41r[0]){
+    mhtdc_sc41lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc41l[0]  -  tdc_sc41r[0] );
+    mhtdc_sc41lr_x  = mhtdc_sc41lr_dt * sci->mhtdc_factor_41l_41r + sci->mhtdc_offset_41l_41r;
+   }
+
+  if(0!=tdc_sc42l[0] && 0!=tdc_sc42r[0]){
+    mhtdc_sc42lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc42l[0]  -  tdc_sc42r[0] );
+    mhtdc_sc42lr_x  = mhtdc_sc42lr_dt * sci->mhtdc_factor_42l_42r + sci->mhtdc_offset_42l_42r;
+   }
+
+  if(0!=tdc_sc43l[0] && 0!=tdc_sc43r[0]){
+    mhtdc_sc43lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc43l[0]  -  tdc_sc43r[0] );
+    mhtdc_sc43lr_x  = mhtdc_sc43lr_dt * sci->mhtdc_factor_43l_43r + sci->mhtdc_offset_43l_43r;
+     }
+
+  if(0!=tdc_sc31l[0] && 0!=tdc_sc31r[0]){
+    mhtdc_sc31lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc31l[0]  -  tdc_sc31r[0] );
+    mhtdc_sc31lr_x  = mhtdc_sc31lr_dt * sci->mhtdc_factor_31l_31r + sci->mhtdc_offset_31l_31r;
+   
+  }
+
+  if(0!=tdc_sc81l[0] && 0!=tdc_sc81r[0]){
+    mhtdc_sc81lr_dt = sci->mhtdc_factor_ch_to_ns*( rand3() + tdc_sc81l[0]  -  tdc_sc81r[0] );
+    mhtdc_sc81lr_x  = mhtdc_sc81lr_dt * sci->mhtdc_factor_81l_81r + sci->mhtdc_offset_81l_81r;
+      }
+
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0] && 0!=tdc_sc41l[0] && 0!=tdc_sc41r[0]){
+    mhtdc_tof4121 = sci->mhtdc_factor_ch_to_ns*( 0.5*(tdc_sc41l[0]+tdc_sc41r[0])  - 0.5*(tdc_sc21l[0]+tdc_sc21r[0]) ) + sci->mhtdc_offset_41_21;
+    //if(bDrawHist) hMultiHitTDC_TOF_41_21->Fill(mhtdc_tof4121);
+  }
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0] && 0!=tdc_sc42l[0] && 0!=tdc_sc42r[0]){
+    mhtdc_tof4221 = sci->mhtdc_factor_ch_to_ns*( 0.5*(tdc_sc42l[0]+tdc_sc42r[0])  - 0.5*(tdc_sc21l[0]+tdc_sc21r[0]) ) + sci->mhtdc_offset_42_21;
+   // if(bDrawHist) hMultiHitTDC_TOF_42_21->Fill(mhtdc_tof4221);
+  }
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0] && 0!=tdc_sc43l[0] && 0!=tdc_sc43r[0]){
+    mhtdc_tof4321 = sci->mhtdc_factor_ch_to_ns*( 0.5*(tdc_sc43l[0]+tdc_sc43r[0])  - 0.5*(tdc_sc21l[0]+tdc_sc21r[0]) ) + sci->mhtdc_offset_43_21;
+   // if(bDrawHist) hMultiHitTDC_TOF_43_21->Fill(mhtdc_tof4321);
+  }
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0] && 0!=tdc_sc31l[0] && 0!=tdc_sc31r[0]){
+    mhtdc_tof3121 = sci->mhtdc_factor_ch_to_ns*( 0.5*(tdc_sc31l[0]+tdc_sc31r[0])  - 0.5*(tdc_sc21l[0]+tdc_sc21r[0]) ) + sci->mhtdc_offset_31_21;
+    //if(bDrawHist) hMultiHitTDC_TOF_31_21->Fill(mhtdc_tof3121);
+  }
+  if(0!=tdc_sc21l[0] && 0!=tdc_sc21r[0] && 0!=tdc_sc81l[0] && 0!=tdc_sc81r[0]){
+    mhtdc_tof8121 = sci->mhtdc_factor_ch_to_ns*( 0.5*(tdc_sc81l[0]+tdc_sc81r[0])  - 0.5*(tdc_sc21l[0]+tdc_sc21r[0]) ) + sci->mhtdc_offset_81_21;
+  //  if(bDrawHist) hMultiHitTDC_TOF_81_21->Fill(mhtdc_tof8121);
+  }
+
+
+
+        
         /*-------------------------------------------------------------------------*/
     /* focus index: detector number                  tof index  tof path       */
     /*       0:     Sc01                                0:     TA - S1         */
@@ -3463,60 +3036,78 @@ void FRS_Detector_System::FRS_Anal(){
   /*  Raw data  */
    sci_l[2] = de_21l;  /* 21L         */
    sci_r[2] = de_21r;  /* 21R         */
-   sci_tx[2] = dt_21l_21r + rand0_5();
+   sci_tx[2] = dt_21l_21r + rand3();
 
    sci_l[5] = de_41l;  /* 41L         */
    sci_r[5] = de_41r;  /* 41R         */
-   sci_tx[5] = dt_41l_41r + rand0_5();
+   sci_tx[5] = dt_41l_41r + rand3();
   
    sci_l[6] = de_42l;  /* 42L         */
    sci_r[6] = de_42r;  /* 42R         */
-   sci_tx[6] = dt_42l_42r + rand0_5();
+   sci_tx[6] = dt_42l_42r + rand3();
 
    sci_l[7] = de_43l;  /* 43L         */
    sci_r[7] = de_43r;  /* 43R         */
-   sci_tx[7] = dt_43l_43r + rand0_5();
+   sci_tx[7] = dt_43l_43r + rand3();
 
    sci_l[10] = de_81l; /* 81L         */
    sci_r[10] = de_81r; /* 81R         */
-   sci_tx[10] = dt_81l_81r + rand0_5();
+   sci_tx[10] = dt_81l_81r + rand3();
    
 
    for (int cnt=0;cnt<6;cnt++) // 
      {
        int idx = 0 ;
+       float posref =-999;
        //int mw_idx = 0;
        //Float_t mwx = 0;
        switch(cnt)
      {
      case 0:        /* SC21 */
        idx = 2; 
+        // posref from tpc
+	   if(b_tpc_xy[0]&&b_tpc_xy[1]){
+	     posref =  tpc21_22_sc21_x ;
+	   }else if(b_tpc_xy[2]&&b_tpc_xy[3]){
+	     posref =  tpc23_24_sc21_x ;
+	   }
        //mw_idx = 2;
-       //mwx = sc21_x;
+       //mwx = mw_sc21_x;
        break;    
      case 1:        /* SC21 delayed */
        idx = 3; 
+       if(b_tpc_xy[6]){ posref = tpc_x[6]; }
        //mw_idx = 2;
-       //mwx = sc21_x;
+       //mwx = mw_sc21_x;
        break;    
      case 2:        /* SC41 */
        idx = 5; 
+       if(b_tpc_xy[4]&&b_tpc_xy[5]){
+	     posref =  tpc_sc41_x ;
+	   }
        //mw_idx = 5;
        //mwx = tpc_sc41_x;
        break;    
      case 3:        /* SC42 */
            idx = 6;
+       if(b_tpc_xy[4]&&b_tpc_xy[5]){
+	     posref =  tpc_sc42_x ;
+	   }
        break;
      case 4:
        idx = 7;     /* SC43 */
+       if(b_tpc_xy[4]&&b_tpc_xy[5]){
+	     posref =  tpc_sc43_x ;
+	   }
        break;
      case 5:
        idx = 10;    /* SC81 */
+       // no position reference from tpc
        break;
      default: idx = 2;
      }   
      
-       // raw spectra 
+       
        sci_b_l[idx] = Check_WinCond(sci_l[idx], cSCI_L);// cSCI_L[idx]->Test(sci_l[idx]);
        sci_b_r[idx] = Check_WinCond(sci_r[idx], cSCI_R);// cSCI_R[idx]->Test(sci_r[idx]);
 
@@ -3535,7 +3126,7 @@ void FRS_Detector_System::FRS_Anal(){
      {
 
        /* mm-calibrated     */
-       Float_t R = sci_tx[idx] ;//+ rand0_5(); 
+       Float_t R = sci_tx[idx] ;//+ rand3(); 
        
        Float_t power = 1., sum = 0.;
        for(int i=0;i<7;i++)
@@ -3558,73 +3149,25 @@ void FRS_Detector_System::FRS_Anal(){
 
    /*  Calibrated tof  */
    sci_tofll2 = dt_21l_41l*sci->tac_factor[2] - sci->tac_off[2] ;   /* S41L- S21L */
+   ///WTF is tac_off for???
    sci_tofrr2 = dt_21r_41r*sci->tac_factor[3] - sci->tac_off[3] ;   /* S41R- S21R */
   
-  // cout<<"dt_21l_41l " << dt_21l_41l <<" sci->tac_factor[2] " << sci->tac_factor[2] << " sci->tac_off[2] " << sci->tac_off[2] << " sci_tofll2 " << sci_tofll2 << endl;
-   //        sci_tofll2 = dt_21l_41l;  
-   //        sci_tofrr2 = dt_21r_41r;
-   //     std::cout <<" tac_factor2 "<<sci->tac_factor[2]<<std::endl; 
-   //     std::cout <<" tac_factor3 "<<sci->tac_factor[3]<<std::endl;  
   
    sci_b_tofll2 = Check_WinCond(sci_tofll2, cSCI_LL2);// cSCI_TofLL2->Test(sci_tofll2);
    sci_b_tofrr2 = Check_WinCond(sci_tofrr2, cSCI_RR2);// cSCI_TofRR2->Test(sci_tofrr2);
 
-    /*cout<<"VALUE !!!"<<sci_tofll2<<endl;
-    cout<<"WINDOW !!!"<<cSCI_LL2[0]<<"   "<<cSCI_LL2[1]<<endl;
-    cout<<"BREAK!"<<endl;
-    cout<<"VALUE !!!"<<sci_tofrr2<<endl;
-    cout<<"WINDOW !!!"<<cSCI_RR2[0]<<"   "<<cSCI_RR2[1]<<endl;
-    cout<<"PAY ATTENTION !!!"<<sci_b_tofll2<<"   "<<sci_b_tofrr2<<endl;*/
-
-   /* sum of Tof_LL and Tof_RR corrects for position in stop/start scint.      */
-   if (sci_b_tofll2 && sci_b_tofrr2)
-     {      /* TOF SC41 - SC21 [ps]  */
-       sci_tof2 =  (sci->tof_bll2 * sci_tofll2 + sci->tof_a2 + sci->tof_brr2 * sci_tofrr2)/2.0 ;
-            
-            //cout<<"WE MADE IT !!!"<<sci_tof2<<endl;
-      
-     }
+    /* sum of Tof_LL and Tof_RR corrects for position in stop/start scint.      */
+    if(sci_b_tofll2 && sci_b_tofrr2){
+        /* TOF SC41 - SC21 [ps]  */
+     sci_tof2        =   (sci->tof_bll2 * sci_tofll2 + sci->tof_a2 + sci->tof_brr2 * sci_tofrr2)/2.0 ;  // tof_a2  is essentially unnecessary (even confusing) = 0
+     sci_tof2_calib   =  -1.0*sci_tof2 + id->id_tofoff2;
+   }
+    
+  
+  /*   S21 - S81 Calibrated tof  */
+   sci_tofll4 = dt_21l_81l*sci->tac_factor[9] - sci->tac_off[9] ;     /* S81L- S21L */  // tac_off is essentially unnecessary (even confusing)
+   sci_tofrr4 = dt_21r_81r*sci->tac_factor[10] - sci->tac_off[10] ;   /* S82R- S21R */  // tac_off is essentially unnecessary (even confusing)
  
-   /*  
-    else if (sci_b_tofll2) {
-    sci_tof2 =  (sci->tof_bll2 * sci_tofll2 + sci->tof_a2) ;
-    
-    hSCI_Tof2->Fill(sci_tof2);
-    }
-    else if (sci_b_tofrr2) {
-    sci_tof2 =  (sci->tof_a2 + sci->tof_brr2 * sci_tofrr2);
-    
-    hSCI_Tof2->Fill(sci_tof2);
-    }
-   */
-
-
-   /***  Scintillator Tof  spectra with SC21-SC42 (as a backup) ***/ //added on 03.07.2018 SB
-
-   //  Calibrated tof  
-   sci_tofll3 = dt_42l_21l*sci->tac_factor[5] - sci->tac_off[5] ;   // S42L- S21L 
-   sci_tofrr3 = dt_42r_21r*sci->tac_factor[6] - sci->tac_off[6] ;   // S42R- S21R
-   //     std::cout <<" tac_factor5 "<<sci->tac_factor[5]<<std::endl; 
-   //     std::cout <<" tac_factor6 "<<sci->tac_factor[6]<<std::endl;  
-  
-   sci_b_tofll3 = Check_WinCond(sci_tofll3, cSCI_LL3);// cSCI_TofLL3->Test(sci_tofll3);
-   sci_b_tofrr3 = Check_WinCond(sci_tofrr3, cSCI_RR3);// cSCI_TofRR3->Test(sci_tofrr3);
-
-   // sum of Tof_LL and Tof_RR corrects for position in stop/start scint.      
-   if (sci_b_tofll3 && sci_b_tofrr3)
-     {      // TOF SC42 - SC21 [ps]
-       sci_tof3 =  (sci->tof_bll3 * sci_tofll3 + sci->tof_a3 
-            + sci->tof_brr3 * sci_tofrr3)/2.0 ;
-      
-     }
-
-
-   /***  Scintillator Tof  spectra with SC21-SC81 ***/ //added on 03.07.2018 SB
-
-   //  Calibrated tof  
-   sci_tofll4 = dt_21l_81l*sci->tac_factor[9] - sci->tac_off[9] ;   // S81L- S21L 
-   sci_tofrr4 = dt_21r_81r*sci->tac_factor[10] - sci->tac_off[10] ;   // S81R- S21R
-  
    sci_b_tofll4 = Check_WinCond(sci_tofll4, cSCI_LL4);// cSCI_TofLL4->Test(sci_tofll4);
    sci_b_tofrr4 = Check_WinCond(sci_tofrr4, cSCI_RR4);// cSCI_TofRR4->Test(sci_tofrr4);
 
@@ -3640,151 +3183,185 @@ void FRS_Detector_System::FRS_Anal(){
    /* check for polygon in raw detof spectrum of SC41 */
    
    sci_b_detof = Check_PolyCond_X_Y(sci_tof2, sci_e[5], cSCI_detof, 4); // cSCI_detof->Test(sci_tof2, sci_e[5]);
+ ///==================================================================================///
+                                /// Start of ID analysis
+///==================================================================================///
+  float speed_light = 0.299792458; //m/ns
+  float temp_tm_to_MeV = 299.792458;
+  float temp_mu = 931.4940954; //MeV
+  
+  // Extraction of position to be used for momentum analysis
+  float temp_s8x = mhtdc_sc81lr_x;
+  float temp_s4x = -999.;
+  if(b_tpc_xy[4] && b_tpc_xy[5]){
+    temp_s4x = tpc_x_s4 ;
+  }
+  float temp_s2x = -999.; //fill in the next if part
+  if(1== id->mhtdc_s2pos_option){//SC21X from multihit tdc is used for S2X
+    temp_s2x = mhtdc_sc21lr_x;
+  }
+  if(2== id->mhtdc_s2pos_option){//TPCX is used
+    if(b_tpc_xy[2] && b_tpc_xy[3]){//tpc2324
+      temp_s2x = tpc_x_s2_foc_23_24;
+    }else if(b_tpc_xy[1] && b_tpc_xy[3]){//tpc2224
+      temp_s2x = tpc_x_s2_foc_22_24;
+    }else if (b_tpc_xy[0] && b_tpc_xy[1]){//tpc2122
+      temp_s2x = tpc_x_s2_foc_21_22;
+    }
+  }
+ 
+ 
+ ////=======================================
+  ////   S2S8 MultihitTDC ID analysis
+  
+  // Calculation of velocity beta and gamma
+  id_mhtdc_beta_s2s8   =  ( id->mhtdc_length_s2s8 / mhtdc_tof8121) / speed_light;
+  id_mhtdc_gamma_s2s8  = 1./sqrt(1. - id_mhtdc_beta_s2s8*id_mhtdc_beta_s2s8);
+  
+  // calculation of delta(momentum_deviation) and AoQ
+  float mean_brho_s2s8 = 0.5*( frs->bfield[2] + frs->bfield[5] );
+  if( -200<temp_s8x && temp_s8x<200. && -200.< temp_s2x && temp_s2x<200.){
+    id_mhtdc_delta_s2s8 = (  (temp_s8x - id->pos_offset_sc81x) - (temp_s2x * frs->magnification[2] ))/(-1.0 * frs->dispersion[2] *1000.0 ) ; //1000 is dispertsion from meter to mm. -1.0 is sign definition.
+    if(0.0 < id_mhtdc_beta_s2s8 && id_mhtdc_beta_s2s8 < 1.0){
+	id_mhtdc_aoq_s2s8 = mean_brho_s2s8 *( 1. + id_mhtdc_delta_s2s8   ) * temp_tm_to_MeV / (temp_mu * id_mhtdc_beta_s2s8 * id_mhtdc_gamma_s2s8);
+    }
+  }
+  // sc81x = 0 (deterined by slit) may not aggree with the optical reference.
+  // for example, sc81x = 0 is adjusted by slit.
+  // but tof calibration  was performed or good transmission was obtained with sc81x = 7 mm.
+  // then x=7mm should correspond to delta_p = 0. 
+  // this does not happen at s2 and s4
+  // this is why the additional parameter (id->pos_offset_sc81x) is prepared for s8 here. 
+
+
+  // calculation of dE and Z
+  // use dE from id_de_s2tpc (tpcdE) and id_de_sc81
+  // from S2TPC
+  if(id_b_de_s2tpc && (id_mhtdc_beta_s2s8>0.0) && (id_mhtdc_beta_s2s8<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++){
+      sum += power * id->mhtdc_vel_a_s2tpc[i];
+      power *= id_mhtdc_beta_s2s8;
+    }
+    id_mhtdc_v_cor_s2tpc = sum;
+    if (id_mhtdc_v_cor_s2tpc > 0.0){
+      id_mhtdc_z_s2tpc = frs->primary_z * sqrt( id_de_s2tpc/id_mhtdc_v_cor_s2tpc ) + id->mhtdc_offset_z_s2tpc;
+    }
+  }
+
+  // from SC81 
+  if( (sci_e[10]>0.0)  && (id_mhtdc_beta_s2s8>0.0) && (id_mhtdc_beta_s2s8<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++){
+      sum += power * id->mhtdc_vel_a_sc81[i];
+      power *= id_mhtdc_beta_s2s8;
+    }
+    id_mhtdc_v_cor_sc81 = sum;
+    if (id_mhtdc_v_cor_sc81 > 0.0){
+      id_mhtdc_z_sc81 = frs->primary_z * sqrt(sci_e[10]/id_mhtdc_v_cor_sc81 ) + id->mhtdc_offset_z_sc81;
+    }
+  }
+ 
+ 
+ 
+  ////=======================================
+  ////   S2S4 MultihitTDC ID analysis
+  
+   // Calculation of velocity beta and gamma
+  id_mhtdc_beta_s2s4   =  ( id->mhtdc_length_s2s4 / mhtdc_tof4121) / speed_light;
+  id_mhtdc_gamma_s2s4  = 1./sqrt(1. - id_mhtdc_beta_s2s4*id_mhtdc_beta_s2s4);
+  
+  // calculation of delta(momentum_deviation) and AoQ
+  float mean_brho_s2s4 = 0.5*( frs->bfield[2] + frs->bfield[3] );
+  if( -200<temp_s4x && temp_s4x<200. && -200.< temp_s2x && temp_s2x<200.){
+    id_mhtdc_delta_s2s4 = ( temp_s4x - (temp_s2x * frs->magnification[1] ))/(-1.0 * frs->dispersion[1] *1000.0 ) ; //1000 is dispertsion from meter to mm. -1.0 is sign definition.
+    if(0.0 < id_mhtdc_beta_s2s4 && id_mhtdc_beta_s2s4 < 1.0){
+	id_mhtdc_aoq_s2s4 = mean_brho_s2s4 *( 1. + id_mhtdc_delta_s2s4   ) * temp_tm_to_MeV / (temp_mu * id_mhtdc_beta_s2s4 * id_mhtdc_gamma_s2s4);
+    }
+  }
+
+  // calculation of dE and Z
+  // from MUSIC41
+  float temp_music41_de = de[0]>0.0;
+  if( (temp_music41_de>0.0)  && (id_mhtdc_beta_s2s4>0.0) && (id_mhtdc_beta_s2s4<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++){
+      sum += power * id->mhtdc_vel_a_music41[i];
+      power *= id_mhtdc_beta_s2s4;
+    }
+    id_mhtdc_v_cor_music41 = sum;
+    if (id_mhtdc_v_cor_music41 > 0.0){
+      id_mhtdc_z_music41 = frs->primary_z * sqrt(temp_music41_de/id_mhtdc_v_cor_music41 ) + id->mhtdc_offset_z_music41;
+    }
+  }
+
+  float temp_music42_de = de[1]>0.0;
+  if( (temp_music42_de>0.0)  && (id_mhtdc_beta_s2s4>0.0) && (id_mhtdc_beta_s2s4<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++){
+      sum += power * id->mhtdc_vel_a_music42[i];
+      power *= id_mhtdc_beta_s2s4;
+    }
+    id_mhtdc_v_cor_music42 = sum;
+    if (id_mhtdc_v_cor_music42 > 0.0){
+      id_mhtdc_z_music42 = frs->primary_z * sqrt(temp_music42_de/id_mhtdc_v_cor_music42 ) + id->mhtdc_offset_z_music42;
+    }
+  }
+ 
  
   id_trigger=trigger;
-  /* accumulate raw detof spectrum  */
-
-  // sci_e[idx] = sqrt( (sci_l[idx] - sci->le_a[0][idx]) * sci->le_a[1][idx] 
-  //                   * (sci_r[idx] - sci->re_a[0][idx]) * sci->re_a[1][idx]);
   
   
-  /* check for polygon in raw detof spectrum  */
-  //  id_b_detof2 = cID_dEToF->Test(sci_tof2, de[0]);
-    
-  /*  select by what means S2 positions are to be derived:         */
-  /*  ID.X2_select =0: SC21;  =1: S2 MWs                           */
-  id_x2 = -9999;
-  if(id->x2_select == 0) 
-    {
-      if(sci_b_x[2])
-    id_x2 = sci_x[2]; /* pos index 2 = SC21 */
-    
-    }
-
-  /* For old tracking with old nomenclature (06.06.18)
-  if(id->x2_select == 1)
-    {
-     
-      id_x2=999;
-      if(b_tpc_xy[2] && b_tpc_xy[3])
-    id_x2 = tpc_x_s2_foc;
-      if(b_tpc_xy[2] && !b_tpc_xy[3])
-    id_x2 = tpc_x[2];
-      if(!b_tpc_xy[2] && b_tpc_xy[3])
-    id_x2 = tpc_x[3];
-      if(!b_tpc_xy[2] && !b_tpc_xy[3] && sci_b_x[2])
-    id_x2 = sci_x[2];
-     
-
-     id_a2 = tpc_angle_x_s2_foc;
-     id_y2 = tpc_y_s2_foc;
-     id_b2 = tpc_angle_y_s2_foc;
-  }
-  */
-
-   if(id->x2_select == 1)
-    {
-     
-      id_x2=999;
-      id_y2=999;
-      id_a2=999;
-      id_b2=999;
-      
-      if(b_tpc_xy[0] && b_tpc_xy[1] && !b_tpc_xy[2] && !b_tpc_xy[3] )
-    {
+  // focal plane information
+  // S2 priority: tpc2324 -> tpc2224 -> tpc2122 -> sc22 -> sc21
+  if(b_tpc_xy[2] && b_tpc_xy[3]){//tpc2324
+    id_x2 = tpc_x_s2_foc_23_24;
+    id_y2 = tpc_y_s2_foc_23_24;
+    id_a2 = tpc_angle_x_s2_foc_23_24;
+    id_b2 = tpc_angle_y_s2_foc_23_24;
+  }else if (b_tpc_xy[1] && b_tpc_xy[3]){//tpc2224
+    id_x2 = tpc_x_s2_foc_22_24;
+    id_y2 = tpc_y_s2_foc_22_24;
+    id_a2 = tpc_angle_x_s2_foc_22_24;
+    id_b2 = tpc_angle_y_s2_foc_22_24;
+  }else if (b_tpc_xy[0] && b_tpc_xy[1]){//tpc2122
     id_x2 = tpc_x_s2_foc_21_22;
     id_y2 = tpc_y_s2_foc_21_22;
     id_a2 = tpc_angle_x_s2_foc_21_22;
     id_b2 = tpc_angle_y_s2_foc_21_22;
-   
-    }
-
-      if(!b_tpc_xy[0] && !b_tpc_xy[1] && b_tpc_xy[2] && b_tpc_xy[3] )
-    {
-    id_x2 = tpc_x_s2_foc_23_24;
-        id_y2 = tpc_y_s2_foc_23_24;
-    id_a2 = tpc_angle_x_s2_foc_23_24;
-    id_b2 = tpc_angle_y_s2_foc_23_24;
- 
-    }
-
-      if(!b_tpc_xy[0] && b_tpc_xy[1] && !b_tpc_xy[2] && b_tpc_xy[3] )
-    {
-    id_x2 = tpc_x_s2_foc_22_24;
-    id_y2 = tpc_y_s2_foc_22_24;
-    id_a2 = tpc_angle_x_s2_foc_22_24;
-    id_b2 = tpc_angle_y_s2_foc_22_24;
-   
-    }
-
-       if(b_tpc_xy[0] && b_tpc_xy[1] && b_tpc_xy[2] && b_tpc_xy[3] )
-    {
-    id_x2 = tpc_x_s2_foc_22_24;
-    id_y2 = tpc_y_s2_foc_22_24;
-    id_a2 = tpc_angle_x_s2_foc_22_24;
-    id_b2 = tpc_angle_y_s2_foc_22_24;
-    
-    }
-
-        if(!b_tpc_xy[0] && !b_tpc_xy[1] && !b_tpc_xy[2] && !b_tpc_xy[3] && sci_b_x[2] )
-    {
+  }else if (sci_b_x[2]){//sc21
     id_x2 = sci_x[2];
     id_y2 = 0.0;
     id_a2 = 0.0;
     id_b2 = 0.0;
-  
-    }
-    
   }
-                            
-  /*  select by what means S4 positions are to be derived:         */
-  /*  ID.X4_select =0: SC41;  =1: S4 MWs;                          */
-  if(id->x4_select == 0) 
-    {
-      //    if(sci_b_x[5]) id_x4 = sci_x[5];  /* pos index 5 = SC41 */
-      id_x4 = 0;  /* pos index 5 = SC41 */
-    }
-  
-  if(id->x4_select == 1)
-    {
-      id_x4 = tpc_x_s4;
-      id_a4 = tpc_angle_x_s4;
-      id_y4 = tpc_y_s4;
-      id_b4 = tpc_angle_y_s4;
-    }
 
-  
+  // S4 only 1 possibility =  TPC4142
+  if(b_tpc_xy[4] && b_tpc_xy[5]){
+    id_x4 = tpc_x_s4;
+    id_a4 = tpc_angle_x_s4;
+    id_y4 = tpc_y_s4;
+    id_b4 = tpc_angle_y_s4;
+  }
+
+  // S8 only 1 possibility =  SC81x
+  if( sci_b_x[10]){
+    id_x8 = sci_x[10];
+    id_a8 = 0.0;
+    id_y8 = 0.0;
+    id_b8 = 0.0;
+  }
+
   /*  check that the positions are OK   */
   id_b_x2 = Check_WinCond(id_x2, cID_x2);// cID_x2->Test(id_x2);
   id_b_x4 = Check_WinCond(id_x4, cID_x4);// cID_x4->Test(id_x4);
+  
+ // id_b_x8 = Check_WinCond(id_x8, cID_x8);// cID_x4->Test(id_x4);
+  
 
-  /*
-  /// conditions for the 12C measurement
-
-  // for 12N at S4
-  if(de[0]>2200. && de[0]<4000.)hID_x4z55->Fill(id_x4);// added 2016Jun.16
-  // for 12N at S2
-   if(de[0]>2200. && de[0]<4000.)hID_x2z55->Fill(id_x2);// added 2016Jun.16
-
-   //for 12B at s4 and s2
-  if(de[0]>900. && de[0]<1200. )hID_x4z53->Fill(id_x4);
-  if(de[0]>900. && de[0]<1200. )hID_x2z53->Fill(id_x2);
-  */
-
-  // This ones are for all nuclei as a funtion of the energy loss
-
-  //hID_E_Xs4->Fill(id_x4,de[0]);// added by 2016Jun.16
-
-  //hID_E_Xs2->Fill(id_x2,de[0]);// added by 2016Jun.16
-
-  /*hID_x2a2->Fill(id_x2,id_a2);
-  hID_y2b2->Fill(id_y2,id_b2);
-  hID_x4a4->Fill(id_x4,id_a4);
-  hID_y4b4->Fill(id_y4,id_b4); */
-
-
-  /****  A/Q calculations for S41-S21 or S42-S41 (tof index 2+3) *************/ 
-  Float_t f = 931.4940 / 299.792458 ;    /* the u/(c*10^-6) factor  */
+  // remove temporarily
+  // hID_E_Xs4->Fill(id_x4,de[0]);// added by 2016Jun.16
+  // hID_E_Xs2->Fill(id_x2,de[0]);// added by 2016Jun.16
 
   /*----------------------------------------------------------*/
   /* Determination of beta                                    */
@@ -3792,920 +3369,231 @@ void FRS_Detector_System::FRS_Anal(){
   /* ID.Path(i)                     Flight path/c [ps]        */
   /* TOF(i)        BIN FLOAT(24),   Flight time  [ps]         */
   /*----------------------------------------------------------*/
-  /* from ToF S41-S21 */
-  if (sci_b_tofll2 && sci_b_tofrr2)
-    {
-      id_beta = id->id_path2 / (id->id_tofoff2 - sci_tof2);
-    }
-  
-  /*------------------------------------------------------*/
-  /* Determination of Brho                                */
-  /* Dispersion and magnification are still the same      */
-  /* variable for S41-S21 and S42-S41, adjust in setup.C  */
-  /*------------------------------------------------------*/
-  
-  /* check S2 valid conditions */
-  //if (id_b_x2 && id_b_x4) {
-  if (id_b_x2)
-    {   
-      // first half of FRS
-      id_rho[0] = frs->rho0[0] * (1. - id_x2/1000./frs->dispersion[0]);   
-      // second half of FRS
-      id_rho[1] = frs->rho0[1] * (1. - (id_x4 - frs->magnification[1] * id_x2) / 1000. / frs->dispersion[1]) ; 
-      //    id_rho[1] = frs->rho0[1] * (1. - (frs->magnification[1] * id_x2) / 1000. / frs->dispersion[1]) ; 
+
+  //SC21-SC41
+  if (sci_b_tofll2 && sci_b_tofrr2){
+    //// id_beta = id->id_path2 /(id->id_tofoff2 - sci_tof2);
+    id_beta = id->id_path2 /  sci_tof2_calib ;// calculate non-inverted "real" tof already in sci analysis.
+//     if(bDrawHist){
+//       hID_beta->Fill(id_beta*1000.);
+//     }
+  }
+
+  //SC21-SC81
+//   if (sci_b_tofll4 && sci_b_tofrr4){
+//     id_beta_s2s8 = id->id_path4 /  sci_tof4_calib ;// calculate non-inverted "real" tof already in sci analysis.
+// //     if(bDrawHist){
+// //       hID_beta_s2s8->Fill(id_beta_s2s8*1000.);
+// //     }
+//   }
+
+
+  // /*------------------------------------------------------*/
+  // /* Determination of Brho                                */
+  // /* Dispersion and magnification are still the same      */
+  // /* variable for S41-S21 and S42-S41, adjust in setup.C  */
+  // /*------------------------------------------------------*/
+
+  // first half of FRS, TA-S2
+  if (id_b_x2){
+      id_rho[0]  = frs->rho0[0] * (1. - id_x2/1000./frs->dispersion[0]);
+      id_brho[0] = (fabs(frs->bfield[0]) + fabs(frs->bfield[1]))/ 2. * id_rho[0];
       
-      for(int i=0;i<2;i++)
-    {
+//      if(bDrawHist){  hID_BRho[0]->Fill(id_brho[0]); }
+  }
+  // second half S2-S4
+  
+  if (id_b_x2 && id_b_x4){
+      id_rho[1] = frs->rho0[1] * (1. - (id_x4 - frs->magnification[1] * id_x2) / 1000. / frs->dispersion[1]) ;
+      id_brho[1] = (fabs(frs->bfield[2]) + fabs(frs->bfield[3]))/ 2. * id_rho[1];
      
-      id_brho[i] = (fabs(frs->bfield[2*i]) + fabs(frs->bfield[2*i+1]))/ 2. * id_rho[i];
-      //cout<<"frs->bfield[2*i+1]" << frs->bfield[0] << endl;
-    }
-    }   
-  //}
+      //cout<<"111 id_brho[1]  " << id_brho[1] << "frs->bfield[0]" << frs->bfield[2] << " frs->bfield[3] " << frs->bfield[3] << endl;
+     // if(bDrawHist){  hID_BRho[1]->Fill(id_brho[1]); }
+  }
+  
+  //cout<<"222 id_brho[1]  " << id_brho[1] << "frs->bfield[0]" << frs->bfield[2] << " frs->bfield[3] " << frs->bfield[3] << endl;
+ // cout<<"id_rho[1] " << id_rho[1] << " frs->rho0[1] " << frs->rho0[1] << " id_x4 " << id_x4 << " frs->magnification[1] " << frs->magnification[1] << " id_x2 " << id_x2 << " frs->dispersion[1] " << frs->dispersion[1]<< endl;
 
-
-  /*--------------------------------------------------------------*/
+ /*--------------------------------------------------------------*/
   /* Determination of A/Q                                         */
   /*--------------------------------------------------------------*/
   /* Beta(i)       BIN FLOAT(24),   Beta = v/c                    */
   /* Gamma(i)      BIN FLOAT(24),   Gamma= sqrt(1/1-beta**2)      */
   /*--------------------------------------------------------------*/
+  Float_t f = 931.4940 / 299.792458 ;    /* factor needed for aoq calculation.. the u/(c*10^-6) factor  */
+
   /* for S2-S4 */
-  // if (sci_b_tofll2 && sci_b_tofrr2 && id_b_x2 && id_b_x4) {
-  
-  //cout<<"sci_b_tofll2 " << sci_b_tofll2 << " sci_b_tofrr2 " << sci_b_tofrr2 << " id_b_x2 " << id_b_x2 <<endl;
-  if (sci_b_tofll2 && sci_b_tofrr2 &&  id_b_x2)
-    {
-      if ((id_beta>0.0) && (id_beta<1.0))
-    {
-      id_gamma = sqrt( 1. /(1. - id_beta * id_beta));
-      //id_AoQ = id_brho[1]/id_beta/id_gamma/ f - id->id_tofcorr2 * id_x4;
-      id_AoQ = id_brho[1]/id_beta/id_gamma/f ;
-      
-        //std::cout <<" id_AoQ "<<id_AoQ<<" id_brho[1] "<<  id_brho[1] << " id_beta "<< id_beta << " id_gamma " << id_gamma << std::endl; 
-      
-      //correction for id_a2, JK 16.9.11
+  if (sci_b_tofll2 && sci_b_tofrr2 && id_b_x2 && id_b_x4){
+      if ((id_beta>0.0) && (id_beta<1.0)){
+  	  id_gamma = 1./sqrt(1. - id_beta * id_beta);
+  	  id_AoQ   = id_brho[1]/id_beta/id_gamma/f ;
+  	  id_AoQ_corr = id_AoQ - id->a2AoQCorr * id_a4;  //correction for id_a2, JK 16.9.11
+  	//  cout<<"id_AoQ " << id_AoQ << " id_brho[1] " <<id_brho[1] <<" id_beta " << id_beta << " id_gamma " <<id_gamma << " f " << f << endl;
+  	  
+  	  
+  	  // if (!b_tpc_xy[4] || !b_tpc_xy[5]) // no sense to do "if TPC4142 dont work, correct with S4 angle ... "
+  	  //   id_AoQ_corr = id_AoQ - id->a4AoQCorr * id_a4;
+//   	  if(bDrawHist)
+//   	    {
+//   	      hID_AoQ->Fill(id_AoQ);
+//   	      hID_AoQcorr->Fill(id_AoQ_corr);
+// 	      hID_DeltaBrho_AoQ->Fill(id_AoQ,id_brho[0]-id_brho[1]);
+//   	    }
+  	  id_b_AoQ = kTRUE;
+      }
+  }
 
-    id_AoQ_corr=id_AoQ - frs->a4AoQCorr*id_a4;
-//    id_AoQ_corr = id_AoQ - frs->a2AoQCorr * id_a2;
-//    if (!b_tpc_xy[4] || !b_tpc_xy[5])
-//      id_AoQ_corr = id_AoQ - frs->a4AoQCorr * id_a4;
+  /* for S2-S8  */
+//   if (sci_b_tofll4 && sci_b_tofrr4 && id_b_x2 && id_b_x8){
+//     if ((id_beta_s2s8>0.0) && (id_beta_s2s8<1.0)){
+//       id_gamma_s2s8 = 1./sqrt(1. - id_beta_s2s8 * id_beta_s2s8);
+//       id_AoQ_s2s8      = id_brho[2]/id_beta_s2s8/id_gamma_s2s8/ f ;
+//       if(bDrawHist)
+// 	{
+// 	  hID_AoQ_s2s8->Fill(id_AoQ_s2s8);
+// 	}
+//       id_b_AoQ_s2s8 = kTRUE;
+//     }
+//   }
 
-
-      id_b_AoQ = kTRUE;
-    }
-    }
-
-  if(id_b_AoQ)
-    {
-    }
-  
-  // }
 
   /*------------------------------------------------*/
   /* Determination of Z                             */
   /*------------------------------------------------*/
   /****  S4  (MUSIC 1)   */
   //  if((de_cor[0]>0.0) && (id_beta>0.0) && (id_beta<1.0)) {
- // std::cout <<"beta " << id_beta <<endl;
+
   if((de[0]>0.0) && (id_beta>0.0) && (id_beta<1.0))
     {
       Double_t power = 1., sum = 0.;
-      for (int i=0;i<4;i++)
-    {
-      sum += power * id->vel_a[i];
-      power *= id_beta;
-    }
+      for (int i=0;i<4;i++){
+  	  sum += power * id->vel_a[i];
+  	  power *= id_beta;
+      }
       id_v_cor = sum;
-      
-      if (id_v_cor > 0.0)
-    id_z = frs->primary_z * sqrt(de[0]/id_v_cor) + frs->offset_z;
-      
-    if ((id_z>0.0) && (id_z<100.0))
-      {
-    id_b_z = kTRUE;
+      if (id_v_cor > 0.0){
+  	id_z = frs->primary_z * sqrt(de[0]/id_v_cor) + id->offset_z;
+      }
+      if ((id_z>0.0) && (id_z<100.0)){
+	id_b_z = kTRUE;
       }
     }
 
+
   /****  S4  (MUSIC 2)   */
-  
-  //  if((de_cor[0]>0.0) && (id_beta>0.0) && (id_beta<1.0)) {
-  if((de[1]>0.0) && (id_beta>0.0) && (id_beta<1.0))
-    {
-      Double_t power = 1., sum = 0.;
-      for (int i=0;i<4;i++)
-    {
-      sum += power * id->vel_a2[i];
-      power *= id_beta;
+  if((de[1]>0.0) && (id_beta>0.0) && (id_beta<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++)
+      {
+	sum += power * id->vel_a2[i];
+	power *= id_beta;
+      }
+    id_v_cor2 = sum;
+
+    if (id_v_cor2 > 0.0){
+      id_z2 = frs->primary_z * sqrt(de[1]/id_v_cor2) + id->offset_z2;
     }
-      id_v_cor2 = sum;
-      
-      if (id_v_cor2 > 0.0)
-    id_z2 = frs->primary_z * sqrt(de[1]/id_v_cor2) + frs->offset_z2;
-      //std::cout<<"id_z2="<<id_z2<<std::endl;
-      
-      if ((id_z2>0.0) && (id_z2<100.0))
-    {
+    if ((id_z2>0.0) && (id_z2<100.0)){
       id_b_z2 = kTRUE;
     }
-    }
- 
+  }
 
-  /****  S4  (MUSIC OLD)   */
-  //  if((de_cor[0]>0.0) && (id_beta>0.0) && (id_beta<1.0)) {
-  
-  if((de[2]>0.0) && (id_beta>0.0) && (id_beta<1.0))
-    {
-      Double_t power = 1., sum = 0.;
-      for (int i=0;i<4;i++)
-    {
+
+  /****  S4  (MUSIC)   */
+  if((de[2]>0.0) && (id_beta>0.0) && (id_beta<1.0)){
+    Double_t power = 1., sum = 0.;
+    for (int i=0;i<4;i++){
       sum += power * id->vel_a3[i];
       power *= id_beta;
     }
-      id_v_cor3 = sum; ///Velocity correction
-      
-      if (id_v_cor3 > 0.0)
-    id_z3 = frs->primary_z * sqrt(de[2]/id_v_cor3) + frs->offset_z3;
-      //std::cout<<"id_z2="<<id_z2<<std::endl;
-      
-      if ((id_z3>0.0) && (id_z3<100.0))
-    {
+    id_v_cor3 = sum;
+    if (id_v_cor3 > 0.0){
+      id_z3 = frs->primary_z * sqrt(de[2]/id_v_cor3) + id->offset_z3;
+    }
+
+    if ((id_z3>0.0) && (id_z3<100.0)){
       id_b_z3 = kTRUE;
     }
-
-
-      // static const double anode_width = 10.;//cm
-      //double music_dX = anode_width*sqrt(id_a4*id_a4+id_b4*id_b4+1.);
-      //h_dEdx_betagammaAll->Fill(id_beta*id_gamma,de[2]/music_dX);
-      //h_dEdx_betagammaAllZoom->Fill(id_beta*id_gamma,de[2]/music_dX);
-      //double music_dEtemp0 = music_e3[0]*music->e3_gain[0] + music->e3_off[0];
-      for(int i=0;i<4;++i)
-    {
-      //double music_dEtemp = music_e3[i]*music->e3_gain[i] + music->e3_off[i];
-      //h_dEdx_betagamma[i]->Fill(id_beta*id_gamma,music_dEtemp/music_dX);
-      /*if(i>0)
-        h_DiffdEdx_betagamma[i]->Fill(id_beta*id_gamma,(music_dEtemp-music_dEtemp0)/music_dX);*/
-    }
-    }
-  /*------------------------------------------------*/
-  /* Identification Plots                           */
-  /*------------------------------------------------*/
-
-  /****  for S2-S4  ****/
-
-  //Float_t my_dist_TPC6= 1075; //position TPC6 in s388?
-  //Float_t x4env=0;
-  //Float_t y4env=0;
-  //  Float_t my_dist_TPC65;
-  if(id_b_AoQ)
-    {
-      for (int i=0;i<5;i++)
-    {
-    
-    //Float_t tmp_array[2] = {id_AoQ, id_x4};
-        
-    id_b_x4AoQ_Z[i] = Check_PolyCond_X_Y(id_AoQ, id_x4, cID_x4AoQ_Z, 4);// cID_x4AoQ_Z[i]->Test(id_AoQ, id_x4); 
-        }
-    
-    //Float_t tmp_array[2] = {id_AoQ, id_x2};
-    
-      id_b_x2AoQ = Check_PolyCond_Multi_X_Y(id_AoQ, id_x2, cID_x2AoQ, 5, 0);// cID_x2AoQ[0]->Test(id_AoQ, id_x2);
-      for(int i=0;i<6;++i)
-    {
-      if(Check_PolyCond_Multi_X_Y(id_AoQ, id_x2, cID_x2AoQ, 5, i)==true)// cID_x2AoQ[i]->Test(id_AoQ, id_x2)
-        {
-          //hMUSIC3_x2AoQ_E[0][i]->Fill(music_e3[0]);
-          //hMUSIC3_x2AoQ_E[1][i]->Fill(music_e3[1]);
-          //hMUSIC3_x2AoQ_E[2][i]->Fill(music_e3[2]);
-          //hMUSIC3_x2AoQ_E[3][i]->Fill(music_e3[3]);         
-          //hID_x4AoQ_x2AoQgate[i]->Fill(id_AoQ, id_x4);
-          /*if (id_b_z3)
-        hID_ZAoQ_x2AoQgate[i]->Fill(id_AoQ, id_z3);*/
-        }
-    }
-           
-      //      if (id_b_z3) // changed to Music1. YT. 2016Jun.13 19:00
-      if (id_b_z) // changed to Music1. YT. 2016Jun.13 19:00   
-    {   
-
-      for(int i=0;i<5;i++)
-        {
-          id_b_music_z[i] = Check_WinCond(id_z, cID_Z_Z);// cID_Z_Z[i]->Test(id_z);   
-          if(cID_Z_AoQ[i]==nullptr)
-        std::cout<<"E> cID_Z_AoQ["<<i<<"] nullptr "<<cID_Z_AoQ[i]<<" | "<<id->ID_Z_AoverQ_num[i]<<std::endl;
-          
-          //Float_t tmp_array[2] = {id_AoQ, id_z};
-          
-          id_b_z_AoQ[i] = Check_PolyCond_Multi_X_Y(id_AoQ, id_z, cID_Z_AoQ, 5, i);// cID_Z_AoQ[i]->Test(id_AoQ, id_z);      
-          
-        // if(i==0)
-        //   { 
-        //     if (id_b_z_AoQ[0])
-        //       { 
-        //  hMUSIC3_z_AoQ_E[0][i]->Fill(music_e3[0]);
-        //  hMUSIC3_z_AoQ_E[1][i]->Fill(music_e3[1]);
-        //  hMUSIC3_z_AoQ_E[2][i]->Fill(music_e3[2]);
-        //  hMUSIC3_z_AoQ_E[3][i]->Fill(music_e3[3]);
-        //  hID_x4c[0]->Fill(id_x4);
-        //  hID_x2c[0]->Fill(id_x2);
-              
-        //  hMUSIC3_music_z_E[0][i]->Fill(music_e3[0]);
-        //  hMUSIC3_music_z_E[1][i]->Fill(music_e3[1]);
-        //  hMUSIC3_music_z_E[2][i]->Fill(music_e3[2]);
-        //  hMUSIC3_music_z_E[3][i]->Fill(music_e3[3]);
-        //       }
-        //   }
-          if (id_b_z_AoQ[i])
-          {
-
-            // S395 envelop plots, tracking from position(TPC6) and angle (TPC5, TPC6)
-            /*
-              if( id_b_x4 && i==0) {
-              for(Int_t zz=0; zz<=2600; zz+=100) {
-              x4env =  id_a4 * (zz-my_dist_TPC6)/1000. + tpc_x[5];
-              y4env =  id_b4 * (zz-my_dist_TPC6)/1000. + tpc_y[5];
-              //hID_xz->Fill(zz,x4env);
-              //hID_yz->Fill(zz,y4env);
-              hID_xzc->Fill(zz,x4env);
-              hID_yzc->Fill(zz,y4env);
-              }
-              }
-            */
-             
-              
-              //hID_betac[i]->Fill(id_beta);
-              //hID_brhoc[i]->Fill(id_brho[1]);
-            
-              // hID_x_target1c[i]->Fill(tpc_x_s2_target1);
-              // hID_x_target2c[i]->Fill(tpc_x_s4_target2);
-              // hID_y_target1c[i]->Fill(tpc_y_s2_target1);
-              // hID_y_target2c[i]->Fill(tpc_y_s4_target2);
-            
-              
-            // if(i==1){
-            //if(coin[10]==1)
-            //  hID_x4c[i]->Fill(id_x4);
-            //}else{
-            //hID_x4c[i]->Fill(id_x4);
-            //}
-              //}
-          }
-          }
-    }
-    }
-  
-  if(EventFlag==0x200 && trigger==1)
-    {
-      mrtof_start = mrtof_start*25./1000000.; // ch to microsec
-      
-      double tempStop1 = mrtof_stopDelay*25./1000000. ;
-      double tempStop2 = mrtof_stop*25./1000000. ;
-      
-      /*h_MRtof_Start->Fill(mrtof_start);
-      h_MRtof_StopDelay->Fill(tempStop1);
-      h_MRtof_Stop->Fill(tempStop2);*/
-      
-      int stop_status=0;
-      
-      if(tempStop1<=0.)
-    {
-      if(tempStop2>0.)
-        {
-          mrtof_stop  = tempStop2;
-          //h_MRtof_status->Fill("GoodStop2",1);
-          stop_status=1;
-        }
-      else
-        {
-          mrtof_stop = -9999.;
-          //std::cout<<"E> MRTOF Anal : both stop signal "<<
-          /*if(mrtof_start>1)
-        h_MRtof_status->Fill("NoGoodStop",1);
-          else
-        h_MRtof_status->Fill("NoData",1);*/
-        }
-    }
-      else
-    {
-      if(tempStop2<=0.)
-        {
-          mrtof_stop = tempStop1-45.;
-          //h_MRtof_status->Fill("GoodStop1",1);
-          stop_status=1;
-        }
-      else
-        {
-          double diff_stop = tempStop1-tempStop2;
-          if(TMath::Abs(diff_stop-45)<1.)
-        {
-          mrtof_stop = tempStop1-45.;
-          //h_MRtof_status->Fill("GoodStop1&2",1);
-          stop_status=1;
-        }
-          else
-        {
-          //h_MRtof_status->Fill("Stop1&2BadOverlap",1);
-          std::cout<<"E> MRtof diff stop too big from 45 microsec !"<<diff_stop<< "sorted : D="<<mrtof_stopDelay <<" "<< mrtof_stop <<" | in microsec: D="<< tempStop1 <<" "<<tempStop2<<"\n";
-        }
-        }
-    }
-
-      //int diff_stopdelay = 1891482-54830;
-
-      if(stop_status==1)
-    {
-      mrtof_tof = 100 - ( mrtof_start - mrtof_stop); // add 100 microsec from mrtof trigger system 
-      //h_MRtof_tof->Fill(mrtof_tof);
-      //h_MRtof_status->Fill("GoodTOF",1);
-    }
-      /*else
-    h_MRtof_status->Fill("BadTOF",1);*/
-
-
-    }
-
-  mrtof_si_e1=si_e1;
-  mrtof_si_e2=si_e2;
-  mrtof_si_e3=si_e3;
-  mrtof_si_e4=si_e4;
-  mrtof_si_e5=si_e5;
-  
-
-    
-}
-
-/*void FRS_Detector_System::Write_Setup_Parameters(){
-    
-  setup_directory_name = "./Configuration_Files/FRS_Setups/" + setup_directory_name;
-    
-  int n = setup_directory_name.length(); 
-    
-  char char_setup_directory_name[n+1]; 
-    
-  strcpy(char_setup_directory_name, setup_directory_name.c_str()); 
-   
-  if (mkdir(char_setup_directory_name, 0777)==-1){
-      
-      cout<<endl;
-      cout<<endl;
-
-      cout<<"DANGER WILL ROBINSON DANGER !!!"<<endl;
-      
-      string response;
-           
-      while(true){
-      
-    cout<<"You are about to overwrite your Setup Directory: "<< setup_directory_name<<endl;
-    cout<<"Do you mean to do this? (y/n)"<<endl;
-    cin>>response;
-    if (response == 'y') break;
-    else if (response == 'n') exit(0);
-    else{
-        
-         cout<<endl;
-         cout<<"Input '" << response << "' was not valid!"<<endl;
-         cout<<"Please enter 'y' for yes and 'n' for no"<<endl;
-         cout<<endl;
-
-    }
-      
-      }
-      
-      mkdir(char_setup_directory_name, 0777);
-      
   }
 
-  // look up analysis object and all parameters
+
+  //Z from sc81
+//   if((sci_e[10]>0.0) && (id_beta_s2s8>0.0) && (id_beta_s2s8<1.0)){
+//     Double_t power = 1., sum = 0.;
+//     for (int i=0;i<4;i++){
+//       sum += power * id->vel_a_sc81[i];
+//       power *= id_beta_s2s8;
+//     }
+//     id_v_cor_sc81 = sum;
+//     if (id_v_cor_sc81 > 0.0){
+//       id_z_sc81 = frs->primary_z * sqrt(sci_e[10]/id_v_cor_sc81) + id->offset_z_sc81;
+//     }
+// 
+//     if ((id_z_sc81>0.0) && (id_z_sc81<100.0)){
+//       id_b_z_sc81 = kTRUE;
+//     }
+//   }
+
+  //Z from tpc21222324
+  double temp_s2tpc_de=1.0; int temp_s2tpc_de_count=0;
+  for(int ii=0; ii<4; ii++){
+    if(b_tpc_de[ii]){
+      temp_s2tpc_de *=tpc_de[ii]; temp_s2tpc_de_count++;
+    }
+  }
+  if(temp_s2tpc_de_count == 2){
+    id_de_s2tpc = pow(temp_s2tpc_de, 1./temp_s2tpc_de_count);
+    id_b_de_s2tpc = kTRUE;
+  }
+
+//   if(id_b_de_s2tpc && (id_beta_s2s8>0.0) && (id_beta_s2s8<1.0)){
+//     Double_t power = 1., sum = 0.;
+//     for (int i=0;i<4;i++){
+//       sum += power * id->vel_a_s2tpc[i];
+//       power *= id_beta_s2s8;
+//     }
+//     id_v_cor_s2tpc = sum;
+//     if (id_v_cor_s2tpc > 0.0){
+//       id_z_s2tpc = frs->primary_z * sqrt( id_de_s2tpc/id_v_cor_s2tpc ) + id->offset_z_s2tpc;
+//       //printf("id_de_s2tpc = %f, v_cor = %f, z_s2tpc = %f\n",id_de_s2tpc, id_v_cor_s2tpc, id_z_s2tpc);
+//     }
+// 
+//     if ((id_z_s2tpc>0.0) && (id_z_s2tpc<100.0)){
+//       id_b_z_s2tpc = kTRUE;
+//     }
+//   }
+
   
-  string setup_filename = setup_directory_name + "/FRS.txt";
-  ofstream frs_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/MW.txt";
-  ofstream mw_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/MUSIC.txt";
-  ofstream music_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/TPC.txt";
-  ofstream tpc_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/SCI.txt";
-  ofstream sci_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/ID.txt";
-  ofstream id_f(setup_filename);
-
- // setup_filename = setup_directory_name + "/SI.txt";
- // ofstream si_f(setup_filename);
-
-  setup_filename = setup_directory_name + "/ElecMod.txt";
-  ofstream ElecMod_f(setup_filename);
-
- // setup_filename = setup_directory_name + "/MRToF.txt";
- // ofstream mrtof_f(setup_filename);
   
   
-  /*ofstream frs_f("FRS.txt");
-
-  ofstream mw_f("MW.txt");
-
-  ofstream music_f("MUSIC.txt");
-
-  ofstream tpc_f("TPC.txt");
-
-  ofstream sci_f("SCI.txt");
-
-  ofstream id_f("ID.txt");
-
-  ofstream si_f("SI.txt");
-
-  ofstream ElecMod_f("ElecMod.txt");
-
-  ofstream mrtof_f("MRToF.txt");*/
-
-
-  //======
-  //  MW
-  //======
   
-//   mw_f << "#MWPC Parameters"<< endl;
-//   mw_f << "#"<< endl;
-// 
-//   mw_f << "#MWPC X Factors"<< endl;
-//   mw_f << "#"<< endl;
-// 
-//   for(int i = 0; i < 11; ++i){
-//       
-//     mw_f << "mw->x_factor["<< i << "]: " << mw->x_factor[i] << endl;
-//       
-//   }
-//   
-//   mw_f << "#"<< endl;
-//   mw_f << "#MWPC X Offsets" << endl;
-//   mw_f << "#"<< endl;
-// 
-//   for(int i = 0; i < 11; ++i){
-//       
-//     mw_f << "mw->x_offset["<< i << "]: "<< mw->x_offset[i] << endl;
-//       
-//   }
-//   mw_f << "#"<< endl;
-//   mw_f << "#MWPC Y Factors" << endl;
-//   mw_f << "#"<< endl;
-// 
-//   for(int i = 0; i < 11; ++i){
-//       
-//     mw_f << "mw->y_factor["<< i << "]: "<< mw->y_factor[i] << endl;
-//       
-//   }
-//   
-//   mw_f << "#"<< endl;
-//   mw_f << "#MWPC Y Offsets" << endl;
-//   mw_f << "#"<< endl;
-// 
-//   for(int i = 0; i < 11; ++i){
-//       
-//     mw_f << "mw->y_offset["<< i << "]: "<< mw->y_offset[i]<< endl;
-//       
-//   }
-//   
-//   mw_f << "#"<< endl;
-//   mw_f << "#MWPC TDC Gains" << endl;
-//   mw_f << "#"<< endl;
-// 
-//   for(int i = 0; i < 13; ++i){
-// 
-//       for(int j = 0; j < 5; ++j){
-//    
-//      mw_f << "mw->gain_tdc["<< j << "][" << i << "]: " << mw->gain_tdc[j][i] << endl;
-//    
-//       }
-//       
-//       id_f << "#" << endl;
-// 
-//       
-//   }
-//   
-//   
-//   //======
-//   //  FRS
-//   //======
-//   
-//     frs_f << "#FRS Parameters" << endl;
-// 
-// 
-//     frs_f << "#" << endl;
-//     frs_f << "frs->dist_focS2: " << frs->dist_focS2 << endl;
-//     
-//     frs_f << "#" << endl;
-//     frs_f << "frs->dist_MW21: " << frs->dist_MW21 << endl;
-//     frs_f << "frs->dist_MW22: " << frs->dist_MW22 << endl;
-//     
-//     frs_f << "#" << endl;
-//     frs_f << "frs->dist_SC21: " << frs->dist_SC21 << endl;
-//     
-//     frs_f << "#" << endl;
-//     frs_f << "frs->dist_focS4: " << frs->dist_focS4 << endl;
-//     
-//     frs_f << "#" << endl;
-//     frs_f << "frs->dist_MUSIC1: " << frs->dist_MUSIC1 << endl;
-//     frs_f << "frs->dist_MUSIC2: " << frs->dist_MUSIC2 << endl;
-//     frs_f << "frs->dist_MUSIC3: " << frs->dist_MUSIC3 << endl;
-//     
-//     frs_f << "#" << endl;
-//     frs_f << "#DO NOT CHANGE" << endl;
-// 
-//     frs_f << "frs->dist_MUSICa1: " << frs->dist_MUSICa1 << endl;
-//     frs_f << "frs->dist_MUSICa2: " << frs->dist_MUSICa2 << endl;
-//     frs_f << "frs->dist_MUSICa3: " << frs->dist_MUSICa3 << endl;
-//     frs_f << "frs->dist_MUSICa4: " << frs->dist_MUSICa4 << endl;
-//     
-//     frs_f << "#" << endl;
-//  
-//   //=========
-//   // MUSICs
-//   //=========
-//   
-//   music_f << "#MUSIC Parameters" << endl;
-//   music_f << "#" << endl;
-//   
-//   music_f << "#MUSIC41 Offsets" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 8; ++i){
-//       
-//           music_f << "music->e1_off[" << i << "]: " << music->e1_off[i] << endl;
-//       
-//   }
-//   
-//   music_f << "#MUSIC41 Gains" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 8; ++i){
-//       
-//      music_f << "music->e1_gain[" << i << "]: " << music->e1_gain[i] << endl;
-// 
-//   }
-//   
-//   music_f << "#MUSIC42 Offsets" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 8; ++i){
-//       
-//           music_f << "music->e2_off[" << i << "]: " << music->e2_off[i] << endl;      
-//       
-//   }
-//   
-//   music_f << "#MUSIC42 Gains" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 8; ++i){
-//       
-//      music_f << "music->e2_gain[" << i << "]: " << music->e2_gain[i] << endl;
-// 
-//   }
-//   
-//   music_f << "#MUSIC43 Offsets" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 4; ++i){
-//       
-//           music_f << "music->e3_off[" << i << "]: " << music->e3_off[i] << endl;
-// 
-//   }
-//   
-//   music_f << "#MUSIC43 Gains" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 4; ++i){
-//       
-//      music_f << "music->e3_gain[" << i << "]: " << music->e3_gain[i] << endl;
-// 
-//   }
-//   
-//   music_f << "#MUSIC Position Correction" << endl;
-//   music_f << "#" << endl;
-// 
-//   for(int i = 0; i < 7; ++i){
-//       
-//      music_f << "music->pos_a1[" << i << "]: " << music->pos_a1[i] << endl;
-// 
-//   }
-// 
-//   //=========
-//   //  TPCs
-//   //=========
-//   
-//   tpc_f << "#TPC Parameters" << endl;
-//   tpc_f << "#" << endl;
-//   
-//   
-//   for(int i = 0; i < 7; ++i){
-//       
-//      if (i < 2) tpc_f << "#TPC" << (i+1) << "at S2 (TPC2" << (i+1) << ") in vacuum" << endl;
-//      if (i > 1 && i < 4) tpc_f << "#TPC" << (i+1) << "at S2 (TPC2" << (i+1) << ") in air" << endl;
-//      if (i > 3 && i < 6) tpc_f << "#TPC" << (i+1) << "at S4 (TPC4" << (i-3) << ") in air" << endl;
-//      if (i == 6) tpc_f << "#TPC at S3 (TPC31)" << endl;
-//      
-// 
-//      tpc_f << "#" << endl;
-//      tpc_f << "#Factors" << endl;
-//      tpc_f << "#" << endl;
-// 
-//      for(int j = 0; j < 2; ++j) tpc_f << "tpc->x_factor[" << i << "][" << j << "]: " << tpc->x_factor[i][j] << endl;
-//      for(int k = 0; k < 2; ++k) tpc_f << "tpc->y_factor[" << i << "]["  << k << "]: " << tpc->y_factor[i][k] << endl;
-//      
-//      tpc_f << "#Offsets" << endl;
-//      tpc_f << "#" << endl;
-// 
-//      for(int j = 0; j < 2; ++j) tpc_f << "tpc->x_offset[" << i << "][" << j << "]: " << tpc->x_offset[i][j] << endl;
-//      for(int k = 0; k < 2; ++k) tpc_f << "tpc->y_offset[" << i << "]["  << k << "]: " << tpc->y_offset[i][k] << endl;
-//      
-//      tpc_f << "#" << endl;
-// 
-//   }
-//   
-//   
-//   //===========
-//   // Plastics
-//   //===========
-//   
-//   sci_f << "#Scintillator Parameters" << endl;
-//   sci_f << "#Index 2 for Sc21" << endl;
-//   sci_f << "#" << endl;
-//   for(int i = 0; i < 7; ++i) sci_f << "sci->x_a[" << i << "][2]: " << sci->x_a[i][2] << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "#Index 5 for Sc41" << endl;
-//   sci_f << "#" << endl;
-//   for(int i = 0; i < 7; ++i) sci_f << "sci->x_a[" << i << "][5]: " << sci->x_a[i][5] << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "#Index 6 for Sc42" << endl;
-//   sci_f << "#" << endl;
-//   for(int i = 0; i < 7; ++i) sci_f << "sci->x_a[" << i << "][6]: " << sci->x_a[i][6] << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "#Index 7 for Sc43" << endl;
-//   sci_f << "#" << endl;
-//   for(int i = 0; i < 7; ++i) sci_f << "sci->x_a[" << i << "][7]: " << sci->x_a[i][7] << endl;
-//   sci_f << "#" << endl;
-//   
-//   sci_f << "#Index 10 for Sc81" << endl;
-//   sci_f << "#" << endl;
-//   for(int i = 0; i < 7; ++i) sci_f << "sci->x_a[" << i << "][10]: " << sci->x_a[i][10] << endl;
-// 
-// 
-//   
-//   sci_f << "#" << endl;
-//   sci_f << "#Time of Flight Offsets" << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "sci->tac_off[0]  (SC21L-R): "    << sci->tac_off[0] << endl;
-//   sci_f << "sci->tac_off[1]  (SC41L-R): "    << sci->tac_off[1] << endl;
-//   sci_f << "sci->tac_off[2]  (SC41L-SC21L): "    << sci->tac_off[2] << endl;
-//   sci_f << "sci->tac_off[3]  (SC41R-SC21R): "    << sci->tac_off[3] << endl;
-//   sci_f << "sci->tac_off[4]  (SC42L-R): "    << sci->tac_off[4] << endl;
-//   sci_f << "sci->tac_off[5]  (SC42L-SC21L): "    << sci->tac_off[5] << endl;
-//   sci_f << "sci->tac_off[6]  (SC42R-SC21R): "    << sci->tac_off[6] << endl;
-//   sci_f << "sci->tac_off[7]  (SC43L-R): "    << sci->tac_off[7] << endl;
-//   sci_f << "sci->tac_off[8]  (SC81L-R): "    << sci->tac_off[8] << endl;
-//   sci_f << "sci->tac_off[9]  (SC81L-SC21L): "    << sci->tac_off[9] << endl;
-//   sci_f << "sci->tac_off[10] (SC81R-SC21R): "    << sci->tac_off[10] << endl;
-//   
-//   sci_f << "#" << endl;
-//   sci_f << "#Time of Flight Factors" << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "sci->tac_factor[0]  (SC21L-R): "         << sci->tac_factor[0] << endl;
-//   sci_f << "sci->tac_factor[1]  (SC41L-R): "         << sci->tac_factor[1] << endl;
-//   sci_f << "sci->tac_factor[2]  (SC41L-SC21L): "     << sci->tac_factor[2] << endl;
-//   sci_f << "sci->tac_factor[3]  (SC41R-SC21R): "     << sci->tac_factor[3] << endl;
-//   sci_f << "sci->tac_factor[4]  (SC42L-R): "         << sci->tac_factor[4] << endl;
-//   sci_f << "sci->tac_factor[5]  (SC42L-SC21L): "     << sci->tac_factor[5] << endl;
-//   sci_f << "sci->tac_factor[6]  (SC42R-SC21R): "     << sci->tac_factor[6] << endl;
-//   sci_f << "sci->tac_factor[7]  (SC43L-R): "         << sci->tac_factor[7] << endl;
-//   sci_f << "sci->tac_factor[8]  (SC81L-R): "         << sci->tac_factor[8] << endl;
-//   sci_f << "sci->tac_factor[9]  (SC81L-SC21L): "     << sci->tac_factor[9] << endl;
-//   sci_f << "sci->tac_factor[10] (SC81R-SC21R): "     << sci->tac_factor[10] << endl;
-//   
-//   sci_f << "#" << endl;
-//   sci_f << "#Time of Flight Factors not for online" << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "sci->tof_bll2  (not used online): " << sci->tof_bll2 << endl;
-//   sci_f << "sci->tof_brr2  (not used online): " << sci->tof_brr2 << endl;
-//   sci_f << "sci->tof_bll3  (not used online): " << sci->tof_bll3 << endl;
-//   sci_f << "sci->tof_brr3  (not used online): " << sci->tof_brr3 << endl;
-//   sci_f << "sci->tof_bll4  (not used online): " << sci->tof_bll4 << endl;
-//   sci_f << "sci->tof_brr4  (not used online): " << sci->tof_brr4 << endl;
-//   
-//   sci_f << "#Time of Flight Offsets" << endl;
-//   sci_f << "#" << endl;
-// 
-//   sci_f << "sci->tof_a2  (Tof S41-S21): " << sci->tof_a2 << endl;
-//   sci_f << "sci->tof_a3  (Tof S42-S21): " << sci->tof_a3 << endl;
-//   sci_f << "sci->tof_a4  (Tof S81-S21): " << sci->tof_a4 << endl;
-//   sci_f << "#" << endl;
-// 
-//   
-//   //===========
-//   // ID
-//   //===========
-//   
-//   id_f << "#ID Information" << endl;
-//   id_f << "#ID ToF Paths and Offsets" << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "id->id_tofoff2: " << id->id_tofoff2 << endl;
-//   id_f << "id->id_path2: " << id->id_path2 << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "id->id_tofoff3: " << id->id_tofoff3 << endl;
-//   id_f << "id->id_path3: " << id->id_path3 << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "id->id_tofoff4: " << id->id_tofoff4 << endl;
-//   id_f << "id->id_path4: " << id->id_path4 << endl;
-//   
-//   id_f << "#" << endl;
-//   id_f << "#ID Z and A over Q" << endl;
-//   id_f << "#" << endl;
-// 
-//   for(int i = 0; i < 5; ++i) id_f << "id->ID_Z_AoverQ_num[" << i << "]: " << id->ID_Z_AoverQ_num[i] << endl;
-//   
-//   id_f << "#" << endl;
-// 
-//   for(int i = 0; i < 5; ++i){
-//       
-//  for(int j = 0; j < 2; ++j){
-// 
-//      for(int k = 0; k < 5; ++k) id_f << "id->ID_Z_AoverQ[" << i << "][" << k << "][" << j << "]: " << id->ID_Z_AoverQ[i][k][j] << endl;    
-//      
-//  }
-//       
-//  id_f << "#" << endl;
-// 
-//   }
-//   
-//   id_f << "#" << endl;
-//   id_f << "#ID A over Q (X2)" << endl;
-//   id_f << "#" << endl;
-// 
-//   
-//   
-//   for(int i = 0; i < 6; ++i) id_f << "id->ID_x2AoverQ_num[" << i << "]: " << id->ID_x2AoverQ_num[i] << endl;
-//   
-//   for(int i = 0; i < 6; ++i){
-//       
-//  for(int j = 0; j < 2; ++j){
-// 
-//      for(int k = 0; k < 5; ++k) id_f << "id->ID_x2AoverQ[" << i << "][" << k << "][" << j << "]: " << id->ID_x2AoverQ[i][k][j] << endl;    
-//      
-//  }
-//       
-//         id_f << "#" << endl;
-// 
-//   }
-//   
-//   frs_f << "#" << endl;
-//   frs_f << "#Magnetic Field Values" << endl;
-//   frs_f << "#" << endl;
-// 
-//   for(int i = 0; i < 4; ++i){
-// 
-//     if (i == 0 || i == 2) frs_f << "frs->bfield[" << i << "] FRS D3 Field: " << frs->bfield[i] << endl;
-//     if (i == 1 || i == 3) frs_f << "frs->bfield[" << i << "] FRS D4 Field: " << frs->bfield[i] << endl;
-// 
-//   }
-// 
-//   frs_f << "#" << endl;
-//   frs_f << "#Dispersion" << endl;
-//   frs_f << "#" << endl;
-// 
-//   for(int i = 0; i < 2; ++i) frs_f << "frs->dispersion[" << i << "]: " << frs->dispersion[i] << endl;
-// 
-//   frs_f << "#" << endl;
-//   frs_f << "#Magnification" << endl;
-//   frs_f << "#" << endl;
-// 
-//   frs_f << "frs->magnification[1]: " << frs->magnification[1] << endl;
-// 
-//   frs_f << "#" << endl;
-//   frs_f << "#Rho 0 Values" << endl;
-//   frs_f << "#" << endl;
-// 
-//   frs_f << "frs->rho0[0] FRS (D1+D2)/2 radius: "<< frs->rho0[0]  << endl;
-//   frs_f << "frs->rho0[1] FRS (D3+D4)/2 radius: "<< frs->rho0[1]  << endl;
-// 
-//   frs_f << "#" << endl;
-//   frs_f << "#Z Offsets" << endl;
-//   frs_f << "#" << endl;
-// 
-//   frs_f << "frs->primary_z: "<< frs->primary_z << endl;
-//   frs_f << "frs->offset_z: "<< frs->offset_z << endl;
-//   frs_f << "frs->offset_z2: "<< frs->offset_z2  << endl;
-//   frs_f << "frs->offset_z3: "<< frs->offset_z3  << endl;
-// 
-//   frs_f << "#" << endl;
-//   frs_f << "#AoQ Corr" << endl;
-//   frs_f << "#" << endl;
-// 
-//   frs_f << "frs->a2AoQCorr: " << frs->a2AoQCorr << endl;
-//   frs_f << "frs->a4AoQCorr: " << frs->a2AoQCorr << endl;
-//   
-//   
-//   id_f << "#" << endl;
-//   id_f << "#MUSIC 1 Velocity Correction" << endl;
-//   id_f << "#" << endl;
-//   for(int i = 0; i < 4; ++i) id_f << " id->vel_a[" << i << "]: " << id->vel_a[i] << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "#MUSIC 2 Velocity Correction" << endl;
-//   id_f << "#" << endl;
-//   for(int i = 0; i < 4; ++i) id_f << " id->vel_a2[" << i << "]: " << id->vel_a2[i] << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "#MUSIC 3 Velocity Correction" << endl;
-//   id_f << "#" << endl;
-//   for(int i = 0; i < 4; ++i) id_f << " id->vel_a3[" << i << "]: " << id->vel_a3[i] << endl;
-//   id_f << "#" << endl;
-// 
-//   id_f << "#Gate on Z" << endl;
-//   id_f << "#" << endl;
-//   id_f << "id->zgate_low: " << id->zgate_low  << endl;
-//   id_f << "id->zgate_high: "<< id->zgate_high << endl;
-//   id_f << "#" << endl;
+   /*------------------------------------------------*/
+   /* Identification Plots                           */
+   /*------------------------------------------------*/
 
+   /****  for S2-S4  ****/
 
-  //=======
-  //  Si
-  //=======
-  
-//   si_f << "#Silicon Parameters" << endl;
-//   si_f << "#" << endl;
-//   
-//   si_f << "si->si_factor1: " << si->si_factor1 << endl;
-//   si_f << "si->si_offset1: " << si->si_offset1 << endl;
-//   si_f << "#" << endl;
-// 
-//   si_f << "si->si_factor2: " << si->si_factor2 << endl;
-//   si_f << "si->si_offset2: " << si->si_offset2 << endl;
-//   si_f << "#" << endl;
-// 
-//   si_f << "si->si_factor3: " << si->si_factor3 << endl;
-//   si_f << "si->si_offset3: " << si->si_offset3 << endl;
-//   si_f << "#" << endl;
-// 
-//   si_f << "si->si_factor4: " << si->si_factor4 << endl;
-//   si_f << "si->si_offset4: " << si->si_offset4 << endl;
-//   si_f << "#" << endl;
-// 
-//   
-//   si_f << "#Silicon DSSD Factors" << endl;
-//   si_f << "#" << endl;
-// 
-//   for(int i = 0; i < 32; ++i) si_f << "si->dssd_factor[" << i << "]: " << si->dssd_factor[i] << endl;
-// 
-//   si_f << "#Silicon DSSD Offsets" << endl;
-//   si_f << "#" << endl;
-// 
-//   for(int i = 0; i < 32; ++i) si_f << "si->dssd_offset[" << i << "]: " << si->dssd_offset[i] << endl;
-//   si_f << "#" << endl;
-//   
-  //=========
-  //MR-TOF-MS
-  //=========
-  
-//   mrtof_f << "#MRToF Parameters" << endl;
-//   mrtof_f << "#" << endl;
-// 
-//   
-//   mrtof_f << "mrtof->MRTOFMS_a: "    << mrtof->MRTOFMS_a    << endl;
-//   mrtof_f << "mrtof->MRTOFMS_b: "    << mrtof->MRTOFMS_b    << endl;
-//   mrtof_f << "mrtof->MRTOFMS_t0: "   << mrtof->MRTOFMS_t0   << endl;
-//   mrtof_f << "mrtof->MRTOFMS_TXRS: " << mrtof->MRTOFMS_TXRS << endl;
+   for (int i=0;i<5;i++){
+     id_b_x4AoQ[i] = Check_PolyCond_Multi_X_Y(id_AoQ, id_x4, cID_x4AoQ, 5, 0);
+     id_b_x2AoQ[i] = Check_PolyCond_Multi_X_Y(id_AoQ, id_x2, cID_x2AoQ, 5, 0);
+     id_b_z_AoQ[i] =  Check_PolyCond_Multi_X_Y(id_AoQ, id_z, cID_Z_AoQ, 5, i);
+   }
+}
 
-
- // cout<< "Variables All Written to Respective Files in Directory : "<< setup_directory_name <<endl; 
-    
-    
-//}
     
 void FRS_Detector_System::get_Event_data(Raw_Event* RAW){
         
     RAW->set_DATA_MUSIC(de, de_cor, music_e1, music_e2, music_t1, music_t2); 
     RAW->set_DATA_SCI(sci_l, sci_r, sci_e, sci_tx, sci_x); 
-    RAW->set_DATA_SCI_dT(dt_21l_21r, dt_41l_41r, dt_21l_41l, dt_21r_41r, dt_42l_42r, dt_43l_43r,
-                dt_42l_21l, dt_42r_21r, dt_81l_81r, dt_21l_81l, dt_21r_81r);
+    RAW->set_DATA_SCI_dT(dt_21l_21r, dt_41l_41r, dt_21l_41l, dt_21r_41r, dt_42l_42r, dt_43l_43r,dt_42l_21l, dt_42r_21r, dt_81l_81r, dt_21l_81l, dt_21r_81r);
     RAW->set_DATA_SCI_ToF(sci_tofll2, sci_tofll3, sci_tof2, sci_tofrr2, sci_tofrr3, sci_tof3);
     RAW->set_DATA_TPC(tpc_lt,tpc_rt, tpc_x, tpc_y, x0, x1);
     RAW->set_DATA_ID_2_4(id_x2, id_y2, id_a2, id_b2, id_x4, id_y4, id_a4, id_b4);
     RAW->set_DATA_ID_Beta_Rho(id_brho, id_rho, id_beta, id_beta3, id_gamma);
     RAW->set_DATA_ID_Z_AoQ(id_AoQ, id_AoQ_corr, id_z, id_z2, id_z3);
     RAW->set_DATA_ID_Timestamp(timestamp, ts, ts2);
-    
-    
+    RAW->set_DATA_FRS_SCALERS(time_in_ms,spill_count,ibin_for_s,ibin_for_100ms,ibin_for_spill,ibin_clean_for_s,ibin_clean_for_100ms, ibin_clean_for_spill,increase_scaler_temp);
+
 }
 
 //---------------------------------------------------------------
@@ -4714,9 +3602,9 @@ int* FRS_Detector_System::get_pdata(){return pdata;}
 
 //---------------------------------------------------------------
 
-Float_t FRS_Detector_System::rand0_5(){
+Float_t FRS_Detector_System::rand3(){
     
-  return rand()*1./RAND_MAX;// - 0.5; 
+  return random3.Uniform(-0.5,0.5);
     
 }
 
@@ -5226,6 +4114,7 @@ void FRS_Detector_System::Setup_Conditions(){
     
     cID_x2 = new Float_t[2];
     cID_x4 = new Float_t[2];
+   // cID_x8 = new Float_t[2];
     cID_Z_Z = new Float_t[2];
     
     format = "%f %f";
@@ -5250,6 +4139,16 @@ void FRS_Detector_System::Setup_Conditions(){
         sscanf(line.c_str(),format,&cID_x4[0],&cID_x4[1]);
         
     }
+    
+//      ifstream cond_l("Configuration_Files/FRS_Window_Conditions/ID_x8.txt");
+// 
+//     while(/*cond_l.good()*/getline(cond_l,line,'\n')){
+//     
+//     //getline(cond_l,line,'\n');
+//     if(line[0] == '#') continue;
+//         sscanf(line.c_str(),format,&cID_x8[0],&cID_x8[1]);
+//         
+//     }
     
      ifstream cond_m("Configuration_Files/FRS_Window_Conditions/ID_Z_Z.txt");
 
@@ -5286,16 +4185,19 @@ void FRS_Detector_System::Setup_Conditions(){
     }
     
     cID_x2AoQ = new Float_t**[6];
+    cID_x4AoQ = new Float_t**[6];
     cID_Z_AoQ = new Float_t**[5];
     
     for(int i = 0; i < 6; ++i){
     
     cID_x2AoQ[i] = new Float_t*[6];
+    cID_x4AoQ[i] = new Float_t*[6];
     if (i < 5) cID_Z_AoQ[i] = new Float_t*[6];
     
         for(int j = 0; j < 6; ++j){
         
         cID_x2AoQ[i][j] = new Float_t[2];
+        cID_x4AoQ[i][j] = new Float_t[2];
         if (i < 5) cID_Z_AoQ[i][j] = new Float_t[2];
         
         }
@@ -5318,6 +4220,27 @@ void FRS_Detector_System::Setup_Conditions(){
     }
     
         sscanf(line.c_str(),format,&cID_x2AoQ[selection_number][line_number][0],&cID_x2AoQ[selection_number][line_number][1]);
+        
+    line_number++;
+
+    }
+    
+    line_number = 0;
+    int selection_number_2 = 0;
+
+     ifstream cond_z("Configuration_Files/FRS_Window_Conditions/ID_x4AoQ.txt");
+
+    while(/*cond_b.good()*/getline(cond_z,line,'\n')){
+    
+    //getline(cond_o,line,'\n');
+    if(line[0] == '#') continue;
+    if(line[0] == '&'){
+        selection_number_2++;
+        line_number = 0;
+        continue;
+    }
+    
+        sscanf(line.c_str(),format,&cID_x4AoQ[selection_number_2][line_number][0],&cID_x4AoQ[selection_number_2][line_number][1]);
         
     line_number++;
 
@@ -5394,1229 +4317,12 @@ void FRS_Detector_System::Setup_Conditions(){
    
    
     cMusic3_dec = MakeWindowCond("MUSIC/MUSIC 3","Music3_dec", 10., 4000., "hMUSIC3_dECOR");*/
-    
-    
-    
-    
-    
-}
-
-
-// void FRS_Detector_System::read_config_variables(string config_filename){
-//     
-//     ifstream file(config_filename);
-// 
-//     if(file.fail()){
-//         cerr << "Could not find File for setup parameters!" << endl;
-//         exit(0);
-//     }
-// 
-//     string line;
-// 
-//     for (int i = 0; i < 8; ++i) file.ignore(256,':');
-//     
-//     file.ignore(256,':');
-//     file >> setup_directory_name;//dummy_var;
-// 
-//     file.ignore(256,':');
-//     file >> FRS_File_Setup;//dummy_var;   
-//     
-//         
-// };
-
-void FRS_Detector_System::read_setup_variables_from_file(){
-    
-    /*** ElecMod Parameters ***/
-    
-    ElecMod->Nb_Modules = 64;
-    ElecMod->Nb_QDC = 3;
-    ElecMod->Nb_ADC = 1;
-    ElecMod->Nb_TDC = 5;
-    ElecMod->Nb_Scaler = 2;
-    ElecMod->Nb_TimeStamp = 2;
-    
-    for(int i = 0;i<64;++i)
-    ElecMod->Nb_Channels.insert(std::pair<int,int>(i,32));
-    
-    
-   // Crate FRS procID 10
-  int IdMod = 0;
-  //std::unordered_map<int,int> CrateFRS;
-  std::map<int,int> CrateFRS;
-  CrateFRS.insert(std::pair<int,int>(0,IdMod++)); // 20191113, 1->0
-  CrateFRS.insert(std::pair<int,int>(9,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(8,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(11,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(12,IdMod++));
-
-  //std::unordered_map<int,int> CrateTPC;
-  std::map<int,int> CrateTPC_S4;
-  //CrateTPC.insert(std::pair<int,int>(5,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(8,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(9,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(15,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(3,IdMod++));
-  
-  //std::unordered_map<int,int> CrateUser;
-  std::map<int,int> CrateUser;
-  //CrateUser.insert(std::pair<int,int>(0,IdMod++));
-
-  std::map<int,int> CrateMT;
-  CrateMT.insert(std::pair<int,int>(8,IdMod++));
-  CrateMT.insert(std::pair<int,int>(2,IdMod++));
-  CrateMT.insert(std::pair<int,int>(11,IdMod++));
-
-  std::map<int,int> CrateSOFIA; //added                                                                                                                                 
-  CrateSOFIA.insert(std::pair<int,int>(0,IdMod++));
-  CrateSOFIA.insert(std::pair<int,int>(1,IdMod++));
-  CrateSOFIA.insert(std::pair<int,int>(2,IdMod++));
-
-  std::map<int,int> CrateTPC_S2; //added                                                                                                                                 
-  CrateTPC_S2.insert(std::pair<int,int>(0,IdMod++));
-  CrateTPC_S2.insert(std::pair<int,int>(1,IdMod++));
-  
-  Map1* temp1 = new Map1("temp1");
-  Map1* temp2 = new Map1("temp2");
-  //  Map1* temp21 = new Map1("temp21"); //YT 20191113
-  Map1* temp3 = new Map1("temp3");
-  Map1* temp4 = new Map1("temp4");
-  Map1* temp5 = new Map1("temp5");
-  Map1* temp6 = new Map1("temp6");
-
-  temp1->map=CrateFRS;
-  temp2->map=CrateTPC_S4;
-  // temp21->map=CrateTPC_S2;
-  temp3->map=CrateUser;
-  temp4->map=CrateMT;
-  temp5->map=CrateSOFIA;
-  temp6->map=CrateTPC_S2;
-
-  TObjString* key1 = new TObjString("30"); // 2019 Engineeringrun, FRS crate Proc id = 30 
-  TObjString* key2 = new TObjString("20"); 
-  TObjString* key3 = new TObjString("40");
-  TObjString* key4 = new TObjString("10"); // Main crate with V1290 10
-  TObjString* key5 = new TObjString("50");
-  TObjString* key6 = new TObjString("25");
-
-  // TObjString* key1 = new TObjString("10");
-  //TObjString* key2 = new TObjString("20");
-  //TObjString* key3 = new TObjString("30");
-  // TObjString* key4 = new TObjString("40");
-  // TObjString* key5 = new TObjString("50");
-  // TObjString* key6 = new TObjString("25");
-  
-  ElecMod->Maptemp.Add(key1,temp1);
-  ElecMod->Maptemp.Add(key2,temp2);
-  // ElecMod->Maptemp.Add(key21,temp21);
-  ElecMod->Maptemp.Add(key3,temp3);
-  ElecMod->Maptemp.Add(key4,temp4);
-  ElecMod->Maptemp.Add(key5,temp5);
-  ElecMod->Maptemp.Add(key6,temp6);
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(10,CrateFRS));
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(20,CrateTPC));
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(30,CrateUser));
-  
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(10,CrateFRS));
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(20,CrateTPC));
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(30,CrateUser));
-
-  
-  ElecMod->ModType.push_back("FRS_SC_1");
-  ElecMod->ModType.push_back("FRS_TDC_1");
-  ElecMod->ModType.push_back("FRS_TDC_2");
-  ElecMod->ModType.push_back("FRS_QDC_1");
-  ElecMod->ModType.push_back("FRS_ADC_1");
-  ElecMod->ModType.push_back("TPC_TDC_1");
-  ElecMod->ModType.push_back("TPC_TDC_2");
-  ElecMod->ModType.push_back("TPC_QDC_1");
-  ElecMod->ModType.push_back("TPC_QDC_2");
-  ElecMod->ModType.push_back("USER_MTDC_1");
-  ElecMod->ModType.push_back("MT_SC_1");
-  ElecMod->ModType.push_back("MT_MTDC_1");
-  ElecMod->ModType.push_back("SOFIA_VTX_1");
-  ElecMod->ModType.push_back("SOFIA_MDP_1");
-  ElecMod->ModType.push_back("SOFIA_MADC_1");
-  ElecMod->ModType.push_back("TPCS2_TDC_1");
-  ElecMod->ModType.push_back("TPCS2_ADC_1");
-
-
-  ElecMod->Scaler32bit=1;
-  //ElecMod->EventFlags.push_back(0x00000000);
-  ElecMod->EventFlags.push_back(0x00000100);
-  ElecMod->EventFlags.push_back(0x00000200);
-  ElecMod->EventFlags.push_back(0x00000300);
-  
-
-    
-    ElecMod->setMap();
-    
-    //ElecMod->Print();
-    
-    cout << "Setup done " << endl;
-    
 
 }
 
 
-void FRS_Detector_System::Setup_Parameters(){
-     
-  //======
-  //  MW
-  //======
 
-  mw->x_factor[0] = 0.25; // MW11 [mm/ns] some old value
-  mw->x_factor[1] = 0.25; // MW21
-  mw->x_factor[2] = 0.25; // MW22
-  mw->x_factor[3] = 0.25; // MW31
-  mw->x_factor[4] = 0.25; // MW51 
-  mw->x_factor[5] = 0.25; // MW71
-  mw->x_factor[6] = 0.25; // MW81
-  mw->x_factor[7] = 0.125; // MW82
 
-   
-  mw->x_offset[0] = 5.0; // MW11 Feb 2014
-  mw->x_offset[1] = -2.0; // MW21 Feb 2014
-  mw->x_offset[2] = -1.5; // MW22 Feb 2014
-  mw->x_offset[3] = 5.0; // MW31 like MW11 15.11.19
-  mw->x_offset[4] = -0.205; // MW51
-  mw->x_offset[5] = 1.642; // MW71 //15/05/06
-  mw->x_offset[6] = 1.;   // MW81 //11/05/06
-  mw->x_offset[7] = -5.; // MW82 //27-MAY-2007
 
-  mw->y_factor[0] = 0.25; // MW11 [mm/ns] 14.09.05 CN+AM 2ns/mm delay line 
-  mw->y_factor[1] = 0.25; // MW21
-  mw->y_factor[2] = 0.25; // MW22
-  mw->y_factor[3] = 0.25; // MW31
-  mw->y_factor[4] = 0.25; // MW51 
-  mw->y_factor[5] = 0.25; // MW71
-  mw->y_factor[6] = 0.25; // MW81
-  mw->y_factor[7] = 0.125; // MW82  [mm/ns] 11.05.06  CN 4ns/mm delay line
 
-   
-  mw->y_offset[0] = -14.0;  // MW11 27-MAY-2007 TESTED VALUE WITH SLITS, ok Feb 2014
-  mw->y_offset[1] = 21.0;   // Feb 2014
-  mw->y_offset[2] = -1.0;   // MW22 27-MAY-2007 TESTED VALUE WITH SLITS, ok Feb 2014
-  mw->y_offset[3] = -14.0;    // MW31 like in MW11 15.11.19
-  mw->y_offset[4] = 0.0;     //MW51  ???????
-  mw->y_offset[5] = -2.736;  // MW71 //15/05/06
-  mw->y_offset[6] = 3.2;     // MW81 //11/05/06
-  mw->y_offset[7] = 0.764;  // MW82 //11/05/06
 
-
-  mw->gain_tdc[0][0] = 0.302929; //  MW11 Anode (#ch  0 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][0] = 0.303253; //  MW11 XL    (#ch 17 TDC V775a)
-  mw->gain_tdc[2][0] = 0.303975; //  MW11 XR    (#ch 16 TDC V775a)
-  mw->gain_tdc[3][0] = 0.308414; //  MW11 YU    (#ch 18 TDC V775a)
-  mw->gain_tdc[4][0] = 0.309826; //  MW11 YD    (#ch 19 TDC V775a)
-
-  mw->gain_tdc[0][1] = 0.306064; //  MW21 Anode (#ch  1 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][1] = 0.306958; //  MW21 XL    (#ch 21 TDC V775a)
-  mw->gain_tdc[2][1] = 0.307799; //  MW21 XR    (#ch 20 TDC V775a)
-  mw->gain_tdc[3][1] = 0.297774; //  MW21 YU    (#ch 22 TDC V775a)
-  mw->gain_tdc[4][1] = 0.310235; //  MW21 YD    (#ch 23 TDC V775a)
-
-  mw->gain_tdc[0][2] = 0.301179;  // MW22 Anode (#ch  2 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][2] = 0.311121; //  MW22 XL    (#ch 25 TDC V775a)
-  mw->gain_tdc[2][2] = 0.303233; //  MW22 XR    (#ch 24 TDC V775a)
-  mw->gain_tdc[3][2] = 0.300558; //  MW22 YU    (#ch 26 TDC V775a)
-  mw->gain_tdc[4][2] = 0.301105; //  MW22 YD    (#ch 27 TDC V775a)
-
-  mw->gain_tdc[0][3] = 0.304426; //  MW31 Anode (#ch  3 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][3] = 0.312163; //  MW31 XL    (#ch 29 TDC V775a)
-  mw->gain_tdc[2][3] = 0.305609; //  MW31 XR    (#ch 28 TDC V775a)
-  mw->gain_tdc[3][3] = 0.304716; //  MW31 YU    (#ch 30 TDC V775a)
-  mw->gain_tdc[4][3] = 0.293695; //  MW31 YD    (#ch 31 TDC V775a)
-
-  mw->gain_tdc[0][4] = 0.298871; //  MW41 Anode (#ch  4 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][4] = 0.284086; //  MW41 XL    (#ch 1 TDC V775b)
-  mw->gain_tdc[2][4] = 0.288656; //  MW41 XR    (#ch 0 TDC V775b)
-  mw->gain_tdc[3][4] = 0.286589; //  MW41 YU    (#ch 2 TDC V775b)
-  mw->gain_tdc[4][4] = 0.29269;  //  MW41 YD    (#ch 3 TDC V775b)
-
-  mw->gain_tdc[0][5] = 0.297881; //  MW42 Anode (#ch  5 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][5] = 0.287364; //  MW42 XL    (#ch 5 TDC V775b)
-  mw->gain_tdc[2][5] = 0.289636; //  MW42 XR    (#ch 4 TDC V775b)
-  mw->gain_tdc[3][5] = 0.291135; //  MW42 YU    (#ch 6 TDC V775b)
-  mw->gain_tdc[4][5] = 0.289867; //  MW42 YD    (#ch 7 TDC V775b)
-
-  mw->gain_tdc[0][6] = 0.307892; //  MW51 Anode (#ch  6 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][6] = 0.289894; //  MW51 XL    (#ch  9 TDC V775b)
-  mw->gain_tdc[2][6] = 0.292366; //  MW51 XR    (#ch  8 TDC V775b)
-  mw->gain_tdc[3][6] = 0.284708; //  MW51 YU    (#ch 10 TDC V775b)
-  mw->gain_tdc[4][6] = 0.28186;  //  MW51 YD    (#ch 11 TDC V775b)
-
-  mw->gain_tdc[0][7] = 0.298266; //  MW61 Anode (#ch  7 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][7] = 0.311; //  MW61 XL    (#ch ? TDC V775b)
-  mw->gain_tdc[2][7] = 0.305; //  MW61 XR    (#ch ? TDC V775b)
-  mw->gain_tdc[3][7] = 0.337; //  MW61 YU    (#ch ? TDC V775b)
-  mw->gain_tdc[4][7] = 0.289; //  MW61 YD    (#ch ? TDC V775b)
-
-  mw->gain_tdc[0][8] = 0.303602; //  MW71 Anode (#ch  8 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][8] = 0.300082; //  MW71 XL    (#ch 13 TDC V775b)
-  mw->gain_tdc[2][8] = 0.286092; //  MW71 XR    (#ch 12 TDC V775b)
-  mw->gain_tdc[3][8] = 0.294287; //  MW71 YU    (#ch 14 TDC V775b)
-  mw->gain_tdc[4][8] = 0.291341; //  MW71 YD    (#ch 15 TDC V775b)
-
-  mw->gain_tdc[0][9] = 0.306041; //  MW81 Anode (#ch  9 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][9] = 0.288468; //  MW81 XL    (#ch 17 TDC V775b)
-  mw->gain_tdc[2][9] = 0.293831; //  MW81 XR    (#ch 16 TDC V775b)
-  mw->gain_tdc[3][9] = 0.281296; //  MW81 YU    (#ch 18 TDC V775b)
-  mw->gain_tdc[4][9] = 0.279099; //  MW81 YD    (#ch 19 TDC V775b)
-
-  mw->gain_tdc[0][10] = 0.31314;  //  MW82 Anode (#ch 10 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][10] = 0.287279; //  MW82 XL    (#ch 21 TDC V775b)
-  mw->gain_tdc[2][10] = 0.284028; //  MW82 XR    (#ch 20 TDC V775b)
-  mw->gain_tdc[3][10] = 0.28051;  //  MW82 YU    (#ch 22 TDC V775b)
-  mw->gain_tdc[4][10] = 0.28743;  //  MW82 YD    (#ch 23 TDC V775b)
-
-  mw->gain_tdc[0][11] = 0.299973; //  MWB21 Anode (#ch 11 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][11] = 0.311; //  MWB21 XL    (#ch ? TDC V775b)
-  mw->gain_tdc[2][11] = 0.305; //  MWB21 XR    (#ch ? TDC V775b)
-  mw->gain_tdc[3][11] = 0.337; //  MWB21 YU    (#ch ? TDC V775b)
-  mw->gain_tdc[4][11] = 0.289; //  MWB21 YD    (#ch ? TDC V775b)
-
-  mw->gain_tdc[0][12] = 0.306923; //  MWB22 Anode (#ch 12 TDC V775a) // 13.01.2008
-  mw->gain_tdc[1][12] = 0.311; //  MWB22 XL    (#ch ? TDC V775b)
-  mw->gain_tdc[2][12] = 0.305; //  MWB22 XR    (#ch ? TDC V775b)
-  mw->gain_tdc[3][12] = 0.337; //  MWB22 YU    (#ch ? TDC V775b)
-  mw->gain_tdc[4][12] = 0.289; //  MWB22 YD    (#ch ? TDC V775b)
-
-
-  // frs->dist_focS2   = 2280.0; // [mm] used in exp s441_oct12
-  // frs->dist_focS2   = 3450.0; // [mm] 8.8.2012 for s388: s271 optics with focus 1170 mm after S2 midplane
-  //   frs->dist_focS2   = 1228.0; // [mm] 8.8.2012 for s388 position calculated at S2 X-slits
-  //frs->dist_focS2   = 2165; // [mm] at wedge position S411
-  //frs->dist_focS2   = 2860.; // [mm] at wedge position S417 for dE
-  
-  frs->dist_focS2 = 2012.5; // degrader disk position
-  frs->dist_MW21    =  604.0; // 
-  frs->dist_MW22    = 1782.5; // 
-  frs->dist_SC21    = 1554.5; // 
-  //   frs->dist_MW41    = 1140.0; // ok on air
-  //   frs->dist_MW42    = 2600.0; // ok on air
-
-  frs->dist_focS4   = 2349.0; // at SC411   
-
-  //**S323,410 exp.
-  frs->dist_MUSIC1  = 555.0;  // TUM1
-  frs->dist_MUSIC2  = 1210.0; // TUM2 , now removed
-  frs->dist_MUSIC3  = 1210.0; // Music2 to be adjusted
- 
-  frs->dist_MUSICa1 = 52.5;  // do not change
-  frs->dist_MUSICa2 = 157.5; // do not change
-  frs->dist_MUSICa3 = 262.5; // do not change
-  frs->dist_MUSICa4 = 367.5; // do not change
-
-  //=========
-  // MUSICs
-  //=========
-
-  //MUSIC41
-  music->e1_off[0]   = 0.; //MUSIC41 offsets
-  music->e1_off[1]   = 0.; 
-  music->e1_off[2]   = 0.;
-  music->e1_off[3]   = 0.;
-  music->e1_off[4]   = 0.;
-  music->e1_off[5]   = 0.;
-  music->e1_off[6]   = 0.;
-  music->e1_off[7]   = 0.;
-
-  music->e1_gain[0]   = 1.; // MUSIC41 gains
-  music->e1_gain[1]   = 1.; 
-  music->e1_gain[2]   = 1.;
-  music->e1_gain[3]   = 1.;
-  music->e1_gain[4]   = 1.;
-  music->e1_gain[5]   = 1.;
-  music->e1_gain[6]   = 1.;
-  music->e1_gain[7]   = 1.;
-
-  //MUSIC42
-  music->e2_off[0]   = 0.; //MUSIC42 offsets
-  music->e2_off[1]   = 0.; 
-  music->e2_off[2]   = 0.;
-  music->e2_off[3]   = 0.;
-  music->e2_off[4]   = 0.;
-  music->e2_off[5]   = 0.;
-  music->e2_off[6]   = 0.;
-  music->e2_off[7]   = 0.;
-
-  music->e2_gain[0]   = 1.; //MUSIC42 gains
-  music->e2_gain[1]   = 1.; 
-  music->e2_gain[2]   = 1.;
-  music->e2_gain[3]   = 1.;
-  music->e2_gain[4]   = 1.;
-  music->e2_gain[5]   = 1.;
-  music->e2_gain[6]   = 1.;
-  music->e2_gain[7]   = 1.;
-
-  //MUSIC43
-  music->e3_off[0]   = 0.; //MUSIC3 offsets
-  music->e3_off[1]   = 0.; 
-  music->e3_off[2]   = 0.;
-  music->e3_off[3]   = 0.;
-  
-  music->e3_gain[0]   = 1.; // MUSIC3 gains
-  music->e3_gain[1]   = 1.; 
-  music->e3_gain[2]   = 1.;
-  music->e3_gain[3]   = 1.;
-
-  music->pos_a1[0]   = 1.0;   // C0...Cn position correction not used
-  music->pos_a1[1]   = 0.0;
-  music->pos_a1[2]   = 0.0;
-  music->pos_a1[3]   = 0.0;
-  music->pos_a1[4]   = 0.0;
-  music->pos_a1[5]   = 0.0;
-  music->pos_a1[6]   = 0.0;
-
-
-  //=========
-  //  TPCs
-  //=========
-  
-  //TPC 1 at S2 (TPC 21) in vaccuum  
-  tpc->x_factor[0][0] = 0.079646;
-  tpc->x_factor[0][1] = 0.079243;
-  tpc->y_factor[0][0] = 0.03207;
-  tpc->y_factor[0][1] = 0.03135;
-  tpc->y_factor[0][2] = 0.031126;
-  tpc->y_factor[0][3] = 0.032056; 
-     
-  tpc->x_offset[0][0] = -26.576;
-  tpc->x_offset[0][1] = -52.23;
-  tpc->y_offset[0][0] = -55.435 -3.708;
-  tpc->y_offset[0][1] = -52.347 -3.625;
-  tpc->y_offset[0][2] = -50.448 -3.599;
-  tpc->y_offset[0][3] = -57.084 -3.707;
-  
-
-  //TPC 2 at S2 (TPC 22) in vaccuum
-  tpc->x_factor[1][0] = 0.065251;
-  tpc->x_factor[1][1] = 0.063554;
-  tpc->y_factor[1][0] = 0.031488;
-  tpc->y_factor[1][1] = 0.031949;
-  tpc->y_factor[1][2] = 0.031321;
-  tpc->y_factor[1][3] = 0.03171;  
-
-  tpc->x_offset[1][0] = -33.958;
-  tpc->x_offset[1][1] = -36.597;
-  tpc->y_offset[1][0] = -52.579 -3.622;
-  tpc->y_offset[1][1] = -55.077 -3.675;
-  tpc->y_offset[1][2] = -47.418 -3.602;
-  tpc->y_offset[1][3] = -51.457 -3.647;
-  
-
-  //TPC 3 at S2 (TPC 23) in air 
-  tpc->x_factor[2][0] = 0.070128;  //L-R time 0
-  tpc->x_factor[2][1] = 0.071489;  //L-R time 1
-  tpc->y_factor[2][0] = -0.036481; //drift time 0
-  tpc->y_factor[2][1] = -0.036863; //drift time 1
-  tpc->y_factor[2][2] = -0.037120; //drift time 2
-  tpc->y_factor[2][3] = -0.037125; //drift time 3
-
-  //tpc->x_offset[2][0] = 0.81+3.24-0.14; //21.10.2014
-  //tpc->x_offset[2][1] = 0.03+3.24-0.14; //21.10.2014
-  //tpc->y_offset[2][0] = 19.2;
-  //tpc->y_offset[2][1] = 19.7;
-  //tpc->y_offset[2][2] = 18.9;
-  //tpc->y_offset[2][3] = 19.2;
-  
-  tpc->x_offset[2][0] = 0.81-4.9; //2016Jul9
-  tpc->x_offset[2][1] = 0.03-4.9; //2016Jul9 
-  tpc->y_offset[2][0] = 19.2+49.8;//2016Jul9  
-  tpc->y_offset[2][1] = 19.7+49.8;//2016Jul9  
-  tpc->y_offset[2][2] = 18.9+49.8;//2016Jul9  
-  tpc->y_offset[2][3] = 19.2+49.8;//2016Jul9
-  
-
-  //TPC 4 at S2 (TPC 24) in air
-  tpc->x_factor[3][0] = 0.068179;
-  tpc->x_factor[3][1] = 0.066689;
-  tpc->y_factor[3][0] = -0.0412;
-  tpc->y_factor[3][1] = -0.0411;
-  tpc->y_factor[3][2] = -0.0404;
-  tpc->y_factor[3][3] = -0.0418;
-
-  //tpc->x_offset[3][0] = -0.37+6.0-1.3; //21.10.2014
-  //tpc->x_offset[3][1] = 2.3+6.0-1.3; //21.10.2014
-  //tpc->y_offset[3][0] = 28.0;
-  //tpc->y_offset[3][1] = 28.4;
-  //tpc->y_offset[3][2] = 28.4;
-  //tpc->y_offset[3][3] = 27.8;
-
-  tpc->x_offset[3][0] = -0.37+6.0-1.3 -4.8;//2016Jul9
-  tpc->x_offset[3][1] = 2.3+6.0-1.3-4.8;//2016Jul9
-  tpc->y_offset[3][0] = 28.0+48.9;//2016Jul9
-  tpc->y_offset[3][1] = 28.4+48.9;//2016Jul9
-  tpc->y_offset[3][2] = 28.4+48.9;//2016Jul9
-  tpc->y_offset[3][3] = 27.8+48.9; //2016Jul9
-  
-
-  //TPC 5  at S4 (TPC 41) in air
-  tpc->x_factor[4][0] = (0.086757);
-  tpc->x_factor[4][1] = (0.085185);
-  tpc->y_factor[4][0] = (-0.042107);
-  tpc->y_factor[4][1] = (-0.042767);
-  tpc->y_factor[4][2] = (-0.041949);
-  tpc->y_factor[4][3] = (-0.041911);
-
-  tpc->x_offset[4][0] = (-2.2117);
-  tpc->x_offset[4][1] = (1.827);
-  tpc->y_offset[4][0] = (66.006) +3.842;
-  tpc->y_offset[4][1] = (66.287) +3/897;
-  tpc->y_offset[4][2] = (65.527) +3.822;
-  tpc->y_offset[4][3] = (65.286) +3.819;
-
-  
-  //tpc->x_factor[4][0] = 0.0701334;
-  //tpc->x_factor[4][1] = 0.0719196;
-  //tpc->y_factor[4][0] =-0.03644;
-  //tpc->y_factor[4][1] =-0.03624;
-  //tpc->y_factor[4][2] =-0.03709;
-  //tpc->y_factor[4][3] =-0.03729;
-
-  //tpc->x_offset[4][0] = 0.86+5.4-4.1; //21.10.2014
-  //tpc->x_offset[4][1] =-2.35+5.4-4.1; //21.10.2014
-  //tpc->y_offset[4][0] = 30.6;
-  //tpc->y_offset[4][1] = 30.9;
-  //tpc->y_offset[4][2] = 32.2;
-  //tpc->y_offset[4][3] = 32.1;
- 
-
-  //TPC 6 at S4 (TPC 42) in air
-  tpc->x_factor[5][0] = (0.083599);
-  tpc->x_factor[5][1] = (0.083599);
-  tpc->y_factor[5][0] = (-0.041885);
-  tpc->y_factor[5][1] = (-0.04219);
-  tpc->y_factor[5][2] = (-0.04313);
-  tpc->y_factor[5][3] = (-0.042084);
-
-  tpc->x_offset[5][0] = (-3.6323);
-  tpc->x_offset[5][1] = (-3.7713) ;
-  tpc->y_offset[5][0] = (60.363) +3.350;
-  tpc->y_offset[5][1] =  (60.58) +3.375;
-  tpc->y_offset[5][2] = (58.993) +3.449;
-  tpc->y_offset[5][3] = (58.805) +3.366;
-  
-  
-  //tpc->x_factor[5][0] = 0.071256;
-  //tpc->x_factor[5][1] = 0.072858;
-  //tpc->y_factor[5][0] =-0.04215;
-  //tpc->y_factor[5][1] =-0.04161;
-  //tpc->y_factor[5][2] =-0.04100;
-  //tpc->y_factor[5][3] =-0.04025;
-
-  //tpc->x_offset[5][0] = -0.4-0.3+0.35; //21.10.2014
-  //tpc->x_offset[5][1] = 1.1-0.3+0.35; //21.10.2014
-  //tpc->y_offset[5][0] = 22.6;
-  //tpc->y_offset[5][1] = 21.9;
-  //tpc->y_offset[5][2] = 20.7;
-  //tpc->y_offset[5][3] = 20.4;
-  
-
-  //TPC at S3 (TPC 31)
-//    tpc->x_factor[6][0] = 12.423937;
-//   tpc->x_factor[6][1] = 5.771517;
-//   tpc->y_factor[6][0] = 0.083178;
-//   tpc->y_factor[6][1] = 0.081852;
-//   tpc->y_factor[6][2] = 0.032;
-//   tpc->y_factor[6][3] = 0.032;
-//   
-//   
-// 
-//   tpc->x_offset[6][0] = 0.;
-//   tpc->x_offset[6][1] = 0.;
-//   tpc->y_offset[6][0] = -50.;
-//   tpc->y_offset[6][1] = -50.;
-//   tpc->y_offset[6][2] = -50.;
-//   tpc->y_offset[6][3] = -50.;
-  
-  tpc->x_offset[6][0] = 12.423937;
-  tpc->x_offset[6][1] = 5.771517;
-  tpc->x_factor[6][0] = 0.083178;
-  tpc->x_factor[6][1] = 0.081852;
-  tpc->y_offset[6][0] = -51.080220;
-  tpc->y_offset[6][1] = -67.488923;
-  tpc->y_offset[6][2] = -35.682118;
-  tpc->y_offset[6][3] = -63.732814;
-  tpc->y_factor[6][0] = 0.047685;
-  tpc->y_factor[6][1] = 0.048059;
-  tpc->y_factor[6][2] = 0.047611;
-  tpc->y_factor[6][3] = 0.047218; 
-
-
-  //===========
-  // Plastics
-  //===========
-
-   //index 2 for Sc21  
-  //sci->x_a[0][2] =  -2065.2-27+55;  //  SC21 calibration ch->mm 27.05.2016
-  //sci->x_a[1][2] =  0.73; //  27.05.2016 
-  sci->x_a[0][2] =  -1.0*(-2065.2-27.+55.-29.);  // YT 2016/Jun/14, See Logbook p212-214
-  sci->x_a[1][2] =  -1.0*(0.73); //  YT 2016/Jun/14, See Logbook p212-214         
-  sci->x_a[2][2] =  0.000000;  // 
-  sci->x_a[3][2] =  0.000000;  //                            
-  sci->x_a[4][2] =  0.000000;  //                             
-  sci->x_a[5][2] =  0.000000;  //                             
-  sci->x_a[6][2] =  0.000000;  //  
-  
-  /*
-  // index 2 for Sc21  
-  sci->x_a[0][2] = 1184.51;  //  SC21 calibration ch->mm 
-  sci->x_a[1][2] =  -0.5206; //  s323 test run: Xe fragments run
-  sci->x_a[2][2] =  0.000000;  // 
-  sci->x_a[3][2] =  0.000000;  //                            
-  sci->x_a[4][2] =  0.000000;  //                             
-  sci->x_a[5][2] =  0.000000;  //                             
-  sci->x_a[6][2] =  0.000000;  //    
-  */
-
-  // index 5 for Sc41
-  sci->x_a[0][5] = -5.84328*330.;  //  SC41 calibration ch->mm 
-  sci->x_a[1][5] = 0.00558294;  //
-  sci->x_a[2][5] = 0.000000;   //
-  sci->x_a[3][5] = 0.000000;   //                            
-  sci->x_a[4][5] = 0.000000;   //                             
-  sci->x_a[5][5] = 0.000000;   //                             
-  sci->x_a[6][5] = 0.000000;   //    
-
-  // index 6 for Sc42
-  sci->x_a[0][6] = 0.; //   SC42 calibration ch->mm 
-  sci->x_a[1][6] = 1.; // 
-  sci->x_a[2][6] = 0.000000;  // 
-  sci->x_a[3][6] = 0.000000;  //                            
-  sci->x_a[4][6] = 0.000000;  //                             
-  sci->x_a[5][6] = 0.000000;  //                             
-  sci->x_a[6][6] = 0.000000;  //
-
-   // index 7 for Sc43
-  sci->x_a[0][7] = 0.; //   SC43 calibration ch->mm 
-  sci->x_a[1][7] = 1.; // 
-  sci->x_a[2][7] = 0.000000;  // 
-  sci->x_a[3][7] = 0.000000;  //                            
-  sci->x_a[4][7] = 0.000000;  //                             
-  sci->x_a[5][7] = 0.000000;  //                             
-  sci->x_a[6][7] = 0.000000;  //
-
-   // index 10 for Sc81
-  sci->x_a[0][10] = 0.; //   SC81 calibration ch->mm 
-  sci->x_a[1][10] = 1.; // 
-  sci->x_a[2][10] = 0.000000;  // 
-  sci->x_a[3][10] = 0.000000;  //                            
-  sci->x_a[4][10] = 0.000000;  //                             
-  sci->x_a[5][10] = 0.000000;  //                             
-  sci->x_a[6][10] = 0.000000;  // 
-
-
-
-  // TOF
-  /*
-  sci->tac_off[0] = 12027.1;  //SC21L-R  
-  sci->tac_off[1] = 5843.28;  //SC41L-R 
-  sci->tac_off[2] = 7718.14;  //SC41L-SC21L
-  sci->tac_off[3] = 8452.87;  //SC41R-SC21R
-  sci->tac_off[4] = 0.;  //SC42L-R
-  sci->tac_off[5] = 0.;  //SC42L-SC21L
-  sci->tac_off[6] = 0.;  //SC42R-SC21R
-  sci->tac_off[7] = 0.;  //SC43L-R
-  sci->tac_off[8] = 0.;  //SC81L-R
-  sci->tac_off[9] = 0.;  //SC81L-SC21L
-  sci->tac_off[10] = 0.;  //SC81R-SC21R
-  
-
-  sci->tac_off[0] = 2327.95;  //SC21L-R  
-  sci->tac_off[1] = 1447.37;  //SC41L-R 
-  sci->tac_off[2] = 1833.28;  //SC41L-SC21L
-  sci->tac_off[3] = 1972.59;  //SC41R-SC21R
-  sci->tac_off[4] = 2073.4;  //SC42L-R
-  sci->tac_off[5] = 1542.25;  //SC42L-SC21L
-  sci->tac_off[6] = 1729.58;  //SC42R-SC21R
-  sci->tac_off[7] = 1441.13;  //SC43L-R
-  sci->tac_off[8] = 1777.77;  //SC81L-R
-  sci->tac_off[9] = 3020.83;  //SC81L-SC21L
-  sci->tac_off[10] = 1740.21;  //SC81R-SC21R
-  */
-
-  //tac offset values put on 27-03-2019 
-  sci->tac_off[0] = -4865.98;  //SC21L-R  
-  sci->tac_off[1] = -4844.16;  //SC41L-R 
-  //sci->tac_off[2] = -538.608;  //SC41L-SC21L
-  //sci->tac_off[3] = 559.745;  //SC41R-SC21R
-
-  // removed by  Ekawa 20-11-2019
-  //  sci->tac_off[2] = 229597;  //SC41L-SC21L
-  //  sci->tac_off[3] = 228917;  //SC41R-SC21R
-
-  // added by Ekawa 20-11-2019
-/* sci->tac_off[2] = -38093.;  //SC41L-SC21L
- sci->tac_off[3] = -38773.;*/  //SC41R-SC21R
- 
-  // ------ ok for Ar beam and Si fragments ER2019/Nov-----
-  sci->tac_off[2] = -38093.;  //SC41L-SC21L  Ekawa 20-11-2019
-  sci->tac_off[3] = -38773.;  //SC41R-SC21R  Ekawa 20-11-2019
-  
-  // ------ now tuning for U beam 2019Dec
-  sci->tac_off[2] = 0.0;  //SC41L-SC21L   only adjust overall offset
-  sci->tac_off[3] = 0.0;  //SC41L-SC21L  only adjust overall offset
-  // TAC calibration factors assumed for agata
-  //   sci->tac_factor[0] = 5.571;   //SC21L-R [ps/ch]  , range 25 ns
-  //   sci->tac_factor[1] = 5.604;   //SC41L-R [ps/ch]  , range 25 ns  
-  // sci->tac_factor[0] = 5.89623;   //SC21L-R [ps/ch]  , range 25 ns, CH 19.10.2014
-  // sci->tac_factor[1] = 5.51268;   //SC41L-R [ps/ch]  , range 25 ns, CH 19.10.2014
-  // sci->tac_factor[4] = 5.609;      //SC42L-R [ps/ch]  , range 25 ns
-
-  // //   sci->tac_factor[2] = 16.809;  // SC41L-SC21L [ps/ch] , range 75 ns
-  // //   sci->tac_factor[3] = 17.149;  // SC41R-SC21R [ps/ch] , range 75 ns 
-  // sci->tac_factor[2] = 10.55619;  // SC41L-SC21L [ps/ch] , range 50 ns, CH 19.10.2014
-  // sci->tac_factor[3] = 11.17427;  // SC41R-SC21R [ps/ch] , range 50 ns, CH 19.10.2014 
-
-  /*
-  sci->tac_factor[0] = 10.4297;   //SC21L-R [ps/ch], range 10 ns 
-  sci->tac_factor[1] = 5.58294;   //SC41L-R [ps/ch], range 10 ns
-  sci->tac_factor[2] = 20.8056;   //SC41L-SC21L [ps/ch], range 10 ns
-  sci->tac_factor[3] = 21.806;    //SC41R-SC21R [ps/ch], range 10 ns
-  sci->tac_factor[4] = 1.;        //SC42L-R
-  sci->tac_factor[5] = 1.;        //SC42L-SC21L
-  sci->tac_factor[6] = 1.;        //SC42R-SC21R
-  sci->tac_factor[7] = 1.;        //SC43L-R
-  sci->tac_factor[8] = 1.;        //SC81L-R
-  sci->tac_factor[9] = 1.;        //SC81L-SC21L
-  sci->tac_factor[10] = 1.;        //SC81R-SC21R
-  
-
-  sci->tac_factor[0] = 20.6895;   //SC21L-R [ps/ch], range 10 ns 
-  sci->tac_factor[1] = 26.3158;   //SC41L-R [ps/ch], range 10 ns
-  sci->tac_factor[2] = 22.0238;   //SC41L-SC21L [ps/ch], range 10 ns
-  sci->tac_factor[3] = 21.6549;    //SC41R-SC21R [ps/ch], range 10 ns
-  sci->tac_factor[4] = 20.8798;        //SC42L-R
-  sci->tac_factor[5] = 21.3739;        //SC42L-SC21L
-  sci->tac_factor[6] = 21.0525;        //SC42R-SC21R
-  sci->tac_factor[7] = 21.8067;        //SC43L-R
-  sci->tac_factor[8] = 20.911;        //SC81L-R
-  sci->tac_factor[9] = 20.8333;        //SC81L-SC21L
-  sci->tac_factor[10] = 20.1292;        //SC81R-SC21R
-  */
-
-  
-  //TAC factor added on 27-03-2019
-  sci->tac_factor[0] = 15.097;   //SC21L-R [ps/ch]
-  sci->tac_factor[1] = 10.678;   //SC41L-R [ps/ch]
-  // mod by Ekawa 20-11-2019
-  sci->tac_factor[2] = 11.11;   //SC41L-SC21L [ps/ch]
-  sci->tac_factor[3] = 10.94;    //SC41R-SC21R [ps/ch]
-
-  sci->tof_bll2  = 1.;    // not used online [ps/ch]
-  sci->tof_brr2  = 1.;    // not used online
-  sci->tof_bll3  = 1.;    // not used online 
-  sci->tof_brr3  = 1.;    // not used online
-  sci->tof_bll4  = 1.;    // not used online 
-  sci->tof_brr4  = 1.;    // not used online
-
-  sci->tof_a2 = 0.; // [ps] offset   Tof S41-S21
-  sci->tof_a3 = 0.; // [ps] offset   Tof S42-S21
-  sci->tof_a4 = 0.; // [ps] offset   Tof S81-S21
-
-
-  //   id->id_tofoff2  = 197689.0; // [ps]  S41-S21 from 9.Oct on because of TAC-LL shift
-  //   id->id_path2    = 119120.0;
-
-  // used for ToF S2-S4, extracted from agata calib
-  //id->id_tofoff2  = 175940.0; // [ps]  S411 21.10.2014
-  //id->id_path2    = 126160.0; // path/c [ps]  S411_48 21.10.2014 
-  //id->id_tofoff2  = 170680.0; // [ps]  S411 22.10.2014
-  //id->id_tofoff2  = 170470.0; // [ps]  S411 shifted 25.10.2014
-  //id->id_path2    = 121730.0; // path/c [ps]  S411_48 22.10.2014 
-
-  //  id->id_tofoff2  = 202971  ; // [ps]  S411_86 fit with only one point shifted 25
-  //  id->id_path2    = 125329.2; // path/c [ps]  S411 Uranium data -8.6cm
-
-  //  id->id_tofoff2  = 200120.  ; // [ps]  S411_149 with 12C
-  //  id->id_path2    = 120450. ; // path/c [ps]  old from Xe in June 2016
-  id-> id_tofoff2 =  174541;    // Offset (ps)
-  id-> id_path2   =   122389.;  // Path/c (ps) this number fit
-  
-  id->id_tofoff3  = 210000.;   // [ps] //check
-  id->id_path3    = 120000.;   // path/c [ps] //check
-
-  id->id_tofoff4  = 210000.;   // [ps]  //check 
-  id->id_path4    = 120000.;   // path/c [ps]  //check
-
-  id->ID_Z_AoverQ_num[0]=5; 
-  id->ID_Z_AoverQ_num[1]=5; 
-  id->ID_Z_AoverQ_num[2]=5; 
-  id->ID_Z_AoverQ_num[3]=5; 
-  id->ID_Z_AoverQ_num[4]=5; 
-
-  id->ID_Z_AoverQ[0][0][0]=2.208      ; id->ID_Z_AoverQ[0][0][1]=90;
-  id->ID_Z_AoverQ[0][1][0]=2.208      ; id->ID_Z_AoverQ[0][1][1]=40;
-  id->ID_Z_AoverQ[0][2][0]=2.220      ; id->ID_Z_AoverQ[0][2][1]=40;
-  id->ID_Z_AoverQ[0][3][0]=2.220      ; id->ID_Z_AoverQ[0][3][1]=90;
-  id->ID_Z_AoverQ[0][4][0]=2.208      ; id->ID_Z_AoverQ[0][4][1]=90;
-
-  id->ID_Z_AoverQ[1][0][0]=2.208+0.012; id->ID_Z_AoverQ[1][0][1]=1180; 
-  id->ID_Z_AoverQ[1][1][0]=2.208+0.012; id->ID_Z_AoverQ[1][1][1]=0; 
-  id->ID_Z_AoverQ[1][2][0]=2.220+0.012; id->ID_Z_AoverQ[1][2][1]=0; 
-  id->ID_Z_AoverQ[1][3][0]=2.220+0.012; id->ID_Z_AoverQ[1][3][1]=1180; 
-  id->ID_Z_AoverQ[1][4][0]=2.208+0.012; id->ID_Z_AoverQ[1][4][1]=1180; 
-
-  id->ID_Z_AoverQ[2][0][0]=2.208+0.024; id->ID_Z_AoverQ[2][0][1]=1180; 
-  id->ID_Z_AoverQ[2][1][0]=2.208+0.024; id->ID_Z_AoverQ[2][1][1]=60; 
-  id->ID_Z_AoverQ[2][2][0]=2.220+0.024; id->ID_Z_AoverQ[2][2][1]=60; 
-  id->ID_Z_AoverQ[2][3][0]=2.220+0.024; id->ID_Z_AoverQ[2][3][1]=1180; 
-  id->ID_Z_AoverQ[2][4][0]=2.208+0.024; id->ID_Z_AoverQ[2][4][1]=1180; 
-
-  id->ID_Z_AoverQ[3][0][0]=2.208+0.036; id->ID_Z_AoverQ[3][0][1]=1180; 
-  id->ID_Z_AoverQ[3][1][0]=2.208+0.036; id->ID_Z_AoverQ[3][1][1]=60; 
-  id->ID_Z_AoverQ[3][2][0]=2.220+0.036; id->ID_Z_AoverQ[3][2][1]=60; 
-  id->ID_Z_AoverQ[3][3][0]=2.220+0.036; id->ID_Z_AoverQ[3][3][1]=1180; 
-  id->ID_Z_AoverQ[3][4][0]=2.208+0.036; id->ID_Z_AoverQ[3][4][1]=1180; 
-
-  id->ID_Z_AoverQ[4][0][0]=2.208+0.048; id->ID_Z_AoverQ[4][0][1]=1180; 
-  id->ID_Z_AoverQ[4][1][0]=2.208+0.048; id->ID_Z_AoverQ[4][1][1]=60; 
-  id->ID_Z_AoverQ[4][2][0]=2.220+0.048; id->ID_Z_AoverQ[4][2][1]=60; 
-  id->ID_Z_AoverQ[4][3][0]=2.220+0.048; id->ID_Z_AoverQ[4][3][1]=1180; 
-  id->ID_Z_AoverQ[4][4][0]=2.208+0.048; id->ID_Z_AoverQ[4][4][1]=1180; 
-
-
-  id->ID_x2AoverQ_num[0]=5; 
-  id->ID_x2AoverQ_num[1]=5; 
-  id->ID_x2AoverQ_num[2]=5; 
-  id->ID_x2AoverQ_num[3]=5; 
-  id->ID_x2AoverQ_num[4]=5; 
-  id->ID_x2AoverQ_num[5]=5; 
-// <<<<<<< Updated upstream
-//   id->ID_x2AoverQ[0][0][0]=2.208      ; id->ID_x2AoverQ[0][0][1]=-100;
-//   id->ID_x2AoverQ[0][1][0]=2.208      ; id->ID_x2AoverQ[0][1][1]=100;
-//   id->ID_x2AoverQ[0][2][0]=2.220      ; id->ID_x2AoverQ[0][2][1]=100;
-//   id->ID_x2AoverQ[0][3][0]=2.220      ; id->ID_x2AoverQ[0][3][1]=-100;
-//   id->ID_x2AoverQ[0][4][0]=2.208      ; id->ID_x2AoverQ[0][4][1]=-100;
-                                      
-//   id->ID_x2AoverQ[1][0][0]=2.208+0.012; id->ID_x2AoverQ[1][0][1]=-100; 
-//   id->ID_x2AoverQ[1][1][0]=2.208+0.012; id->ID_x2AoverQ[1][1][1]=100; 
-//   id->ID_x2AoverQ[1][2][0]=2.220+0.012; id->ID_x2AoverQ[1][2][1]=100; 
-//   id->ID_x2AoverQ[1][3][0]=2.220+0.012; id->ID_x2AoverQ[1][3][1]=-100; 
-//   id->ID_x2AoverQ[1][4][0]=2.208+0.012; id->ID_x2AoverQ[1][4][1]=-100; 
-                                      
-//   id->ID_x2AoverQ[2][0][0]=2.208+0.024; id->ID_x2AoverQ[2][0][1]=-100; 
-//   id->ID_x2AoverQ[2][1][0]=2.208+0.024; id->ID_x2AoverQ[2][1][1]=100; 
-//   id->ID_x2AoverQ[2][2][0]=2.220+0.024; id->ID_x2AoverQ[2][2][1]=100; 
-//   id->ID_x2AoverQ[2][3][0]=2.220+0.024; id->ID_x2AoverQ[2][3][1]=-100; 
-//   id->ID_x2AoverQ[2][4][0]=2.208+0.024; id->ID_x2AoverQ[2][4][1]=-100; 
-                                      
-//   id->ID_x2AoverQ[3][0][0]=2.208+0.036; id->ID_x2AoverQ[3][0][1]=-100; 
-//   id->ID_x2AoverQ[3][1][0]=2.208+0.036; id->ID_x2AoverQ[3][1][1]=100; 
-//   id->ID_x2AoverQ[3][2][0]=2.220+0.036; id->ID_x2AoverQ[3][2][1]=100; 
-//   id->ID_x2AoverQ[3][3][0]=2.220+0.036; id->ID_x2AoverQ[3][3][1]=-100; 
-//   id->ID_x2AoverQ[3][4][0]=2.208+0.036; id->ID_x2AoverQ[3][4][1]=-100; 
-                                      
-//   id->ID_x2AoverQ[4][0][0]=2.208+0.048; id->ID_x2AoverQ[4][0][1]=-100; 
-//   id->ID_x2AoverQ[4][1][0]=2.208+0.048; id->ID_x2AoverQ[4][1][1]=100; 
-//   id->ID_x2AoverQ[4][2][0]=2.220+0.048; id->ID_x2AoverQ[4][2][1]=100; 
-//   id->ID_x2AoverQ[4][3][0]=2.220+0.048; id->ID_x2AoverQ[4][3][1]=-100; 
-//   id->ID_x2AoverQ[4][4][0]=2.208+0.048; id->ID_x2AoverQ[4][4][1]=-100; 
-// =======
-
-
-  id->ID_x2AoverQ[0][0][0]=2.24433; id->ID_x2AoverQ[0][0][1]=42.5864;
- id->ID_x2AoverQ[0][1][0]=2.17429; id->ID_x2AoverQ[0][1][1]=-68.2431;
- id->ID_x2AoverQ[0][2][0]=2.18351; id->ID_x2AoverQ[0][2][1]=-70.9073;
- id->ID_x2AoverQ[0][3][0]=2.2573; id->ID_x2AoverQ[0][3][1]=40.9879;
- id->ID_x2AoverQ[0][4][0]=2.24433;id->ID_x2AoverQ[0][4][1]=42.5864;
- 
-  id->ID_x2AoverQ[1][0][0]=2.27782; id->ID_x2AoverQ[1][0][1]=58.1797; 
-  id->ID_x2AoverQ[1][1][0]=2.18477; id->ID_x2AoverQ[1][1][1]=-66.2442; 
-  id->ID_x2AoverQ[1][2][0]=2.19417; id->ID_x2AoverQ[1][2][1]=-69.7005; 
-  id->ID_x2AoverQ[1][3][0]=2.29192; id->ID_x2AoverQ[1][3][1]=57.0277; 
-  id->ID_x2AoverQ[1][4][0]=2.27782; id->ID_x2AoverQ[1][4][1]=58.1797; 
-
-  id->ID_x2AoverQ[2][0][0]=2.28597; id->ID_x2AoverQ[2][0][1]=40.8986; 
-  id->ID_x2AoverQ[2][1][0]=2.19548; id->ID_x2AoverQ[2][1][1]=-69.1244; 
-  id->ID_x2AoverQ[2][2][0]=2.21129; id->ID_x2AoverQ[2][2][1]=-69.1244; 
-  id->ID_x2AoverQ[2][3][0]=2.30014; id->ID_x2AoverQ[2][3][1]=40.3226; 
-  id->ID_x2AoverQ[2][4][0]=2.28597; id->ID_x2AoverQ[2][4][1]=40.8986; 
-
-  id->ID_x2AoverQ[3][0][0]=2.30468; id->ID_x2AoverQ[3][0][1]=41.0484; 
-  id->ID_x2AoverQ[3][1][0]=2.20712; id->ID_x2AoverQ[3][1][1]=-73.4407; 
-  id->ID_x2AoverQ[3][2][0]=2.22237; id->ID_x2AoverQ[3][2][1]=-73.1567; 
-  id->ID_x2AoverQ[3][3][0]=2.32009; id->ID_x2AoverQ[3][3][1]=41.0484; 
-  id->ID_x2AoverQ[3][4][0]=2.30468; id->ID_x2AoverQ[3][4][1]=41.0484; 
-  
-  id->ID_x2AoverQ[4][0][0]=2.32064; id->ID_x2AoverQ[4][0][1]=39.6964; 
-  id->ID_x2AoverQ[4][1][0]=2.22332; id->ID_x2AoverQ[4][1][1]=-73.875; 
-  id->ID_x2AoverQ[4][2][0]=2.23886; id->ID_x2AoverQ[4][2][1]=-73.517; 
-  id->ID_x2AoverQ[4][3][0]=2.33663; id->ID_x2AoverQ[4][3][1]=39.6964; 
-  id->ID_x2AoverQ[4][4][0]=2.32064; id->ID_x2AoverQ[4][4][1]=39.6964; 
-  
-  id->ID_x2AoverQ[5][0][0]=2.26732; id->ID_x2AoverQ[5][0][1]=84.9736; 
-  id->ID_x2AoverQ[5][1][0]=2.35488; id->ID_x2AoverQ[5][1][1]=78.52  ; 
-  id->ID_x2AoverQ[5][2][0]=2.34538; id->ID_x2AoverQ[5][2][1]=75.078 ; 
-  id->ID_x2AoverQ[5][3][0]=2.24458; id->ID_x2AoverQ[5][3][1]=82.0336; 
-  id->ID_x2AoverQ[5][4][0]=2.26732; id->ID_x2AoverQ[5][4][1]=84.9736; 
-
-  // infinite gating
-
-  // Change the magnetic field here 107Ag                                                                                  
-  //frs->bfield[0] = 0.74845;      // FRS D3 field [Tesla]
-  //frs->bfield[1] = 0.73574;      // FRS D4 field [Tesla]  
-  //frs->bfield[2] = 0.7178;       // FRS D3 field [Tesla]
-  //frs->bfield[3] = 0.73174;      // FRS D4 field [Tesla] 
-
-
-/// 40Ar, setting 18
-//  frs->bfield[0] = 5.2275;// Brho 2019-Nov20       // FRS D1
-//  frs->bfield[1] = 5.2275;// Brho 2019-Nov20      // FRS D2 field [Tesla]  
-//  frs->bfield[2] = 4.9067;// Brho 2019-Nov20       // FRS D3 field [Tesla]
-//  frs->bfield[3] = 4.9067;// Brho 2019-Nov20      // FRS D4 field [Tesla] 
-//  
-//  //34Si fragment, no disc
-//  frs->bfield[0] = 5.8086;// Brho 2019-Nov20       // FRS D1
-//  frs->bfield[1] = 5.8086;// Brho 2019-Nov20      // FRS D2 field [Tesla]  
-//  frs->bfield[2] = 5.5710;// Brho 2019-Nov20       // FRS D3 field [Tesla]
-//  frs->bfield[3] = 5.5710;// Brho 2019-Nov20      // FRS D4 field [Tesla] 
-
-  //34Si fragment, with degrader S2, 
-  //frs->bfield[0] = 5.8086;// Brho 2019-Nov20       // FRS D1
-  //frs->bfield[1] = 5.8086;// Brho 2019-Nov20      // FRS D2 field [Tesla]  
-//  frs->bfield[2] = 5.1852;// Brho 2019-Nov20       // FRS D3 field [Tesla]
-//  frs->bfield[3] = 5.1853;// Brho 2019-Nov20      // FRS D4 field [Tesla]
-  //frs->bfield[2] = 5.571;// Brho 2019-Nov22       // FRS D3 field [Tesla]
-  //frs->bfield[3] = 5.571;// Brho 2019-Nov22      // FRS D4 field [Tesla] 
-  //  frs->bfield[2] = 4.7272;// Brho 2019-Nov22       // FRS D3 field [Tesla]
-  //  frs->bfield[3] = 4.7272;// Brho 2019-Nov22      // FRS D4 field [Tesla]
-   ///168Re fragment centered  
-       frs->bfield[0] = 10.1715; // 2019-Dec12  
-       frs->bfield[1] = 10.1715;    
-       frs->bfield[2] = 7.7955; // Brho 2019-Dec12  
-       frs->bfield[3] = 7.7955; 
-    
-  
-  frs->dispersion[0] = -6.474266; // RUN81-TA2B-220CM 27.05.2016
-  frs->dispersion[1] =  7.7064; // RUN81-TA2B-220CM 27.05.2016
-  frs->magnification[1] = 1.1903;   // RUN81-TA2B-220CM 27.05.2016
-
-
-  // 13.06.2016 S411_86 with 124Xe
-  //  frs->rho0[0]   = 11.1340;    // FRS (D2) radius [m]   27.05.2016 
-  //  frs->rho0[1]   = 11.287;   // FRS (D3+D4)/2 radius [m]  27.05.2016 
-  
-  // 14.06.2016 adjusted for S411_87 with 124Xe+thick degrader  
-  //frs->rho0[0]   = 11.1340;    // FRS (D2) radius [m]   
-  //frs->rho0[1]   = 11.2415;   // FRS (D3+D4)/2 radius [m] 
-
-  //26.06.2016 new effective radius
-  //frs->rho0[0]   = 11.1349;    // FRS (D2) radius [m]   
-  //frs->rho0[1]   = 11.377;   // FRS (D3+D4)/2 radius [m] 
-
-  //05.07.2016 new effective radius S411_149 12C
- // frs->rho0[0]   = 1;    // FRS (D1+D2)/2 radius [m]   
- // frs->rho0[1]   = 1;    // FRS (D3+D4)/2 radius [m]
-  
-  // 20.Nov.2019
-  // For the momemnt, we put 1 m for radius,
-  // because we get brho from control system.
-  frs->rho0[0]   = 1.;
-  frs->rho0[1]   = 1.;
-
-
-  //  frs->rho0[0]   = 11.22374;    // FRS (D2) radius [m]    
-  //  frs->rho0[1]   = 11.282095;   // FRS (D3+D4)/2 radius [m]   
-
-  //   frs->rho0[0]   = 11.203 ;   // FRS (D1+D2)/2 radius [m]    
-  //   frs->rho0[1]   = 11.2641 ;   // FRS (D3+D4)/2 radius [m]   16.09.11
-
-
-  //frs->primary_z = 12.*0.32;  // C beam adjusted for S411_150 (B,Be,Li) 
-  //  frs->offset_z  =  0.85 ;
-  frs->offset_z2  = 3.0 ;
-  frs->offset_z3  = 0.0 ;
-
-  // 2019 nov  20
-  frs->primary_z = 92.;
-  frs->offset_z  =  0.;
-
-
-  frs->a2AoQCorr = 0.00095;
-  frs->a4AoQCorr = 0.0012;//0.0015
-  
-  frs->fill_raw_histos = true;
-
-    
-  // MUSIC 1 velocity correction  YT and HE
-  // 2019/Nov/20 with Ar40 primary beam
-  // pol2 version
-//   id->vel_a[0] =   12986.;//
-//   id->vel_a[1] =  -27810.; // -17462*1.096 
-//   id->vel_a[2] =   17086.; //7682 *1.096
-//   id->vel_a[3] =   0.0;
-  
-  id->vel_a[0] =   8232.58;//
-  id->vel_a[1] =  -6483.04; // -17462*1.096 
-  id->vel_a[2] =   0.0; //7682 *1.096
-  id->vel_a[3] =   0.0;
-  // pol1 version
-  // id->vel_a[0] =   6716.0;
-  // id->vel_a[1] =   -7090.0;
-  // id->vel_a[2] =   0.0;
-  // id->vel_a[3] =   0.0;
-  
-  // MUSIC 2 velocity correction 
-  //id->vel_a2[0] =  19577; // S411 oct2014 first days
-  id->vel_a2[0] =  19602 ;  // shifted calib 25.10.2104
-  id->vel_a2[1] =  -34442;
-  id->vel_a2[2] =  17273;
-  id->vel_a2[3] =  0.0; 
-    
-  // MUSIC 3 velocity correction
-  id->vel_a3[0] =  13951.37; //
-  id->vel_a3[1] =  -38369.9; 
-  id->vel_a3[2] =  28396.46;
-  id->vel_a3[3] =  0.0;    
-  
-//  id->vel_a3[0] =  0.0; //
-//  id->vel_a3[1] =  1.0; 
-//  id->vel_a3[2] =  0.0;
-//  id->vel_a3[3] =  0.0;  
-
-  // gate on Z 
-  id->zgate_low = 85;
-  id->zgate_high = 90;
-   //=======
-  //  Si
-  //======= 
-   
-  si->si_factor1=5.82775; //CH 03/06/2016
-  si->si_offset1=-381.593; //CH 03/06/2016
-
-  si->si_factor2=3.809; //CH 18.10.2014
-  si->si_offset2=-529.01; //CH 18.10.2014
-
-  si->si_factor3=3.2596; //CH 21.05.2016
-  si->si_offset3=-550.59; //CH 21.05.2016|
-
-  si->si_factor4=3.2596; //CH 21.05.2016
-  si->si_offset4=-550.59; //CH 21.05.2016
-
-//   for(int i = 0; i<32; i++){
-//     si->dssd_factor_det1[i]=1.;
-//     si->dssd_factor_det2[i]=1.;
-//     si->dssd_factor_det3[i]=1.;
-//     si->dssd_factor_det4[i]=1.;
-//     si->dssd_factor_det5[i]=1.;
-//     si->dssd_factor_det6[i]=1.;
-// 
-//     si->dssd_offset_det1[i]=0.;
-//     si->dssd_offset_det2[i]=0.;
-//     si->dssd_offset_det3[i]=0.;
-//     si->dssd_offset_det4[i]=0.;
-//     si->dssd_offset_det5[i]=0.;
-//     si->dssd_offset_det6[i]=0.;
-//   }
-    
-
-  /*
-  si->dssd_factor[0] = 1.;
-  si->dssd_factor[1] = 1.;
-  si->dssd_factor[2] = 1.;
-  si->dssd_factor[3] = 1.;
-  si->dssd_factor[4] = 1.;
-  si->dssd_factor[5] = 1.;
-  si->dssd_factor[6] = 1.;
-  si->dssd_factor[7] = 1.;
-  si->dssd_factor[8] = 1.;
-  si->dssd_factor[9] = 1.;
-  si->dssd_factor[10] = 1.;
-  si->dssd_factor[11] = 1.;
-  si->dssd_factor[12] = 1.;
-  si->dssd_factor[13] = 1.;
-  si->dssd_factor[14] = 1.;
-  si->dssd_factor[15] = 1.;
-  si->dssd_factor[16] = 1.;
-  si->dssd_factor[17] = 1.;
-  si->dssd_factor[18] = 1.;
-  si->dssd_factor[19] = 1.;
-  si->dssd_factor[20] = 1.;
-  si->dssd_factor[21] = 1.;
-  si->dssd_factor[22] = 1.;
-  si->dssd_factor[23] = 1.;
-  si->dssd_factor[24] = 1.;
-  si->dssd_factor[25] = 1.;
-  si->dssd_factor[26] = 1.;
-  si->dssd_factor[27] = 1.;
-  si->dssd_factor[28] = 1.;
-  si->dssd_factor[29] = 1.;
-  si->dssd_factor[30] = 1.;
-  si->dssd_factor[31] = 1.;
-
-  si->dssd_offset[0] = 0.;
-  si->dssd_offset[1] = 0.;
-  si->dssd_offset[2] = 0.;
-  si->dssd_offset[3] = 0.;
-  si->dssd_offset[4] = 0.;
-  si->dssd_offset[5] = 0.;
-  si->dssd_offset[6] = 0.;
-  si->dssd_offset[7] = 0.;
-  si->dssd_offset[8] = 0.;
-  si->dssd_offset[9] = 0.;
-  si->dssd_offset[10] = 0.;
-  si->dssd_offset[11] = 0.;
-  si->dssd_offset[12] = 0.;
-  si->dssd_offset[13] = 0.;
-  si->dssd_offset[14] = 0.;
-  si->dssd_offset[15] = 0.;
-  si->dssd_offset[16] = 0.;
-  si->dssd_offset[17] = 0.;
-  si->dssd_offset[18] = 0.;
-  si->dssd_offset[19] = 0.;
-  si->dssd_offset[20] = 0.;
-  si->dssd_offset[21] = 0.;
-  si->dssd_offset[22] = 0.;
-  si->dssd_offset[23] = 0.;
-  si->dssd_offset[24] = 0.;
-  si->dssd_offset[25] = 0.;
-  si->dssd_offset[26] = 0.;
-  si->dssd_offset[27] = 0.;
-  si->dssd_offset[28] = 0.;
-  si->dssd_offset[29] = 0.;
-  si->dssd_offset[30] = 0.;
-  si->dssd_offset[31] = 0.;
-  */
-  
- //=========
-  //MR-TOF-MS
-  //=========
-  
-//   mrtof->MRTOFMS_a=0.069;
-//   mrtof->MRTOFMS_b=0.71;
-//   mrtof->MRTOFMS_t0=0;
-//   mrtof->MRTOFMS_TXRS=0;
-
-  //cout << "Focus distance S4: " << frs->dist_focS4 << endl;
-
-
-  ElecMod->Nb_Modules = 64;
-  ElecMod->Nb_QDC = 3;
-  ElecMod->Nb_ADC = 1;
-  ElecMod->Nb_TDC = 5;
-  ElecMod->Nb_Scaler = 2;
-  ElecMod->Nb_TimeStamp = 2;
-  
-  for(int i = 0;i<64;++i)
-    ElecMod->Nb_Channels.insert(std::pair<int,int>(i,32));
-
-  
-  // Crate FRS procID 10
-  int IdMod = 0;
-  //std::unordered_map<int,int> CrateFRS;
-  std::map<int,int> CrateFRS;
-  CrateFRS.insert(std::pair<int,int>(0,IdMod++)); // 20191113, 1->0
-  CrateFRS.insert(std::pair<int,int>(9,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(8,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(11,IdMod++));
-  CrateFRS.insert(std::pair<int,int>(12,IdMod++));
-
-  //std::unordered_map<int,int> CrateTPC;
-  std::map<int,int> CrateTPC_S4;
-  //CrateTPC.insert(std::pair<int,int>(5,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(8,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(9,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(15,IdMod++));
-  CrateTPC_S4.insert(std::pair<int,int>(3,IdMod++));
-  
-  //std::unordered_map<int,int> CrateUser;
-  std::map<int,int> CrateUser;
-  //CrateUser.insert(std::pair<int,int>(0,IdMod++));
-
-  std::map<int,int> CrateMT;
-  CrateMT.insert(std::pair<int,int>(8,IdMod++));
-  CrateMT.insert(std::pair<int,int>(2,IdMod++));
-  CrateMT.insert(std::pair<int,int>(11,IdMod++));
-
-  std::map<int,int> CrateSOFIA; //added                                                                                                                                 
-  CrateSOFIA.insert(std::pair<int,int>(0,IdMod++));
-  CrateSOFIA.insert(std::pair<int,int>(1,IdMod++));
-  CrateSOFIA.insert(std::pair<int,int>(2,IdMod++));
-
-  std::map<int,int> CrateTPC_S2; //added                                                                                                                                 
-  CrateTPC_S2.insert(std::pair<int,int>(0,IdMod++));
-  CrateTPC_S2.insert(std::pair<int,int>(1,IdMod++));
-  
-  Map1* temp1 = new Map1("temp1");
-  Map1* temp2 = new Map1("temp2");
-  //  Map1* temp21 = new Map1("temp21"); //YT 20191113
-  Map1* temp3 = new Map1("temp3");
-  Map1* temp4 = new Map1("temp4");
-  Map1* temp5 = new Map1("temp5");
-  Map1* temp6 = new Map1("temp6");
-
-  temp1->map=CrateFRS;
-  temp2->map=CrateTPC_S4;
-  // temp21->map=CrateTPC_S2;
-  temp3->map=CrateUser;
-  temp4->map=CrateMT;
-  temp5->map=CrateSOFIA;
-  temp6->map=CrateTPC_S2;
-
-  TObjString* key1 = new TObjString("30"); // 2019 Engineeringrun, FRS crate Proc id = 30 
-  TObjString* key2 = new TObjString("20"); 
-  TObjString* key3 = new TObjString("40");
-  TObjString* key4 = new TObjString("10"); // Main crate with V1290 10
-  TObjString* key5 = new TObjString("50");
-  TObjString* key6 = new TObjString("25");
-
-  // TObjString* key1 = new TObjString("10");
-  //TObjString* key2 = new TObjString("20");
-  //TObjString* key3 = new TObjString("30");
-  // TObjString* key4 = new TObjString("40");
-  // TObjString* key5 = new TObjString("50");
-  // TObjString* key6 = new TObjString("25");
-  
-  ElecMod->Maptemp.Add(key1,temp1);
-  ElecMod->Maptemp.Add(key2,temp2);
-  // ElecMod->Maptemp.Add(key21,temp21);
-  ElecMod->Maptemp.Add(key3,temp3);
-  ElecMod->Maptemp.Add(key4,temp4);
-  ElecMod->Maptemp.Add(key5,temp5);
-  ElecMod->Maptemp.Add(key6,temp6);
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(10,CrateFRS));
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(20,CrateTPC));
-  // ElecMod->MapCrates.insert(std::pair<int,std::unordered_map<int,int> >(30,CrateUser));
-  
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(10,CrateFRS));
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(20,CrateTPC));
-  //ElecMod->MapCrates.insert(std::pair<int,std::map<int,int> >(30,CrateUser));
-
-  
-  ElecMod->ModType.push_back("FRS_SC_1");
-  ElecMod->ModType.push_back("FRS_TDC_1");
-  ElecMod->ModType.push_back("FRS_TDC_2");
-  ElecMod->ModType.push_back("FRS_QDC_1");
-  ElecMod->ModType.push_back("FRS_ADC_1");
-  ElecMod->ModType.push_back("TPC_TDC_1");
-  ElecMod->ModType.push_back("TPC_TDC_2");
-  ElecMod->ModType.push_back("TPC_QDC_1");
-  ElecMod->ModType.push_back("TPC_QDC_2");
-  ElecMod->ModType.push_back("USER_MTDC_1");
-  ElecMod->ModType.push_back("MT_SC_1");
-  ElecMod->ModType.push_back("MT_MTDC_1");
-  ElecMod->ModType.push_back("SOFIA_VTX_1");
-  ElecMod->ModType.push_back("SOFIA_MDP_1");
-  ElecMod->ModType.push_back("SOFIA_MADC_1");
-  ElecMod->ModType.push_back("TPCS2_TDC_1");
-  ElecMod->ModType.push_back("TPCS2_ADC_1");
-
-
-  ElecMod->Scaler32bit=1;
-  //ElecMod->EventFlags.push_back(0x00000000);
-  ElecMod->EventFlags.push_back(0x00000100);
-  ElecMod->EventFlags.push_back(0x00000200);
-  ElecMod->EventFlags.push_back(0x00000300);
-  
-  // ElecMod->ModType.push_back("QDC_11");
-  // ElecMod->ModType.push_back("QDC_12");
-  // ElecMod->ModType.push_back("QDC_13");
-  // ElecMod->ModType.push_back("QDC_14");
-  // ElecMod->ModType.push_back("QDC_15");
-  // ElecMod->ModType.push_back("QDC_16");
-  // ElecMod->ModType.push_back("QDC_17");
-  // ElecMod->ModType.push_back("QDC_18");
-
-}

@@ -81,7 +81,6 @@ using namespace std;
 
 	class EventUnpackStore;
 
-	//#include "EventUnpackStore.h"
 
 	class EventUnpackProc : public TGo4EventProcessor
 	{
@@ -135,6 +134,57 @@ using namespace std;
 
         const static char* tpc_name_ext1[7];
         const static char* tpc_folder_ext1[7];
+        
+        //--------Scaler Graphs----------
+  TH1I          *hScaler_per_s[64];
+  TH1I          *hScaler_per_100ms[64];
+  TH1I          *hScaler_per_spill[64];  
+  int            scaler_ch_1kHz=0;
+  int            scaler_ch_spillstart=0;
+  UInt_t         scaler_initial[64];
+  UInt_t         scaler_previous[64];
+  int            scaler_check_first_event = 1;
+  
+   Float_t Music_dE[3], Music_dE_corr[3];
+
+    Int_t Music_E1[8], Music_E2[8], Music_T1[8], Music_T2[8];
+
+    Float_t sci_l[12], sci_r[12], sci_e[12], sci_tx[12], sci_x[12];
+
+    Float_t sci_tofll2, sci_tofll3, sci_tof2, sci_tofrr2, sci_tofrr3, sci_tof3;
+
+    Float_t ID_x2, ID_y2, ID_a2, ID_b2;
+
+    Float_t ID_x4, ID_y4, ID_a4, ID_b4;
+
+    Float_t TPC_X[7], TPC_Y[7];
+    Int_t TPC_LT[7][2], TPC_RT[7][2];
+    Float_t TPC_X0, TPC_X1;
+
+
+    Int_t sci_dt_21l_21r, sci_dt_41l_41r, sci_dt_42l_42r, sci_dt_43l_43r;
+
+    Int_t sci_dt_21l_41l, sci_dt_21r_41r, sci_dt_21l_42l, sci_dt_21r_42r;
+
+    Float_t ID_brho[2], ID_rho;
+
+    Float_t beta, beta3, gamma;
+
+    Float_t AoQ, AoQ_corr;
+
+    Float_t ID_z, ID_z2, ID_z3;
+
+    Float_t timestamp, ts, ts2;
+    
+    Int_t time_in_ms;
+    Int_t spill_count;
+    Int_t ibin_for_s;
+    Int_t ibin_for_100ms;
+    Int_t ibin_for_spill;
+    Int_t ibin_clean_for_s;
+    Int_t ibin_clean_for_100ms;
+    Int_t ibin_clean_for_spill;
+    UInt_t increase_scaler_temp;
 
 			TH1* hID_x2;
 			TH1* hID_y2;
@@ -385,6 +435,10 @@ using namespace std;
 			TH1 *hGAL_Raw_E[32];
 
 		private:
+        // typedef std::unordered_map<int, TTSInfo> align_t;
+       // align_t aligns_0;
+       // align_t aligns_1;
+       // align_t aligns_3;
 
 
 //             long adcLastTimestamp[12][4];
@@ -424,9 +478,13 @@ using namespace std;
 			Int_t PrcID_Array[10][5];
 			bool Used_Systems[10];
 
-            int tamID[4][100];
-            int tamCH[4][100];
+//             int tamID[4][100];
+//             int tamCH[4][100];
             int fingID[4][16];
+            
+//             int TamID[2][256];
+//             int TamCh[2][256];
+            int TAMEX_bPlasFat_ID[2][256];
 
 			bool SKIP_EVT_BUILDING;
 
@@ -504,7 +562,7 @@ using namespace std;
 			void read_setup_parameters();
 
             void load_FingerID_File();
-
+            void load_FatTamex_Allocationfile();
 			void load_PrcID_File();
 			void get_interest_arrays();
 

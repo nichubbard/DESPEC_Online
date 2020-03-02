@@ -125,13 +125,13 @@ public:
         
         double_t fSC41[50];
         
-        Int_t fGal_fired;
-        Int_t fGal_Detector[GALILEO_MAX_HITS];
-        Int_t fGal_Crystal[GALILEO_MAX_HITS];
-        Double_t fGal_E[GALILEO_MAX_HITS];
-        Double_t fGal_T[GALILEO_MAX_HITS];
-        bool fGal_Pileup[GALILEO_MAX_HITS];
-        bool fGal_Overflow[GALILEO_MAX_HITS];
+         Int_t fGal_fired;
+         Int_t fGal_Detector[GALILEO_MAX_HITS];
+         Int_t fGal_Crystal[GALILEO_MAX_HITS];
+         Double_t fGal_E[GALILEO_MAX_HITS];
+         Double_t fGal_T[GALILEO_MAX_HITS];
+         bool fGal_Pileup[GALILEO_MAX_HITS];
+         bool fGal_Overflow[GALILEO_MAX_HITS];
         Long64_t fGal_WR;
         
 //         Int_t ffing_tamexhits;
@@ -184,14 +184,11 @@ public:
        
         //bPlas TAMEX 
        Long64_t fbPlas_WR;
-       Int_t fbPlas_TAMEX_ID[100];
-       Int_t fbPlas_Strip_N[48];     
-//        Double_t fFat_SC41_lead[2][50];
-//        Double_t fFat_SC41_trail[2][50];
-       Int_t fbPlas_PMT_Lead_N[48];
-       Int_t fbPlas_PMT_Trail_N[48];
-       Double_t fbPlas_Lead_PMT[48][10];
-       Double_t fbPlas_Trail_PMT[48][10];
+       Int_t fbPlaschan;
+       Int_t fbPlas_PMT_Lead_N[3][16];
+       Int_t fbPlas_PMT_Trail_N[3][16];
+       Double_t fbPlas_Lead_PMT[3][16][10];
+       Double_t fbPlas_Trail_PMT[3][16][10];
        
       /* Pattern unit */
       // UInt_t  fPatternUnit;

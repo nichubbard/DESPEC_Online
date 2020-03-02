@@ -52,7 +52,7 @@
 #pragma link C++ class TXRSUserProc+;*/
 
 
-#pragma link C++ class TXRSParameter+;
+#pragma link C++ class TFRSParameter+;
 #pragma link C++ class TModParameter+;
 #pragma link C++ class Map1+;
 #pragma link C++ class TMWParameter+;
