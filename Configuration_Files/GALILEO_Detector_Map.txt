@@ -1,5 +1,5 @@
 #Galileo Detector Map
-#Board ID   Ch ID    Det Num    Crysal Num
+#Board ID   Ch ID    Det Num    Crystal Num
 1            0           0      0
 1            1           0      1
 1            2           0      2

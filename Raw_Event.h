@@ -223,8 +223,8 @@ private:
     int VME_TDC_CHA[50];
 
     int SCALAR_ITERATOR;
-    double SCALAR_DATA[50];
-    int SCALAR_CHAN[50];
+    double SCALAR_DATA[17];
+    
     
     //bPlastic TAMEX
     int amount_hit_tamex_bPlas;
@@ -302,7 +302,7 @@ public:
 
     void set_DATA_PLASTIC_VME(int, int, double*, double*, int*, double*, int*);
 
-    void set_DATA_SCALAR(int, double*, int*);
+    void set_DATA_SCALAR(int, double*, bool);
 
     void set_DATA_GALILEO(int,ULong64_t*,int*,ULong64_t*,double*,int*,int*,bool*,bool*);
 
@@ -521,9 +521,7 @@ public:
 
     int     get_scalar_iterator();
     double  get_scalar_data(int);
-    int     get_scalar_chan(int);
-
-
+    
 
 	//temporary GALILEO getters
         int         get_GALILEO_am_Fired();

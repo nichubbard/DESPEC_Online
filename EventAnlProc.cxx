@@ -82,8 +82,7 @@ TGo4EventProcessor(name)
 
     read_setup_parameters();
     get_used_Systems();
-
-  //  load_GalileoMap_File();
+    FRS_Gates();
 
 }
 //-----------------------------------------------------------
@@ -158,17 +157,18 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
 
     if (Used_Systems[5]) Make_Galileo_Histos();
-    if (Used_Systems[6]) Make_Finger_Histos();
+    //if (Used_Systems[6]) Make_Finger_Histos();
 //     if (Used_Systems[2] && Used_Systems[3]) Make_Fat_Plas_Histos();
 //     if (Used_Systems[6] && Used_Systems[2]) Make_Fing_Plas_Histos();
         create = true;
         }
+        
  
         Do_WR_Histos(pInput);
                  /** Now extract the data from the stored Unpacker array (root tree)**/
     ///--------------------------------------/**FRS Input**/------------------------------------------///
-
-      if (PrcID_Conv[0]==0){
+    ///WARNING Used systems activated!!
+      if (PrcID_Conv[0]==0 && Used_Systems[0]==1){
           pOutput->pFRS_WR = pInput->fFRS_WR;
         ///MUSIC
 //        for(int i =0; i<2; ++i){
@@ -250,16 +250,7 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
    ///-------------------------------- /**bPlastic VME Input**/ --------------------------------///
         ///Switched off A.M. 11.12.19
-
-
- ///--------------------------------------/**Scalar Input**/------------------------------------------///
-
-//     ScalarFired = pInput->fScalar_fired;
-//     for (int i = 0; i<ScalarFired; i++){
-//       ScalarID = pInput->fScalar_ID;
-//     }
-//   }
-        
+       
 ///--------------------------------------/**bPlastic TAMEX Input**/------------------------------------------///
        for(int j=0; j<100;j++){
 //         bPlas_TAM_SC41L_ANA[j] = 0;
@@ -321,9 +312,6 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
     }
   }
-  
- // cout<<" event " << pOutput->pEvent_Number << " Used_Systems[3] "<< Used_Systems[3] <<" pOutput->pUsed_Systems[3] " << pOutput->pUsed_Systems[3] << endl;
- 
 
   if (( PrcID_Conv[3]==3) &&  VMEorTAMEX_fatima==true){
     FatQDCFired =  pInput->fFat_firedQDC;
@@ -361,19 +349,10 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
         Do_Fatima_Histos(pOutput);
   }
 
-   ///--------------------------------------/**Fatima TAMEX Input**/------------------------------------------///
-//    if (Used_Systems[4]&& PrcID_Conv[4]==4 && VMEorTAMEX_fatima==false && VMEandTAMEX_fatima==false){
-//         Do_Fatima_Tamex_Histos(pInput,pOutput);
-//
-//    }
-
-//      if (((Used_Systems[4]&& PrcID_Conv[4]==4) ||(Used_Systems[3]&& PrcID_Conv[3]==3)) && VMEorTAMEX_fatima==false && VMEandTAMEX_fatima==true){
-//          Do_Fatima_VME_Tamex_Histos(pInput,pOutput);
-//      }
-
 
   ///--------------------------------------/**Galileo Input**/------------------------------------------///
        GalFired = -1;
+       
        //Gal_WR = 0;
        for(int g = 0; g<GALILEO_MAX_HITS; g++){
           GalDet[g] = -1;
@@ -384,19 +363,13 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
           GalPileUp[g] = false;
           GalOverFlow[g] = false;
        }
-    //    cout<<" event " << pOutput->pEvent_Number << " Used_Systems[5] "<< Used_Systems[5] <<" pOutput->pUsed_Systems[5] " << pOutput->pUsed_Systems[5] << endl;
     
        if ( PrcID_Conv[5]==5){
-    
-    
+
         GalFired =  pInput->fGal_fired;
     //    GalPileup = pInput->fGal_Pileup;
         Gal_WR = pInput->fGal_WR;
-       
-        //for(int f=0;f<1000;f++){
-    
-        //}
-    
+     
         for (int i = 0; i<GalFired; i++)
         {
           GalDet[i] = pInput->fGal_Detector[i];
@@ -414,90 +387,7 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
       }
 
  ///--------------------------------------/**Finger Input**/------------------------------------------///
-        Fing_firedTamex = -1;
-        for (int i = 0; i<4; i++)
-        {
-            Fing_leadHits[i] = -1;
-            Fing_trailHits[i] = -1;
-            Fing_iterator[i] = -1;
-            Fing_trig[i] = 0;
-
-        for (int j = 0; j<32; j++){
-            Fing_tamex_ch[i][j] = -1;
-            Fing_leadChan[i][j] = -1;
-            Fing_leadT[i][j] = 0;
-            Fing_trailChan[i][j] = -1;
-            Fing_trailT[i][j] = 0;
-            Fing_TOT[i][j] = 0;
-            Fing_TOT_added[i][j] = 0;
-            Fing_chID[i][j] = -1;
-            Fing_lead_coarse[i][j] =  -1;
-            Fing_lead_fine[i][j]  =-1;
-            Fing_trail_coarse[i][j] = -1;
-            Fing_trail_fine[i][j] = -1;
-            }
-        }
-    if(Used_Systems[6] && PrcID_Conv[6]==6){
-//           Fing_firedTamex = pInput->ffing_tamexhits;
-//           maxToT = Fing_TOT[0][0];
-//           maxToT_added = Fing_TOT_added[0][0];
-//
-//           for (int i=0; i< Fing_firedTamex; i++){
-//             Fing_leadHits[i] = pInput-> ffing_leadHits[i];
-//             Fing_trailHits[i] = pInput-> ffing_trailHits[i];
-//             Fing_iterator[i] = pInput-> ffing_iterator[i];
-//             Fing_trig[i] = pInput->ffing_Trig[i];
-//
-//                 for (int j =0; j<Fing_iterator[i]; j++){
-//                     Fing_tamex_ch[i][j] =  pInput->ffing_tamexCh[i][j];
-//                     Fing_lead_coarse[i][j] =  pInput->ffing_lead_coarse[i][j];
-//                     Fing_lead_fine[i][j]  = pInput->ffing_lead_fine[i][j];
-//                     Fing_trail_coarse[i][j] =  pInput->ffing_trail_coarse[i][j];
-//                     Fing_trail_fine[i][j] =  pInput->ffing_trail_fine[i][j];
-//
-//                     Fing_chID[i][j] = pInput->ffing_chID[i][j];
-//                   //  cout << "  Fing_chID[i][j] " << Fing_chID[i][j]<< " i " << i << " j " << j << " ffing_Lead_T[i][j] " << pInput->ffing_Lead_T[i][j] <<endl;
-//                     if(Fing_chID[i][j] % 2 == 1){
-//                         Fing_leadChan[i][j] = pInput->ffing_Lead_Phys_Chan[i][j];
-//                         Fing_leadT[i][j] = pInput->ffing_Lead_T[i][j];
-//
-//                         }
-//
-//                 else{
-//                      Fing_trailChan[i][j] = pInput->ffing_Trail_Phys_Chan[i][j];
-//                      Fing_trailT[i][j] = pInput->ffing_Trail_T[i][j];
-//
-//                 }
-//
-//                 ///Note: ToT value here is only for the 'up' PMTs
-//                     Fing_TOT[i][j] = pInput->ffing_TOT[i][j];
-//                    // cout <<"1) ev "<< event_number << " Fing_TOT[i][j] " << Fing_TOT[i][j] <<"  Fing_leadChan[i][j] " <<  Fing_leadChan[i][j] << endl;
-//                     /// Up PMT ToT + Down PMT ToT
-//                     Fing_TOT_added[i][j] =   pInput->ffing_TOT_added[i][j];
-//
-//
-//                         if(Fing_chID[i][j] % 2 == 1){
-//
-//                           if(maxToT<Fing_TOT[i][j] && Fing_leadChan[i][j]>0 ){
-//
-//                                 maxToT = Fing_TOT[i][j];
-//                                 maxToTChan = Fing_leadChan[i][j];
-//                         }
-//
-//                         //Get max ToT for PMT pairings
-//                         if(maxToT_added<Fing_TOT_added[i][j]&& Fing_leadChan[i][j]>0 ){
-//                             maxToT_added = Fing_TOT_added[i][j];
-//                             maxToT_added_Chan = Fing_leadChan[i][j];
-//
-//                         }
-//
-//
-//                 }
-//             }
-//           }
-   Do_Finger_Histos(pInput,pOutput);
-
-  }
+      
 
 ///------------------------/**Setup for some temporary correlations**/----------------------------------///
 //   if (Used_Systems[2]&& PrcID_Conv[2]==2 && Used_Systems[3]&& PrcID_Conv[3]==3){
@@ -677,186 +567,106 @@ void EventAnlProc::Make_FRS_Histos(){
 
     hID_Z_Z2 = MakeH2I("FRS/ID","ID_Z_Z2", 2000,35,100, 2000,35.,100.,"Z", "Z2", 2);
 
-   int num_ID_x2AoQ[3] = {5, 5, 5};
-  Float_t init_ID_x2AoQ[3][5][2] =
-     {
-       {{  2.114 ,   102.2},
-    {  2.111,  -98.6},
-    {  2.49673,  -98.3},
-    {  2.51517,  103.09},
-    {  2.114,  102.19}
-       },
-    {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       },
-       {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       }
-     };
+   
+  int num_ID_x2AoQ = {6};
+  Float_t init_ID_x2AoQ[6][2] =
+     {{XX2_AoQ[0], YX2_AoQ[0]},
+     {XX2_AoQ[1], YX2_AoQ[1]},
+     {XX2_AoQ[2], YX2_AoQ[2]},
+     {XX2_AoQ[3], YX2_AoQ[3]},
+     {XX2_AoQ[4], YX2_AoQ[4]},
+     {XX2_AoQ[5], YX2_AoQ[5]}
+          };
 
-       int num_ID_x4AoQ[3] = {5, 5, 5};
-  Float_t init_ID_x4AoQ[3][5][2] =
-     {
-       {{  2.118 ,   99.2 },
-    {  2.12051,  -69.777},
-    {  2.5,  -70.079},
-    {  2.5,  97.98},
-    {  2.118,   99.2}
-       },
-    {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       },
-       {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       }
-     };
 
-       int num_ID_Z_Z2[3] = {5, 5, 5};
-  Float_t init_ID_Z_Z2[3][5][2] =
-     {
-       {{  12 ,   4 },
-    {  13.8,  8},
-    {  14.6,  8},
-    {  14.6,  4},
-    {  14.4,   4}
-       },
-    {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       },
-       {{  2.009 ,   87.121 },
-    {  2.0113,  -82.0475},
-    {  2.3872,  -82.3590},
-    {  2.3872,  -82.3590},
-    {  2.3886,   85.8756}
-       },
-     };
+       int num_ID_x4AoQ = {6};
+  Float_t init_ID_x4AoQ[6][2] =
+     {{XX4_AoQ[0], YX4_AoQ[0]},
+     {XX4_AoQ[1], YX4_AoQ[1]},
+     {XX4_AoQ[2], YX4_AoQ[2]},
+     {XX4_AoQ[3], YX4_AoQ[3]},
+     {XX4_AoQ[4], YX4_AoQ[4]},
+     {XX4_AoQ[5], YX4_AoQ[5]}
+          };
 
+       int num_ID_Z_Z2 = {6};
+  Float_t init_ID_Z_Z2[6][2] =
+     {{X_ZZ2[0], Y_ZZ2[0]},
+     {X_ZZ2[1], Y_ZZ2[1]},
+     {X_ZZ2[2], Y_ZZ2[2]},
+     {X_ZZ2[3], Y_ZZ2[3]},
+     {X_ZZ2[4], Y_ZZ2[4]},
+     {X_ZZ2[5], Y_ZZ2[5]}
+          };
 
   char name[50], title[100];
+  
+  int num_ID_Z_AoQ = {6};
+      //for(int i=0; i<6; i++){
+   Float_t init_ID_Z_AoQ[6][2] =
+     {{X_ZAoQ[0], Y_ZAoQ[0]},
+     {X_ZAoQ[1], Y_ZAoQ[1]},
+     {X_ZAoQ[2], Y_ZAoQ[2]},
+     {X_ZAoQ[3], Y_ZAoQ[3]},
+     {X_ZAoQ[4], Y_ZAoQ[4]},
+     {X_ZAoQ[5], Y_ZAoQ[5]}
+          };
+   
+  ///Z vs AoQ
+     sprintf(name,"cID_Z_AoQ");
+       cID_Z_AoQ = MakePolyCond("FRS_ID_Gated", name, num_ID_Z_AoQ, init_ID_Z_AoQ, hID_Z_AoQ->GetName());
+     sprintf(name,"ID_Z_AoQgate");
+       hID_Z_AoQgate = MakeH2I("FRS/ID_Gated",name,  600,1.3,2.8, 600,35.,90.,"A/Q s2-s4", "Z s2-s4", 2);
+       
+       ///Z vs Z2
+      sprintf(name,"cID_Z_Z2");
+      cID_Z_Z2gate = MakePolyCond("FRS_Z1_Z2_Gated",name,num_ID_Z_Z2,init_ID_Z_Z2, hID_Z_Z2 ->GetName());
+       
+      sprintf(name,"ID_x2AoQ_Z1Z2gate");
+      hID_x2AoQ_Z1Z2gate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on Z    X at S2 [mm]", 2);
 
-  for(int i=0;i<3;++i)
-    {
-      sprintf(name,"cID_x2AoQ%d",i);
-      cID_x2AoQ[i] = MakePolyCond("FRS_ID_Gated",name,num_ID_x2AoQ[i],init_ID_x2AoQ[i], hID_x2AoQ->GetName());
+      sprintf(name,"ID_x4AoQ_Z1Z2gate");
+      hID_x4AoQ_Z1Z2gate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on Z    X at S4 [mm]", 2);
 
-      sprintf(name,"cID_x4AoQ%d",i);
-      cID_x4AoQ[i] = MakePolyCond("FRS_ID_Gated",name,num_ID_x4AoQ[i],init_ID_x4AoQ[i], hID_x4AoQ->GetName());
+      sprintf(name,"ID_ZAoQ_Z1Z2gate");
+      hID_ZAoQ_Z1Z2gate = MakeH2I("FRS/ID_Gated", name, 300,1.4,2.5, 400,1.,20.,"A/Q s2-s4", " Z music2", 2);
 
-      sprintf(name,"cID_Z_Z2%d",i);
-      cID_Z_Z2gate[i] = MakePolyCond("FRS_Z1_Z2_Gated",name,num_ID_Z_Z2[i],init_ID_Z_Z2[i], hID_Z_Z2 ->GetName());
-      //cID_Z_AoQ[i] = MakePolyCond("ID", name, num_ID_Z_AoQ[i], init_ID_Z_AoQ[i], hID_Z_AoQ->GetName());
+      sprintf(name,"ID_SC43Z1_Z1Z2gate");
+      hID_SC43Z1_Z1Z2gate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"SC41 dE", " Z music1", 2);
 
-      sprintf(name,"hID_x2AoQ_x2AoQgate%d",i);
-      hID_x2AoQ_x2AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X2: X at S2 [mm]", 2);
 
-      sprintf(name,"hID_x4AoQ_x2AoQgate%d",i);
-      hID_x4AoQ_x2AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X2: X at S4 [mm]", 2);
+      sprintf(name,"cID_x2AoQ");
+      cID_x2AoQ = MakePolyCond("FRS_ID_Gated",name,num_ID_x2AoQ,init_ID_x2AoQ, hID_x2AoQ->GetName());
 
-      sprintf(name,"hID_x2AoQ_x4AoQgate%d",i);
-      hID_x2AoQ_x4AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X4: X at S2 [mm]", 2);
+      
 
-      sprintf(name,"hID_x4AoQ_x4AoQgate%d",i);
-      hID_x4AoQ_x4AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X4: X at S4 [mm]", 2);
 
-      sprintf(name,"ID_ZAoQ_x2AoQgate%d",i);
-      hID_ZAoQ_x2AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"A/Q s2-s4", " Z music2", 2);
+      sprintf(name,"hID_x2AoQ_x2AoQgate");
+      hID_x2AoQ_x2AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X2: X at S2 [mm]", 2);
 
-      sprintf(name,"ID_ZAoQ_x4AoQgate%d",i);
-      hID_ZAoQ_x4AoQgate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"A/Q s2-s4", " Z music2", 2);
+      sprintf(name,"hID_x4AoQ_x2AoQgate");
+      hID_x4AoQ_x2AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X2: X at S4 [mm]", 2);
+
+      sprintf(name,"hID_x2AoQ_x4AoQgate");
+      hID_x2AoQ_x4AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X4: X at S2 [mm]", 2);
+      sprintf(name,"cID_x4AoQ");
+      cID_x4AoQ = MakePolyCond("FRS_ID_Gated",name,num_ID_x4AoQ,init_ID_x4AoQ, hID_x4AoQ->GetName());
+
+      sprintf(name,"hID_x4AoQ_x4AoQgate");
+      hID_x4AoQ_x4AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on FRS AoQ, ID X4: X at S4 [mm]", 2);
+
+      sprintf(name,"ID_ZAoQ_x2AoQgate");
+      hID_ZAoQ_x2AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"A/Q s2-s4", " Z music2", 2);
+
+      sprintf(name,"ID_ZAoQ_x4AoQgate");
+      hID_ZAoQ_x4AoQgate = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"A/Q s2-s4", " Z music2", 2);
 
       ///////////////////////////////////////////////////////
-      sprintf(name,"ID_x2AoQ_Z1Z2gate%d",i);
-      hID_x2AoQ_Z1Z2gate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on Z    X at S2 [mm]", 2);
-
-      sprintf(name,"ID_x4AoQ_Z1Z2gate%d",i);
-      hID_x4AoQ_Z1Z2gate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 200,-100.,100.,"A/Q s2-s4", "gate on Z    X at S4 [mm]", 2);
-
-      sprintf(name,"ID_ZAoQ_Z1Z2gate%d",i);
-      hID_ZAoQ_Z1Z2gate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.4,2.5, 400,1.,20.,"A/Q s2-s4", " Z music2", 2);
-
-      sprintf(name,"ID_SC43Z1_Z1Z2gate%d",i);
-      hID_SC43Z1_Z1Z2gate[i] = MakeH2I("FRS/ID_Gated", name, 300,1.,2.4, 400,30.,90.,"SC41 dE", " Z music1", 2);
-
-
-    }
+ 
       //------------------------------------------------------------------------------------------------//
 
-      int num_ID_Z_AoQ[3] = {5, 5, 5};
-  Float_t init_ID_Z_AoQ[3][5][2] =
-     {
-       // ID_Z_AOQ(1)
-       /* 34Si setting */
-//        {{2.30,        13.36},
-//         {2.33,        14.22},
-//         {2.239,        15.10},
-//         {2.18471,        14.1637},
-//         {2.3011,        13.3654}},
-// /* 168Re setting */
-        {{2.236,        77.6},
-        {2.23389,        77.45},
-        {2.23322,        76.4},
-        {2.247,        76.5},
-        {2.247,        77.5}},
-	
-// 	/* 168W setting */
-//         {{2.248,        76.5},
-//         {2.236,        76.6},
-//         {2.236,        75.5},
-//         {2.25,        75.6},
-//         {2.25,        76.5}},
-	
- 	/* 168Ta setting */
-//         {{2.248,        75.5},
-//         {2.236,        75.6},
-//         {2.236,        74.5},
-//         {2.25,        74.5},
-//         {2.25,        75.5}},
-	
-       /* 223Th setting */
-       //      {{2.48025,        89.3017},
-       //      {2.49183,        89.2808},
-       //      {2.49122,        90.7808},
-       //      {2.48005,        90.8122},
-       //      {2.48025,        89.3017}},
-       /* 70 Ni @ 70Ni setting shifted by 10*/
-       {{2.482,        38.0000},
-        {2.508,        38.5000},
-        {2.522,        38.0000},
-        {2.489,        37.5000},
-        {2.488,        37.5000}},
-       // ID_Z_AOQ(3)
-       {{2.25029,      51.22740},
-        {2.27401,      50.88124},
-        {2.30980,      51.80895},
-        {2.28475,      51.93358},
-        {2.25208,      52.07204}}};
-     for(int i=0;i<3;i++){
-       sprintf(name,"cID_Z_AoQ%d",i);
-       cID_Z_AoQ[i] = MakePolyCond("FRS_ID_Gated", name, num_ID_Z_AoQ[i], init_ID_Z_AoQ[i], hID_Z_AoQ->GetName());
-
-       sprintf(name,"ID_Z_AoQgate%d",i);
-       hID_Z_AoQgate[i] = MakeH2I("FRS/ID_Gated",name,  600,1.3,2.8, 600,35.,90.,"A/Q s2-s4", "Z s2-s4", 2);
-
-//        sprintf(name,"ID_Z3_gate%d",i);
-//        char name_x_title[256];
-//        sprintf(name_x_title,"Z3 gate%d",i);
-//        hID_Z3_gate[i] = MakeH1I("FRS/ID_Gated",name,  500,1.,20.,name_x_title, 2, 6);
-    }
+   
+      
 }
 
 void EventAnlProc::Do_FRS_Histos(EventAnlStore* pOutput){
@@ -892,65 +702,61 @@ void EventAnlProc::Do_FRS_Histos(EventAnlStore* pOutput){
 //               hID_Z_AoQ_zsame->Fill(FRS_AoQ, FRS_z);
 //             }
 
-    for(int i=0;i<3;++i)
-    {
+    
         ///GATE: ID vs x2AoQ
-      if(cID_x2AoQ[i]->Test(FRS_AoQ, FRS_ID_x2)==true)
+      if(cID_x2AoQ->Test(FRS_AoQ, FRS_ID_x2)==true)
         {
           pOutput->pFRS_x2AoQ_pass = true;
            if(FRS_AoQ>2 && FRS_AoQ<2.4 &&   FRS_ID_x2 > -100 && FRS_ID_x2<100){
 
              //  cout<<"FRS_AoQ " << FRS_AoQ << " FRS_ID_x2 " << FRS_ID_x2 <<endl;
-          hID_x2AoQ_x2AoQgate[i]->Fill(FRS_AoQ, FRS_ID_x2);
+          hID_x2AoQ_x2AoQgate->Fill(FRS_AoQ, FRS_ID_x2);
 
 
         }
           if(FRS_AoQ>2 && FRS_AoQ<2.4 &&   FRS_ID_x4 > -100 && FRS_ID_x4<100){
-          hID_x4AoQ_x2AoQgate[i]->Fill(FRS_AoQ, FRS_ID_x4);}
-          if (FRS_z2) hID_ZAoQ_x2AoQgate[i]->Fill(FRS_AoQ, FRS_z2);
+          hID_x4AoQ_x2AoQgate->Fill(FRS_AoQ, FRS_ID_x4);}
+          if (FRS_z2) hID_ZAoQ_x2AoQgate->Fill(FRS_AoQ, FRS_z2);
             }
 
         ///GATE: ID vs x4AoQ
-      if(cID_x4AoQ[i]->Test(FRS_AoQ, FRS_ID_x4)==true)
+      if(cID_x4AoQ->Test(FRS_AoQ, FRS_ID_x4)==true)
         {
                 pOutput->pFRS_x4AoQ_pass = true;
-                hID_x2AoQ_x4AoQgate[i]->Fill(FRS_AoQ, FRS_ID_x2);
-                hID_x4AoQ_x4AoQgate[i]->Fill(FRS_AoQ, FRS_ID_x4);
-          if (FRS_z2) hID_ZAoQ_x4AoQgate[i]->Fill(FRS_AoQ, FRS_z2);
+                hID_x2AoQ_x4AoQgate->Fill(FRS_AoQ, FRS_ID_x2);
+                hID_x4AoQ_x4AoQgate->Fill(FRS_AoQ, FRS_ID_x4);
+          if (FRS_z2) hID_ZAoQ_x4AoQgate->Fill(FRS_AoQ, FRS_z2);
             }
 
           ///GATE: Z1 vs Z2
-            if(cID_Z_Z2gate[i]->Test(FRS_z, FRS_z2)==true)
+            if(cID_Z_Z2gate->Test(FRS_z, FRS_z2)==true)
             {
                  pOutput->pFRS_Z_Z2_pass = true;
               // cout<<"111event " <<  pOutput->pEvent_Number << " ANL pOutput->pFRS_Z_Z2_pass " << pOutput->pFRS_Z_Z2_pass<< endl;
 
                  if(FRS_AoQ>2 && FRS_AoQ<2.4 &&   FRS_ID_x2 > -100 && FRS_ID_x2<100){
                     // cout<<"FRS_AoQ " << FRS_AoQ << " FRS_ID_x2 " << FRS_ID_x2 <<endl;
-                hID_x2AoQ_Z1Z2gate[i]->Fill(FRS_AoQ, FRS_ID_x2);
+                hID_x2AoQ_Z1Z2gate->Fill(FRS_AoQ, FRS_ID_x2);
                 }
                    if(FRS_AoQ>2 && FRS_AoQ<2.4   && FRS_ID_x4 > -100 && FRS_ID_x4<100){
                         //cout<<"FRS_AoQ " << FRS_AoQ << " FRS_ID_x4 " << FRS_ID_x4 <<endl;
-                hID_x4AoQ_Z1Z2gate[i]->Fill(FRS_AoQ, FRS_ID_x4);
+                hID_x4AoQ_Z1Z2gate->Fill(FRS_AoQ, FRS_ID_x4);
                    }
                    if(FRS_AoQ>2 && FRS_AoQ<2.4){
-                   hID_ZAoQ_Z1Z2gate[i] ->Fill(FRS_AoQ, FRS_z);
+                   hID_ZAoQ_Z1Z2gate ->Fill(FRS_AoQ, FRS_z);
                    }
                  //if(FRS_sci_e[7]>1 && FRS_sci_e[7]<2.4 &&  && FRS_z>30 && FRS_z<10){
-                hID_SC43Z1_Z1Z2gate[i]->Fill(FRS_sci_e[7], FRS_z);
-          if (FRS_z2) hID_ZAoQ_x2AoQgate[i]->Fill(FRS_AoQ, FRS_z2);
+                hID_SC43Z1_Z1Z2gate->Fill(FRS_sci_e[7], FRS_z);
+          if (FRS_z2) hID_ZAoQ_x2AoQgate->Fill(FRS_AoQ, FRS_z2);
             }
-          //  else pOutput->pFRS_Z_Z2_pass = false;
-
-         //    cout<<"222event " << pOutput->pEvent_Number << " ANL pOutput->pFRS_Z_Z2_pass " << pOutput->pFRS_Z_Z2_pass<< endl;
-        }
-     for(int i =0;i<3;i++){
+        
+     
         ///GATE: AoQ vs Z
-       if( cID_Z_AoQ[i]->Test(FRS_AoQ, FRS_z)==true){
+       if( cID_Z_AoQ->Test(FRS_AoQ, FRS_z)==true){
           pOutput->pFRS_ZAoQ_pass =true;
-          hID_Z_AoQgate[i]->Fill(FRS_AoQ, FRS_z);
+         hID_Z_AoQgate->Fill(FRS_AoQ, FRS_z);
         }
-       }
+       
     }
 
 
@@ -1482,7 +1288,7 @@ AidaHit EventAnlProc::ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const
                            ToT_bplas[a][b][j]= CYCLE_TIME*ToT_bplas[a][b][j];                         
                        }    
                        ///Gain matching  
-               // pOutput-> pbPlas_ToTCalib[a][b][j] = fCal->Abplas_TAMEX[i]* ToT_bplas[a][b][j] + fCal->Bbplas_TAMEX[i];
+               // pOutput-> pbPlas_ToTCalib[a][b][j] = fCal->Abplas_TAMEX_ZAoQ[i]* ToT_bplas[a][b][j] + fCal->Bbplas_TAMEX_ZAoQ[i];
                pOutput-> pbPlas_ToTCalib[a][b][j] =ToT_bplas[a][b][j];
                        if(ToT_bplas[a][b][j]>0) {
                         hbPlas_ToT_det[a][b] ->Fill(ToT_bplas[a][b][j]);   
@@ -1623,7 +1429,7 @@ void EventAnlProc::Do_Fatima_Tamex_Histos(EventUnpackStore* pInput, EventAnlStor
                            ToT_fat[i][j]= CYCLE_TIME*ToT_fat[i][j];                         
                        }    
                        ///Gain matching  
-               // pOutput-> pFat_ToTCalib[i][j] = fCal->Afat_TAMEX[i]* ToT_fat[i][j] + fCal->Bfat_TAMEX[i];
+               // pOutput-> pFat_ToTCalib[i][j] = fCal->Afat_TAMEX_ZAoQ[i]* ToT_fat[i][j] + fCal->Bfat_TAMEX_ZAoQ[i];
                pOutput-> pFat_ToTCalib[i][j] =ToT_fat[i][j];
                        if(ToT_fat[i][j]>0) {
                         hFat_ToT_det[i] ->Fill(ToT_fat[i][j]);   
@@ -1715,7 +1521,7 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
       //Fatima Energy gates
     FATgate1_low  = fCorrel->GFat_Egate_low;
     FATgate1_high = fCorrel->GFat_Egate_high;
-   // Fat_E_gate1 = FATgate1_low + (FATgate1_high - FATgate1_low)/2.;
+
 
     /**------------------------------FATIMA Energy -----------------------------------------**/
        
@@ -1726,20 +1532,19 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
   
         Fat_QDC_IDMain_i = FatQDCID[i]; //Channel ID
         pOutput->pFat_QDCFired = FatQDCID[i];
-       // if(Fat_QDC_IDMain_i<40){
+
         pOutput->pFat_QDCID[i] = FatQDCID[i];
         hFAT_hits_QDC->Fill(Fat_QDC_IDMain_i);
 
         Fat_QDC_i[Fat_QDC_IDMain_i] = FatQDC[i];  //Calibrated energy
         Fat_QDCtime1 = FatQDC_T[i];
-if(Fat_QDC_IDMain_i<40){
+        if(Fat_QDC_IDMain_i<40){
           ///FATIMA Calibrated Energy Singles
-        //Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = fCal->Afat[Fat_QDC_IDMain_i]* pow(Fat_QDC_i[Fat_QDC_IDMain_i],3) + fCal->Bfat[Fat_QDC_IDMain_i]* pow(FatQDC[i],2) + fCal->Cfat[Fat_QDC_IDMain_i]*FatQDC[i] + fCal->Dfat[Fat_QDC_IDMain_i];
         Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = Fat_QDC_i[Fat_QDC_IDMain_i];
         hFAT_QDCCalib1[Fat_QDC_IDMain_i]->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
         pOutput->pFat_QDCGainMatch[Fat_QDC_IDMain_i] = Fat_QDC_GainMatch[Fat_QDC_IDMain_i];
         hFAT_QDCCalib1Sum->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
-}
+        }
                ///Gamma-Gamma Fatima
           for (int j=0; j<FatQDCFired; j++){
             Fat_QDC_IDMain_j= FatQDCID[j];
@@ -1749,14 +1554,9 @@ if(Fat_QDC_IDMain_i<40){
             ///Dont loop on the first hit again:
            if(Fat_QDC_IDMain_i < Fat_QDC_IDMain_j){
                 Fat_QDC_dt = Fat_QDCtime1 - Fat_QDCtime2;
-               // hFAT_QDCdt[Fat_QDC_IDMain_i] ->Fill(Fat_QDC_dt);
-                //Fill Energy-Energy matrix (NOTE: turned off making 2D matrices for each channel for now to speed things up)
-               // hFAT_Chan_E_Mat[Fat_QDC_IDMain_i]->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i], Fat_QDCGainMatch_j[Fat_QDC_IDMain_j]);
 
-              //  hFAT_E_Mat_Sum->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i], Fat_QDCGainMatch_j[Fat_QDC_IDMain_j]);
                 }
             }
-       // }
   }
 
  /**---------------------------------FATIMA TIMING -----------------------------------------**/
@@ -1792,32 +1592,24 @@ if(Fat_QDC_IDMain_i<40){
             double Mindiff = Fat_SC41_dT_Calib[0];
                if(Mindiff>Fat_SC41_dT_Calib[i]) Mindiff =Fat_SC41_dT_Calib[i];
 
-        // cout<<"event " << event_number <<" Fat_SC41_dT_Calib[Fat_TDC_IDMain]  " << Fat_SC41_dT_Calib[Fat_TDC_IDMain]  << " SC41 " <<SC41 <<  "  Fat_TDC_T_Main[Fat_TDC_IDMain] " <<  Fat_TDC_T_Main[Fat_TDC_IDMain] <<" Fat_TDC_IDMain " << Fat_TDC_IDMain << " FatQDCID[i] " << FatQDCID[i] << " Mindiff " << Mindiff<<endl;
-
             }
          ///SC41 - Fatima TDC Only take the first hit per channel (Sultan)
            Fat_TDC_Incr = 0;
             for(int j=0; j<=i; j++){
              if (Fat_TDC_IDMain != FatTDCID[j] ) Fat_TDC_Incr++;
-
-
-
             }
             //if(Fat_TDC_Incr == i  && Fat_TDC_IDMain < 40 ){
              for (int j = 0; j< FatQDCFired; j++){
             if( FatQDCID[j] == Fat_TDC_IDMain){
-         //   cout<<"Fat_SC41_dT_Calib[Fat_TDC_IDMain] " <<Fat_SC41_dT_Calib[Fat_TDC_IDMain] << endl;
               hFAT_TDCdt_refSC41[Fat_TDC_IDMain] -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
               hFAT_TDCdt_refSC41_Sum -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
-              //
-              //pOutput->pFat_SC41_dT_Calib[Fat_TDC_IDMain] = Fat_SC41_dT_Calib[Fat_TDC_IDMain];
+         
             }
 
               /// Fatima Time SiPM 0 - SiPM Ch.x (Ch. 0 used as the reference)
               if(Fat_TDC_IDMain < 40 && Fat_CHA_0_TDC>0  && Fat_TDC_T_Main[Fat_TDC_IDMain] > 0&& FatQDCID[j] == Fat_TDC_IDMain){
                     Fat_Ch_dT[Fat_TDC_IDMain] =  (Fat_CHA_0_TDC - Fat_TDC_T_Main[Fat_TDC_IDMain]);
-                  //  Fat_Ch_dT_Calib[Fat_TDC_IDMain] =  Fat_Ch_dT[Fat_TDC_IDMain] + fCal-> TFatTDC_Chref_dT[Fat_TDC_IDMain];
-                    //pOutput->pFat_Ch_dT[Fat_TDC_IDMain] =  Fat_Ch_dT_Calib[Fat_TDC_IDMain] ;
+    
 
                     if(Fat_TDC_IDMain!=0){
                         hFAT_TDCdt_refCha[Fat_TDC_IDMain]->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
@@ -1825,16 +1617,13 @@ if(Fat_QDC_IDMain_i<40){
 
                     /// Histogram TDC cha 0 - TDC Ch.x
                     if(Fat_TDC_IDMain!=0 && Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]==1 ){
-                    //hFAT_TDCdt_refCha_M1[Fat_TDC_IDMain]->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
-                   // hFAT_TDCdt_refCha_Sum_M1  ->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
+
                         }
                     if(Fat_TDC_IDMain!=0 && Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]==2 ){
-                   // hFAT_TDCdt_refCha_M2[Fat_TDC_IDMain]->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
-                   // hFAT_TDCdt_refCha_Sum_M2  ->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
+
                         }
                     if(Fat_TDC_IDMain!=0 && Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]>2 ){
-                   // hFAT_TDCdt_refCha_M3[Fat_TDC_IDMain]->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
-                   // hFAT_TDCdt_refCha_Sum_M3  ->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
+
                             }
                         }
                    // }
@@ -1842,11 +1631,7 @@ if(Fat_QDC_IDMain_i<40){
                         ///Energy Time matrix (just one channel (ch. 7) for now to speed things up)
 
                        if(FatQDCID[j] == Fat_TDC_IDMain && Fat_QDC_GainMatch[FatQDCID[i]]>0  ){
-                  //  hFAT_QDC_vs_TDC_PMT_dT_Ch[7] ->Fill( Fat_QDC_GainMatch[7],Fat_Ch_dT[Fat_TDC_IDMain]);
-                  //  hFAT_QDC_vs_TDC_SC41dT_Ch[7] ->Fill( Fat_QDC_GainMatch[7],Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
 
-                  //  hFAT_QDC_vs_TDC_PMT_dT ->Fill( Fat_QDC_GainMatch[FatQDCID[j]],Fat_Ch_dT[Fat_TDC_IDMain]);
-                  //  hFAT_QDC_vs_TDC_SC41dT ->Fill( Fat_QDC_GainMatch[FatQDCID[j]],Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
                             }
 
 
@@ -1858,9 +1643,7 @@ if(Fat_QDC_IDMain_i<40){
                    hFAT_TDCdt_refCha_Sum_gated ->Fill(Fat_Ch_dT[Fat_TDC_IDMain]);
             ///SC41 - Fatima TDC Energy Gated
             hFAT_TDCdt_refSC41_gated[Fat_TDC_IDMain] -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
-         //  if (Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]==1) hFAT_TDCdt_refSC41_M1_gated[i] -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
-         //    if (Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]==2) hFAT_TDCdt_refSC41_M2_gated[i] -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
-          //   if (Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]==3) hFAT_TDCdt_refSC41_M3_gated[i] -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
+      
             hFAT_TDCdt_refSC41_Sum_gated -> Fill(Fat_SC41_dT_Calib[Fat_TDC_IDMain]);
 
                    }
@@ -1884,13 +1667,9 @@ if(Fat_QDC_IDMain_i<40){
       hGAL_ESum_largerange_OF = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_OF","GALILEO Energy Sum (Overflow)",20000,0,20000);
       hGAL_ESum_largerange_PU = MakeTH1('I',"GALILEO/Sum/hGAL_ESum_largerange_PU","GALILEO Energy Sum (Pileup)",20000,0,20000);
       hGAL_Hit_Pat = MakeTH1('I',"GALILEO/Stats/GALILEO_Hit_Pat","GALILEO Hit Pattern",36,0,36);
-      //hGAL_Multi_1 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_1","GALILEO Multiplicity 1",50,0,50);
-      //hGAL_Multi_2 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_2","GALILEO Multiplicity 2",50,0,50);
-      //hGAL_Multi_3 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_3","GALILEO Multiplicity 3",50,0,50);
-      //hGAL_Multi_4 = MakeTH1('I',"GALILEO/Stats/GALILEO_Multiplicity_4","GALILEO Multiplicity 4",50,0,50);
+      
         hGAL_Chan_E_Mat = MakeTH2('D',"GALILEO/GALILEO_E_Mat","GALILEO Energy-Energy Matrix",2500,0,10000,2500,0,10000);
-      //hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
-      //hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
+     
       hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",20000,0,20000);
     
       for (int i=0; i<GALILEO_MAX_DETS; i++)
@@ -1915,6 +1694,7 @@ if(Fat_QDC_IDMain_i<40){
     ///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
     void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput)
     {
+        pOutput->pGAL_WR=Gal_WR;
         // Process hits once
         for (int i = 0; i < GalFired; i++)
         {
@@ -1992,184 +1772,8 @@ if(Fat_QDC_IDMain_i<40){
         }
     } //end of Do_Galileo_Histos()
     
-/**----------------------------------------------------------------------------------------------**/
-/**--------------------------------------  FINGER  ----------------------------------------**/
-/**----------------------------------------------------------------------------------------------**/
-void EventAnlProc::Make_Finger_Histos(){
-for (int i =0; i<52; i++)
-  {
-
-    hFING_ToT_Strip[i] = MakeTH1('D', Form("FINGER/ToT_Strip/ToT_Strip%02d", i), Form("TOT Strip %2d", i), 4001, -100000., 100000.);
-    hFING_MaxToT_Strip[i] = MakeTH1('D', Form("FINGER/MaxToT_Strip/MaxToT_Strip%02d", i), Form("Max TOT Strip %2d", i), 4001,-100000., 100000.);
-    hFING_ToT_PMT[i] = MakeTH1('D', Form("FINGER/ToT_PMT/ToT_PMT%02d", i), Form("TOT PMT %2d", i), 4001,-100000., 100000.);
-    hFING_lead_lead[i] = MakeTH1('D', Form("FINGER/Lead-Lead/Lead-LeadCh.%02d", i), Form("Lead - Lead %2d", i), 4001, -100000., 100000.);
-    hFING_trail_trail[i] = MakeTH1('D', Form("FINGER/trail-trail/trail-trailCh.%02d", i), Form("trail - trail %2d", i), 4001, -100000., 100000.);
-
-    hFING_Sc41lead_leadmaxtot[i] = MakeTH1('D', Form("FINGER/Sc41-LeadMaxToT/SC41Lead_LeadCh.%02d", i), Form("SC41 Lead - (max ToT chan) Lead %2d ", i), 4001, -100000., 100000.);
-
-}
-
-hFING_ToT_v_Strip = MakeTH2('I',"FINGER/TOT_vs_Strip","ToT vs Strip number", 52, 0, 52, 2001, 0, 100000., "Strip", "ToT");
-hFING_MaxToT_v_Strip = MakeTH2('I',"FINGER/MaxTOT_vs_Strip","MaxToT vs Strip number", 52, 0, 52, 2001, 0., 100000., "Strip", "Max ToT");
-hFING_ToT_v_PMT = MakeTH2('I',"FINGER/TOT_vs_PMT","ToT vs PMT number", 52, 0, 52, 2001, 0., 100000., "PMT", "Max ToT");
-
-hFing_ToTRatio_v_Strip = MakeTH2('D', "FINGER/ToT_Ratio_v_Strip", "TOT Ratio vs Strip", 52, 0, 52, 2001, 0, 1., "Strip", "ToT Ratio");
-hFing_MaxToTRatio_v_Strip = MakeTH2('D', "FINGER/MaxToT_Ratio_v_Strip", "Max TOT Ratio vs Strip", 52, 0, 52, 2001, 0, 1., "Strip", "Max ToT Ratio");
-
-hFING_SC41_lead_lead = MakeTH1('I',"FINGER/SC41_leadlead","SC41 lead-lead", 500, -500., 500.);
-hFING_SC41_trail_trail = MakeTH1('I',"FINGER/SC41_trailtrail","SC41 trail-trail", 500, -500., 500.);
-
-hFING_SC41_tot = MakeTH1('I',"FINGER/SC41_tot","SC41 trail-trail", 4002, 0., 100000.);
-hFING_Multiplicity =  MakeTH1('I',"FINGER/Multiplicity","Finger Multiplicity", 500, 0., 500.);
-
-/*
-  hFING_Hit_Pat = MakeTH1('I',"FINGER/Stats/FINGER_Hit_Pat","FINGER Hit Pattern",52,0,52);
-  hFING_ToT_StripID = MakeTH2('I',"FINGER/TOT_vs_PMT","ToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
-  hFING_MaxToT_StripID = MakeTH2('I',"FINGER/MaxTOT_vs_PMT","MaxToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
-  hFING_Pos = MakeTH2('D',"FINGER/position","Time ratio vs Strips",51,1,51, 1000, -10., 10.);
-  hFING_Pos_ToT = MakeTH2('D',"FINGER/positionToT","ToT ratio vs Strips",51,1,51, 5000, -1., 1.);
-  hFING_Pos_ToT_Max = MakeTH2('D',"FINGER/positionToTMax","ToT ratio vs Strips Max",51,1,51, 5000, -1., 1.);
-
-  hFING_ToT_StripID_Exp= MakeTH2('I',"FINGER/TOT_vs_PMT_Exp","ToT exponential vs Strip number", 1000, 0., 10000., 52, 0, 52);
-  hFING_MaxToTExp_StripID = MakeTH2('I',"FINGER/MaxTOTExp_vs_PMT","MaxToT exponential vs Strip number", 1000, 0., 100000., 52, 0, 52);
-
-  hFING_ToT_StripID_UpDown = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt","ToT vs Strip number sum PMT", 2001, -100000., 100000., 52, 0, 52);
-
-  hFING_ToT_StripID_UpDown_max = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt_MAX","ToT vs Strip number sum PMT MAX", 2001, -100000., 100000., 52, 0, 52);
-
-  hFING_LeadLead_StripID = MakeTH2('I', "FINGER/LeadLead_vs_Strip", "Lead-Lead vs Strip ID", 1000, -50000, 50000, 52, 0, 52);
-  */
-}
-///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
-
-    void EventAnlProc::Do_Finger_Histos(EventUnpackStore* pInput, EventAnlStore* pOutput){
-  // Verify Finger Data Sanity
-  // Need to investigate if lead/trail mismatches are fine or not
-  int maxtot = 0;
-  int maxtotup = 0;
-  int maxtotdown = 0;
-  int maxtotchan = 0;
-  double lead_lead = 0;
-  double trail_trail = 0;
-  double SC41_lead_lead = 0;
-  double SC41_trail_trail = 0;
-  double SC41_tot=0;
-  double maxtotSc41lead=0;
-
- // for (int i=0; i<2; i++){
-    for(int l=0; l<50; l++){
-  SC41_lead_lead = (pInput->fFing_SC41_lead[0][l] - pInput->fFing_SC41_lead[1][l]);
-  SC41_trail_trail = (pInput->fFing_SC41_trail[0][l] - pInput->fFing_SC41_trail[1][l]);
-  SC41_tot =   (pInput->fFing_SC41_trail[0][l]-pInput->fFing_SC41_lead[0][l]);
-
-  if(SC41_lead_lead!=0) hFING_SC41_lead_lead->Fill(SC41_lead_lead);
-  if(SC41_trail_trail!=0)  hFING_SC41_trail_trail->Fill(SC41_trail_trail);
-  if(SC41_tot!=0) hFING_SC41_tot ->Fill(SC41_tot);
-    }
-
-//  cout << "event " << event_number <<" lead chan 0 " << pInput->fFing_SC41_lead[0][l] <<" lead chan 1 "<<  pInput->fFing_SC41_lead[1][l] << " SC41_lead_lead " <<SC41_lead_lead <<"  SC41_trail_trail " << SC41_trail_trail << endl;
-   // }
-  //}
 
 
-
-  // PMTs
-  for (int i = 0; i < 52; i++)
-  {
-    if (pInput->fFing_PMT_Lead_N[i] != pInput->fFing_PMT_Trail_N[i])
-    {
-      continue;
-    }
-
-
-    for (int j = 0; j < pInput->fFing_PMT_Lead_N[i]; j++)
-    {
-        hFING_Multiplicity->Fill(pInput->fFing_PMT_Lead_N[i]);
-      int tot =-( pInput->fFing_Trail_PMT[i][j] - pInput->fFing_Lead_PMT[i][j]);
-      // cout<<"pInput->fFing_PMT_Lead_N[i] " << pInput->fFing_PMT_Lead_N[i] <<" pInput->fFing_Trail_PMT[i][j] " << pInput->fFing_Trail_PMT[i][j] <<  " i " << i <<endl;
-//cout<<"event " << event_number <<" tot "<< tot<<" pInput->fFing_Trail_PMT[i][j] " << pInput->fFing_Trail_PMT[i][j] << " pInput->fFing_Lead_PMT[i][j] " << pInput->fFing_Lead_PMT[i][j] <<" i " << i  << " j " << j <<" fFing_Trail_Up[i][j] " <<pInput->fFing_Trail_Up[i][j] <<" fFing_Trail_Down[i][j] "<<  pInput->fFing_Trail_Down[i][j] << endl;
-      // Fill tot
-      hFING_ToT_PMT[i]->Fill(tot);
-      hFING_ToT_v_PMT->Fill(i, tot);
-    }
-  }
-
-  for (int i = 0; i < 52; i++)
-  {
-    if (pInput->fFing_Strip_N_LU[i] != pInput->fFing_Strip_N_TU[i])
-    {
-      //std::cout << event_number << "!!!!!!! Strip : " << i << " Up PMT Leading and Trailing Error " << pInput->fFing_Strip_N_LU[i] << "," << pInput->fFing_Strip_N_TU[i] << std::endl;
-      continue;
-    }
-    if (pInput->fFing_Strip_N_LD[i] != pInput->fFing_Strip_N_TD[i])
-    {
-      //std::cout << event_number << "!!!!!!! Strip : " << i << " Down PMT Leading and Trailing Error " << pInput->fFing_Strip_N_LD[i] << "," << pInput->fFing_Strip_N_TD[i] << std::endl;
-      continue;
-    }
-    if (pInput->fFing_Strip_N_LD[i] != pInput->fFing_Strip_N_LU[i])
-    {
-      //std::cout << "Strip : " << i << " Down PMT and Up PMT Mismatch (intended)?" << std::endl;
-      continue;
-    }
-
-    for (int j = 0; j < pInput->fFing_Strip_N_LD[i]; j++)
-    {
-      //int pmtUp = i - (i % 2 == 1 ? 0 : 1);
-      //int pmtDown = i + (i % 2 == 1 ? 1 : 0);
-
-      //cout << "Strip ID is " << i << ", hit is " << j << endl;
-      //cout << "Top PMT is: " << pmtUp << " Times: " << pInput->fFing_Lead_Up[i][j] << " , " << pInput->fFing_Trail_Up[i][j] << std::endl;
-      //cout << "Dwn PMT is: " << pmtDown << " Times: " << pInput->fFing_Lead_Down[i][j] << " , " << pInput->fFing_Trail_Down[i][j] << std::endl;
-     pOutput->pFing_Lead_Up[i][j] = pInput->fFing_Lead_Up[i][j];
-     pOutput->pFing_Lead_Down[i][j] = pInput->fFing_Lead_Down[i][j];
-     pOutput->pFing_Trail_Up[i][j] = pInput->fFing_Trail_Up[i][j];
-     pOutput->pFing_Trail_Down[i][j] = pInput->fFing_Trail_Down[i][j];
-        
-     lead_lead = (pInput->fFing_Lead_Up[i][j] - pInput->fFing_Lead_Down[i][j]);
-      
-      hFING_lead_lead[i] -> Fill(lead_lead);
-      pOutput->pFing_lead_lead[i] = lead_lead;
-      trail_trail = (pInput->fFing_Trail_Up[i][j]-pInput->fFing_Trail_Down[i][j]);
-      hFING_trail_trail[i]->Fill(trail_trail);
-
-      int tot_up = pInput->fFing_Trail_Up[i][j] - pInput->fFing_Lead_Up[i][j];
-      int tot_down = pInput->fFing_Trail_Down[i][j] - pInput->fFing_Lead_Down[i][j];
-      int tot = tot_up + tot_down;
-
-   //   cout<<"event " << event_number << " tot_up " << tot_up << " tot_down " <<  tot_down << " i " <<i << " j " << j <<endl;
-
-      pOutput->pFing_tot = tot;
-      pOutput->pFing_stripID = i;
-      hFING_ToT_Strip[i]->Fill(tot);
-      hFING_ToT_v_Strip->Fill(i, tot);
-      hFing_ToTRatio_v_Strip->Fill(i, (double)tot_up / (tot_up + tot_down));
-      if (i > 17 && tot > maxtot)
-      {
-        maxtot = tot;
-        maxtotup = tot_up;
-        maxtotdown = tot_down;
-        maxtotchan = i;
-
-      }
-       maxtotSc41lead = SC41_lead_lead - (lead_lead);
-
-       if(maxtotSc41lead!=0)  hFING_Sc41lead_leadmaxtot[maxtotchan]->Fill(maxtotSc41lead);
-
-    }
-  }
-
-  if (maxtotchan > 0)
-  {
-
-
-    hFING_MaxToT_Strip[maxtotchan]->Fill(maxtot);
-    hFING_MaxToT_v_Strip->Fill(maxtotchan, maxtot);
-    hFing_MaxToTRatio_v_Strip->Fill(maxtotchan, (double)maxtotup / (maxtotup + maxtotdown));
-    pOutput->pFing_maxtotchan = maxtotchan;
-    pOutput->pFing_maxtot= maxtot;
-        }
-  return;
-    }
 //--------------------------------------------------------------------------------------------------------------------//
 TH1I* EventAnlProc::MakeH1I(const char* fname,
                             const char* hname,
@@ -2260,6 +1864,69 @@ TGo4PolyCond* EventAnlProc::MakePolyCond(const char* fname,
    AddAnalysisCondition(cond, fname);
    return cond;
 }
+///-------------------------------------------------------------------------------------------------------
+void EventAnlProc::FRS_Gates(){
+  Int_t i;
+  ifstream    file;
+   file.open("Configuration_Files/FRS_Gates/ID_X2AoQ.txt");
+
+    for (i = 0; i < 6; i++){
+       if(IsData(file)) file >> XX2_AoQ[i]>> YX2_AoQ[i] ;
+     
+    }
+  file.close();
+  
+  
+ ///--------------------------------------------------------------------------------
+  file.open("Configuration_Files/FRS_Gates/ID_X4AoQ.txt");
+
+    for (i = 0; i < 6; i++){
+       if(IsData(file)) file >> XX4_AoQ[i]>> YX4_AoQ[i] ;
+     
+    }
+  file.close();
+  
+  
+ ///--------------------------------------------------------------------------------
+  
+  file.open("Configuration_Files/FRS_Gates/ID_Z_Z2.txt");
+
+    for (i = 0; i < 6; i++){
+       if(IsData(file)) file >> X_ZZ2[i]>> Y_ZZ2[i] ;
+     
+    }
+  file.close();
+  
+  
+ ///--------------------------------------------------------------------------------
+      file.open("Configuration_Files/FRS_Gates/ID_ZvsAoQ.txt");
+
+    for (i = 0; i < 6; i++){
+       if(IsData(file)) file >> X_ZAoQ[i]>> Y_ZAoQ[i] ;
+     
+    }
+  file.close();
+}
+///-------------------------------------------------------------------------------------------------------
+ int EventAnlProc::IsData(ifstream &f) {
+        char dum;
+        char dumstr[300];
+        int retval = 0;
+
+        /* 'operator >>' does not read End-of-line, therefore check if read 
+            character is not EOL (10) */
+        do {
+            dum = f.get();
+            if (dum == '#')    // comment line => read whole line and throw it away
+            f.getline(dumstr,300);
+        }
+        while ((dum == '#') || ((int)dum == 10)); 
+
+        f.unget();   // go one character back
+        retval = 1;
+        return retval;
+    }
+///-------------------------------------------------------------------------------------------------------
 
 void EventAnlProc::checkTAMEXorVME(){
 

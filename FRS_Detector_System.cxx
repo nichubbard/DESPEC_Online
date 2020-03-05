@@ -136,8 +136,6 @@ FRS_Detector_System::FRS_Detector_System(){
     nhit5[i]        = new Int_t[2];       // multiplicity (V1290)
 //    nhit_v1290_main[i]    = new Int_t[2];       // multiplicity (V1290)
 
-    
-    
     }
     
     

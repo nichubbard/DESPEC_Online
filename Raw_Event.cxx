@@ -404,19 +404,19 @@ void Raw_Event::set_DATA_PLASTIC_VME(int QDC_ite, int TDC_ite, double* VME_QDC_D
          }
        Event_Type=2;
         }
-
-    void Raw_Event::set_DATA_SCALAR(int Scalar_ite,  double* Scalar_Dat, int* Scalar_Chan){
+/*
+    void Raw_Event::set_DATA_SCALAR(int Scalar_ite,  double* Scalar_Dat){
 
     this->SCALAR_ITERATOR = Scalar_ite;
 
-    for(int i=0; i<SCALAR_ITERATOR; i++) {
+    for(int i=1; i<SCALAR_ITERATOR; i++) {
     this->SCALAR_DATA[i] = Scalar_Dat[i];
-    this->SCALAR_CHAN[i] = Scalar_Chan[i];
+    
 
-         }
-
+         }*/
+/*
     Event_Type=2;
-        }
+        }*/
 //---------------------------------------------------------------
 
 bool Raw_Event::PLASTIC_CheckVME(){
@@ -520,11 +520,26 @@ void Raw_Event::set_DATA_FATIMA(int QDC_FIRED,int TDC_FIRED,
         this->FAT_TDC_id[i]        = det_ids_TDC[i];
         this->FAT_TDC_timestamp[i] = TDC[i];
 
-
-
     }
        Event_Type = 3;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------- SCALERS  ------------------------------------------------//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void Raw_Event::set_DATA_SCALAR(int Scalar_ite,  double* Scalar_Dat,  bool Scaler_Used){
+// 
+     
+      if(Scaler_Used==true){
+          
+        this->SCALAR_ITERATOR = Scalar_ite;
+        
+        for(int i=1; i<17; i++) {
+        this->SCALAR_DATA[i] = Scalar_Dat[i];
+         }
+
+    Event_Type=2;
+        }
+  }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //-------------------------------------- FATIMA TAMEX  ------------------------------------------------//
@@ -937,7 +952,6 @@ ULong64_t Raw_Event::get_WR(){return WR;}
 
  int Raw_Event::get_scalar_iterator(){return SCALAR_ITERATOR;}
  double Raw_Event::get_scalar_data(int i){return SCALAR_DATA[i];}
- int Raw_Event::get_scalar_chan(int i){return SCALAR_CHAN[i];}
 /*
 PLASTIC_VME_DataStruct* Raw_Event::PassPLASTIC_VME(){ return &PLASTIC_VME_Data;}
 

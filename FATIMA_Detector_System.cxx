@@ -21,27 +21,6 @@ FATIMA_Detector_System::FATIMA_Detector_System(){
 
     fired_QDC_amount = 0;
 
-    //For vectors use 
-//     QLong = std::vector<double>(max_am_dets,0);
-//     QLong_Raw = std::vector<double>(max_am_dets,0);
-//     QShort_Raw = std::vector<double>(max_am_dets,0);
-// 
-//     QDC_Time_Coarse = std::vector<ULong64_t>(max_am_dets,0);
-//     QDC_Time_Fine = std::vector<double>(max_am_dets,0);
-// 
-//     TDC_Time_raw = std::vector<ULong64_t>(max_am_dets,0);
-//     TDC_Time_ns  = std::vector<double>(max_am_dets,0);
-// 
-//     det_ids_QDC = std::vector<int>(max_am_dets,0);
-//     det_ids_TDC = std::vector<int>(max_am_dets,0);
-// 
-// 
-//     det_ID_QDC = std::vector<std::vector<int> >(100,std::vector<int>(100,0));
-//     det_ID_TDC = std::vector<std::vector<int> >(100,std::vector<int>(100,0));
-// 
-//     FAT_positions = std::vector<std::vector<double> >(36,std::vector<double>(3,-1));
-//     source_position_correction = std::vector<double>(36,-1);
-    
     QLong = new double[max_am_dets];
     QLong_Raw = new double[max_am_dets];
     QShort_Raw = new double[max_am_dets];
@@ -54,6 +33,12 @@ FATIMA_Detector_System::FATIMA_Detector_System(){
 
     det_ids_QDC = new int[max_am_dets];
     det_ids_TDC = new int[max_am_dets];
+    
+    Scalar_Data = new double[16];
+    
+    for(int i=1; i<17; i++){
+     Scalar_Data[i] = 0;
+    }
 
     for(int i = 0;i < max_am_dets;++i){
         QLong[i] = 0;
@@ -95,13 +80,6 @@ FATIMA_Detector_System::FATIMA_Detector_System(){
     he_iter = 0;
     
     load_pos_correction();
-
-//     Det_Hist = new TH1D*[32];
-//     char name[1000];
-//     for(int i = 0;i < 32;++i){
-//         sprintf(name,"Det_%d",i);
-//         Det_Hist[i] = new TH1D(name,name,1000,-40000,40000);
-//     }
     
 }
 
@@ -128,6 +106,8 @@ FATIMA_Detector_System::~FATIMA_Detector_System(){
     delete[] TDC_Time_ns;
     delete FATIMA_T_CALIB;
     delete FATIMA_E_CALIB;
+    
+    delete[]Scalar_Data;
 }
 
 //---------------------------------------------------------------
@@ -249,6 +229,8 @@ void FATIMA_Detector_System::get_Event_data(Raw_Event* RAW){
                         QLong_Raw,QShort_Raw,QLong,
                         TDC_Time_raw, TDC_Time_ns, QDC_Time_Coarse,QDC_Time_Fine,
                         det_ids_QDC,det_ids_TDC);
+    
+    RAW->set_DATA_SCALAR(Scalar_iterator, Scalar_Data, Scaler_Module);
                         
     //QDC_TDC->get_Detector_Data(RAW);
 }
@@ -264,14 +246,13 @@ void FATIMA_Detector_System::Process_MBS(int* pdata){
 
     no_data = false;
 
-    //check for QDC and TDC header
+    //check for QDC and TDC and Scalar header
     QDC_Header* QDChead  = (QDC_Header*) this->pdata;
     TDC_Check* TDChead = (TDC_Check*) this->pdata;
-
+   
+    
     fired_QDC_amount = 0;
     fired_TDC_amount = 0;
-
-
 
     //reset TDC called bool
     bool TDC_Called = false;
@@ -288,6 +269,7 @@ void FATIMA_Detector_System::Process_MBS(int* pdata){
         if(QDChead->check_a == 10 && QDChead->length == 4) {
             for(int i = 0;i < 3;++i) {
                 this->pdata++;
+
             }
             
         }
@@ -296,26 +278,29 @@ void FATIMA_Detector_System::Process_MBS(int* pdata){
         
         // double length = QDChead->length;
                 
-            QDC_DATA = true;
-            Check_QDC_DATA(QDChead);
-        }
+                    QDC_DATA = true;
+                    Check_QDC_DATA(QDChead);
+            }
         //TDC code reached
           if(num_TDC_modules==0)break;
-    // else if(TDChead->type!=8 || TDChead->type!=20 || TDChead->type!=22)   cout <<"TDChead->type  " << TDChead->type  << endl;
-     //   else if(TDChead->type!=8 ||TDChead->type!=20) break;
-        else if(TDChead->type == 8){
+   
+          else if(TDChead->type == 8){
 
             num_TDC_modules--;
+            
+            
 
             this->pdata--;
 
-        Check_TDC_DATA(); 
+            Check_TDC_DATA(); 
+            
+           
 
-        if (num_TDC_modules == 0){
-         
-        TDC_Called = true;
+            if (num_TDC_modules == 0){
+            
+                TDC_Called = true;
         
-        this->pdata++;
+                this->pdata++;
 
         }
          
@@ -329,7 +314,7 @@ void FATIMA_Detector_System::Process_MBS(int* pdata){
             TDC_Called = false;
          
             this->pdata++;
-         
+       
         }
     }
     else{
@@ -343,16 +328,45 @@ void FATIMA_Detector_System::Process_MBS(int* pdata){
 //              cout << "Most likely White Rabbit is/isn't enabled" << endl;
 //              exit(0);
         //}
+           
     }
     
         this->pdata++;
         
         QDChead = (QDC_Header*) this->pdata;
-        TDChead = (TDC_Check*) this->pdata;
+        TDChead = (TDC_Check*) this->pdata;    
+         
     }
+    
 
-    this->pdata--;
-    this->pdata--;
+//     this->pdata--;
+//     this->pdata--;
+    
+    if(Scaler_Module==0) return;
+    ///Does this Scalar go here?????
+    int Scalar_iterator =0;
+    int data;
+   
+   
+   
+    
+    //while(1){
+        
+       // Scalar_iterator=0;
+//          data = *pdata++;
+//          if ((data & 0xFFFF0000) == 0x7c000000){
+//             break;  // exit loop            
+//         }
+
+        //int chan = (data & 0x03E00000) >> 21;     // [0..31] 
+     //   data = (data & 0x001FFFFF);
+      
+      //  Scalar_Data[Scalar_iterator] = data;
+      //  Scalar_Channels[Scalar_iterator] = chan;
+            
+        //Scalar_iterator++;
+   //    cout <<" Scalar_iterator " <<Scalar_iterator<< " data " <<data<<  endl;
+   // }
 
     //Check_TDC_DATA(); 
     //if(exiter) exit(0);
@@ -383,7 +397,7 @@ void FATIMA_Detector_System::Check_QDC_DATA(QDC_Header* QDChead){
 
     QDC_Header_2 *QDChead_2 = (QDC_Header_2*) pdata;
 
-
+ 
     int board_ID = QDChead_2->geo; // Gets Geographical Address //
     int num_Channels = QDChead_2->channels; // Gets Channels fired 0011 means 1&2 fired //
 //cout<<"num_Channels " << num_Channels << " board_ID "<<board_ID<<endl;
@@ -485,9 +499,7 @@ void FATIMA_Detector_System::Check_QDC_DATA(QDC_Header* QDChead){
             //possibly this should be -= have to verify...
             fine_time += ((double)(e->fine_time)/1024.);
             
-            if(dist_corr_used) fine_time += source_position_correction[active_det];
-
-            
+            if(dist_corr_used) fine_time += source_position_correction[active_det];        
         
             QDC_Time_Fine[fired_QDC_amount] = fine_time;
         
@@ -536,7 +548,7 @@ void FATIMA_Detector_System::Check_TDC_DATA(){
             
         TDC_Check* p = (TDC_Check*) pdata;
         check = p->type;
-            
+          
          // Global Header Condition //
         if( check == 8 ){
             TDC_Glob_Header* gh = (TDC_Glob_Header*) pdata;
@@ -559,24 +571,9 @@ void FATIMA_Detector_System::Check_TDC_DATA(){
             else{
                 active_det = det_ID_TDC[tdc_board_ID][TDC_ch];
                 det_ids_TDC[fired_TDC_amount] = active_det;
-                // cout << " det_ids_TDC[fired_TDC_amount] " <<  det_ids_TDC[fired_TDC_amount] << "fired_TDC_amount" << fired_TDC_amount << endl;
-  
-             //  cout << "TDC_ch " << TDC_ch <<" Board " << tdc_board_ID  << " DET! "  << active_det << endl;
-                //if(active_det >= 50){
-                //    if(fired_QDC_amount == 1 && active_det == 51){
-                //        double tmp_val = ((double) m->measurement*25.) - ((double) TDC_Time[det_ids_QDC[0]]);
-                //
-                //        Det_Hist[det_ids_QDC[0]]->Fill(tmp_val*1e-3);
-                //
-                //    }
-                //    he_iter++;
-                //}
+                        
                 TDC_Time_raw[fired_TDC_amount] = (ULong64_t) (m->measurement);
-               // printf("E (gm) %8.2lf ", QLong[fired_QDC_amount]);
-               // cout << "time " << TDC_Time_raw[fired_TDC_amount]<< endl;
-               // if (dist_corr_used) TDC_Time_raw[fired_TDC_amount] += source_position_correction[active_det];
-               
-                // TDC_Time_raw[fired_TDC_amount] = 25e-3*TDC_Time_raw[fired_TDC_amount];
+              
                 Calibrate_TDC(fired_TDC_amount);
 
                 if(dist_corr_used) TDC_Time_ns[fired_TDC_amount] += source_position_correction[active_det];
@@ -584,21 +581,44 @@ void FATIMA_Detector_System::Check_TDC_DATA(){
                 fired_TDC_amount++;
                // cout << fired_TDC_amount << endl;
                 no_data = false;
-                          }
-             
+                          }            
         }
         
         
         // TDC Trailer Condition // 
-        else if ( check == 16 ) trail = true;
-
+        else if ( check == 16 ) {trail = true;
+            
+         
+        }
+        
         if(loop_counter > 100){
             cerr << "FATIMA TDC loop not reaching trailer! pdata iteration problem possible" << endl;
        //     cerr << "Exiting Program!" << endl;
             //exit(0);
         }
-        
+      
+     ///Scaler added 04.03.20 AKM
+     if(check == 16 && Scaler_Module==true){ 
+          Scalar_iterator=0;        
+           
+          pdata+=2; ///Shift to scaler header
+           UInt_t caen_header;
+           int data;
+           caen_header = *pdata++;  
+         
+           while(1){
+            data  = *pdata++; 
+             
+            ///Trailer
+            if((data & 0xFFFF0000) == 0x7c000000) break;   
+                data = (data & 0x001FFFFF);
+                Scalar_iterator++;
+            
+            }
+        }
     }
+  //  this->pdata++;
+   
 }
 
 //---------------------------------------------------------------
@@ -683,8 +703,10 @@ void FATIMA_Detector_System::read_config_variables(string config_filename){
     
     file.ignore(256,':');
     file >> num_TDC_modules_fixed;//dummy_var; 
-  
-        
+    
+    file.ignore(256,':');
+    file >> Scaler_Module;//dummy_var; 
+
 };
 
 //---------------------------------------------------------------

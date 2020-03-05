@@ -56,15 +56,15 @@ PLASTIC_VME_Detector_System::PLASTIC_VME_Detector_System(){
      VME_TDC_Data = new double[50];
      VME_TDC_Channels = new int[50];
          
-     Scalar_Data = new double[50];
-     Scalar_Channels = new int[50];
+//     Scalar_Data = new double[50];
+  //   Scalar_Channels = new int[50];
      
      TDC_iterator = 0;
      for(int i; i<50; i++){
      VME_TDC_Data[i] = 0;
      VME_TDC_Channels[i] = 0;
-     Scalar_Data[i] = 0;
-     Scalar_Channels[i] = 0;
+//     Scalar_Data[i] = 0;
+  //   Scalar_Channels[i] = 0;
      }
      
      for(int i; i<32; i++){
@@ -88,8 +88,8 @@ PLASTIC_VME_Detector_System::~PLASTIC_VME_Detector_System(){
     delete[]VME_QDC_Channels;
     delete[]VME_TDC_Data;
     delete[]VME_TDC_Channels;
-    delete[]Scalar_Data;
-    delete[]Scalar_Channels;
+//    delete[]Scalar_Data;
+   // delete[]Scalar_Channels;
 
 }
 
@@ -98,7 +98,7 @@ PLASTIC_VME_Detector_System::~PLASTIC_VME_Detector_System(){
 void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
     
     RAW->set_DATA_PLASTIC_VME(QDC_iterator, TDC_iterator,VME_QDC_Data1, VME_QDC_Data2, VME_QDC_Channels,VME_TDC_Data,VME_TDC_Channels);
-    RAW->set_DATA_SCALAR(Scalar_iterator,Scalar_Data, Scalar_Channels);
+   // RAW->set_DATA_SCALAR(Scalar_iterator,Scalar_Data, Scalar_M);
 
 }
 
@@ -107,10 +107,7 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
     
    lwords = psubevt->GetIntLen();
    pdata = psubevt->GetDataField();
-   //pdata = data_field;
-   //pl_data = psubevt->GetDataField();
-    
-    // TDC_iterator=0;
+
  }
  
  void PLASTIC_VME_Detector_System::Process_MBS(TGo4MbsEvent* test){
@@ -120,14 +117,10 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
  
    
  void PLASTIC_VME_Detector_System::Process_MBS(int* hah){
-     
-     // while (next_sub_evt !=0){
-     //next_sub_evt = pdata->   NextSubEvent();
-     //this->pdata = pdata;
+
      reset_fired_channels();
      pl_data=pdata;
-//      TDC_iterator=0;
-//      QDC_iterator=0;
+
    
        
     //***********************************
@@ -140,27 +133,9 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
       
          caen_header = *pdata++;
          type = (caen_header & TY_MASK) >> 24;    
-        //  printf("Caen head 0x%08x\n", (unsigned int) caen_header);  
-//     if ((caen_header & 0xFF000000) == 0x32000000){ 
-//          
-//           data = *pdata++;
-//           //cout << "QDC head " <<endl;
-//         }
-        
-//         if ((caen_header & 0xFF000000) == 0x34000000) {
-//           //   cout << "QDC trail " <<endl;
-//             break;
-//         }
-      // printf("0x%08x\n", (unsigned int) caen_header);       
-         
-        position++;
-      // printf("0x%08x\n", (unsigned int) caen_header);
-        // get type [2,6] 
-        
-//       printf("%d/%d   0x%08x\n", lwords, data, caen_header );
-//         cout << "type "<< type << endl;
-           // card with data, else =6 
               
+            position++;
+                
          if (type == 2){        
             // get geographical address 
             geo  = (caen_header & GEO_MASK) >> 27;      
@@ -179,15 +154,7 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
                 data = data & DA_MASK;
                
                 if(geo==6){
-               
-//              if ((data & 0xF8000000) == 0x34000000){ 
-//                 break;
-//                 }
-//            printf("         GEO: %d (0x%x)\n",geo,geo);
-//            printf("        Type: %d (0x%x)\n",type,type);
-//            printf("       D_CNT: %d (0x%x)\n",d_cnt,d_cnt);
-//            printf("       Header: %d (0x%08x\n)\n\n",caen_header);
-          
+       
                  
                  if (chan >=0 && chan <=31){
                 VME_QDC_Channels[chan] = chan;                 
@@ -202,7 +169,6 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
       
             pdata++;   // skip EOB word 
             position++;
-    // }
                      
        
 
@@ -266,19 +232,10 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
     
        caen_header = *pdata++;    
     //  printf("caen_header scalar 0x%08x\n", (unsigned int) caen_header& 0xFF000000);
-     while(true){
-//    
-         data = *pdata++;
-//     
-   
-//        printf("caen_header scalar 0x%08x\n", (unsigned int) caen_header);
-//          if ((caen_header & 0xFF000000) == 0x4a000000){ 
-//             data=*pdata++;        
-//           // printf("0x%08x\n", (unsigned int) data);
-//          //    cout << "scalar head "<<endl;
-//         }
-//          //printf("data scalar 0x%08x\n", (unsigned int) data);
-//         // global trailer
+     while(true){    
+         data = *pdata++;  
+
+        // global trailer
         if ((data & 0xFFFF0000) == 0x4c000000){
             break;  // exit loop
         //cout << "scalar break "<<endl;
@@ -290,9 +247,9 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
         type = (data & TY_MASK) >> 24; 
         geo  = caen_header & 0x1F;       
       //  cout << "type " << type << " geo " << geo<< " chan "<< chan << " data "<< data<< endl;
-        Scalar_Data[Scalar_iterator] = data;
-        Scalar_Channels[Scalar_iterator] = chan;
-        Scalar_iterator++;
+//        Scalar_Data[Scalar_iterator] = data;
+   //     Scalar_Channels[Scalar_iterator] = chan;
+   //     Scalar_iterator++;
      }
  }
  
@@ -301,7 +258,7 @@ void PLASTIC_VME_Detector_System::get_Event_data(Raw_Event* RAW){
 void PLASTIC_VME_Detector_System::reset_fired_channels(){
     TDC_iterator = 0;
     QDC_iterator = 0;
-    Scalar_iterator = 0;
+//    Scalar_iterator = 0;
      for (int i=0; i<QDC_iterator; i++){
         VME_QDC_Data1[i] = 0 ;
         VME_QDC_Data2[i] = 0 ;
@@ -311,10 +268,10 @@ void PLASTIC_VME_Detector_System::reset_fired_channels(){
         VME_TDC_Data[i] = 0 ;
         VME_TDC_Channels[i] =0;
     }
-    for (int i=0; i<Scalar_iterator; i++){
-        Scalar_Data[i] = 0;
-        Scalar_Channels[i] = 0;
-    }
+   // for (int i=0; i<Scalar_iterator; i++){
+   //     Scalar_Data[i] = 0;
+   //     Scalar_Channels[i] = 0;
+   // }
        
 }
 

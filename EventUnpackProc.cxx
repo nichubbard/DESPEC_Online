@@ -136,11 +136,6 @@ EventUnpackProc::EventUnpackProc(const char* name) : TGo4EventProcessor(name)
 
   if(Used_Systems[1]) Make_AIDA_Histos();
 
- // if(Used_Systems[2] && !PLASTIC_CALIBRATION && VME_TAMEX_bPlas==false) Make_Plastic_Histos();
-
-  if(Used_Systems[2] && !PLASTIC_CALIBRATION && VME_TAMEX_bPlas==true) Make_Plastic_VME_Histos();
-
- // if(Used_Systems[3]) Make_FATIMA_Histos();
 
   if(Used_Systems[4] && VME_TAMEX_Fatima==false && VME_AND_TAMEX_Fatima==false) Make_FATIMA_TAMEX_Histos();
 
@@ -149,12 +144,7 @@ EventUnpackProc::EventUnpackProc(const char* name) : TGo4EventProcessor(name)
 
   if((Used_Systems[3] || Used_Systems[4]) && VME_TAMEX_Fatima==false && VME_AND_TAMEX_Fatima==true) Make_FATIMA_VME_TAMEX_Histos();
 
- // if(Used_Systems[3] && VME_AND_TAMEX_Fatima==true) Make_FATIMA_VME_TAMEX_Histos();
-
   if(Used_Systems[5]) Make_GALILEO_Histos();
-
-  //if(Used_Systems[5]) Make_Finger_Histos();
-
 
   RAW = new Raw_Event();
 
@@ -266,7 +256,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
 
   if (event_number>0){
-   
+  
       int subevent_iter = 0;
       Int_t PrcID_Conv = 0;
 
@@ -571,11 +561,11 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
           }
 
-          fOutput->fScalar_fired = RAW->get_scalar_iterator();
-          for (int g=0; g < RAW->get_scalar_iterator(); g++){
-//            fOutput-> fScalar_ID = RAW->get_scalar_chan(g);
-
-          }
+//           fOutput->fScalar_fired = RAW->get_scalar_iterator();
+//           for (int g=0; g < RAW->get_scalar_iterator(); g++){
+// //            fOutput-> fScalar_ID = RAW->get_scalar_chan(g);
+// 
+//           }
         }
           ///--------------------------------------------------------------------------------------------///
                                                 /**Output bPLASTIC TAMEX and FATIMA **/
@@ -588,7 +578,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
         int Phys_Channel_Trail_bPlas[2][256];
      if (Used_Systems[2]&& PrcID_Conv==2 && VME_TAMEX_bPlas == false){
           
-         for(int f=0;f<bPLASTIC_TAMEX_MODULES;f++){       
+         for(int f=FATIMA_TAMEX_MODULES;f<bPLASTIC_TAMEX_MODULES;f++){       
            bPlasfired[f]  = 0;
            for(int g=0; g<bPLASTIC_TAMEX_HITS; g++){
            Phys_Channel_Lead_bPlas[f][g] = 0;
@@ -618,11 +608,10 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
               if(RAW->get_PLASTIC_CH_ID(i,j) % 2 == 1){ //Lead odd j
                 Phys_Channel_Lead_Fat[i][j] =TAMEX_bPlasFat_ID[i][RAW->get_PLASTIC_physical_channel(i, j)]; //From allocation file in future
                 int chan_fat = Phys_Channel_Lead_Fat[i][j];
-                // cout<<"RAW->get_PLASTIC_TAMEX_ID(i) " << RAW->get_PLASTIC_TAMEX_ID(i) << " FATIMA_TAMEX_MODULES " <<FATIMA_TAMEX_MODULES <<" Fatfired[i] " <<Fatfired[i] <<" Phys_Channel_Lead_Fat[i][j] " <<Phys_Channel_Lead_Fat[i][j]<<  endl;
-                // PMT allocation succeeded
+            
                 int N1 = fOutput->fFat_PMT_Lead_N[chan_fat]++;
                 fOutput->fFat_Lead_PMT[chan_fat][N1] = RAW->get_PLASTIC_lead_T(i,j);
-               // cout<<"UNPACK " << " fOutput->fFat_PMT_Lead_N[chan_fat] " << fOutput->fFat_PMT_Lead_N[chan_fat] << " chan_fat " << chan_fat << " fOutput->fFat_Lead_PMT[chan_fat][N1] " << fOutput->fFat_Lead_PMT[chan_fat][N1] << endl;
+               
               }
               else{ //Trail even j
                 Phys_Channel_Trail_Fat[i][j] = TAMEX_bPlasFat_ID[i][RAW->get_PLASTIC_physical_channel(i, j)];
@@ -857,7 +846,8 @@ void EventUnpackProc::FILL_HISTOGRAMS(int PrcID_Conv){
     
  // switch(PrcID_Conv){
   //  case 0:
-  if(PrcID_Conv==0)  Fill_FRS_Histos();
+    ///WARNING USED SYSTEMS!!!
+  if(PrcID_Conv==0 && Used_Systems[0])  Fill_FRS_Histos();
   //else break;
    // break;
    // case 1:
@@ -865,7 +855,7 @@ void EventUnpackProc::FILL_HISTOGRAMS(int PrcID_Conv){
    if(PrcID_Conv==1)  Fill_AIDA_Histos();
   //  break;
   //  case 2:
-    if(!PLASTIC_CALIBRATION && VME_TAMEX_bPlas==false && PrcID_Conv==2) Fill_Plastic_Histos();
+   // if(!PLASTIC_CALIBRATION && VME_TAMEX_bPlas==false && PrcID_Conv==2) Fill_Plastic_Histos();
     if(!PLASTIC_CALIBRATION && VME_TAMEX_bPlas==true && PrcID_Conv==2 ) Fill_Plastic_VME_Histos();
 //     break;
 //     case 3:
@@ -1021,26 +1011,10 @@ void EventUnpackProc::read_setup_parameters(){
     cout<<"Setup Parameters List Unpack Proc: "<<endl;
   if(WHITE_RABBIT_USED) cout<<"White Rabbit: Enabled"<<endl;
   else if(!WHITE_RABBIT_USED) cout<<"White Rabbit: Disabled"<<endl;
-   // if(FAT_exclusion_dist > 0) cout<<"FATIMA Detectors Excluded if Linear Difference Exceeds "<<FAT_exclusion_dist<<" mm"<<endl;
-   // else if(FAT_exclusion_dist == 0) cout<<"'Nearest Neighbour Exclusion': Disabled (Distance set to 0)"<<endl;
-  cout<<"////////////////////////////////////////////////////////////////////////"<<endl;
+    cout<<"////////////////////////////////////////////////////////////////////////"<<endl;
   cout<<endl;
   cout<<endl;
-  /*while(file.good()){
-  getline(file,line,'\n');
-  if(line[0] == '#') continue;
-  sscanf(line.c_str(),format,&var_name,&dummy_var);
-
-  cout<<"Hello Again?"<<endl;
-
-  if (var_name == "White_Rabbit_Enabled:" && dummy_var == 1)  WHITE_RABBIT_USED = true;
-  else if (var_name == "White_Rabbit_Enabled:" && dummy_var == 0)  WHITE_RABBIT_USED = false;
-
-  if (var_name == "FATIMA_Gain_Match_Enabled:" && dummy_var == 1)  FAT_gain_match_used = true;
-  else if (var_name == "FATIMA_Gain_Match_Enabled:" && dummy_var == 0) FAT_gain_match_used  = false;
-
-}*/
-
+ 
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------//
@@ -1048,7 +1022,7 @@ Int_t EventUnpackProc::get_Conversion(Int_t PrcID){
 
   for(int i = 0;i < 7;++i){
     for(int j = 0;j < 5;++j){
-           //  cout<<" PrcID " << PrcID <<" PrcID_Array[i][j] "<< PrcID_Array[i][j] << " i " << i << " j " << j <<endl;
+          
       if(PrcID == PrcID_Array[i][j]) return i;
     }
   }
@@ -1114,9 +1088,6 @@ void EventUnpackProc::get_WR_Config(){
   // ################# Raw Histogram Filling Section ################## //
   // ################################################################## //
   // ################################################################## //
-   /**----------------------------------------------------------------------------------------------**/
-  /**---------------------------------------------  White rabbit time sync checks-------------------**/
-  /**----------------------------------------------------------------------------------------------**/
   
   
   
@@ -1735,124 +1706,20 @@ void EventUnpackProc::Fill_AIDA_Histos() {
 //   }
   //-----------------------------------------------------------------------------------------------------------------------------//
 
-   void EventUnpackProc::Fill_Plastic_Histos(){}
-//
-//     //get amount of fired Tamex modules
-//     int TamexHits = RAW->get_PLASTIC_tamex_hits();
-//
-//     //int Physical_hits = 0;
-//     int leadHits = 0,leadHitsCh = 0;
-//     int trailHits = 0,trailHitsCh = 0;
-//     int Phys_Channel[2] = {0,0};
-//     double Lead[2] = {0,0};
-//     double Trail[2] = {0,0};
-//     double TOT[2] = {0,0};
-//
-//     double Diff = 0;
-//
-//     int MaxHits = 0;
-//
-//     for(int i = 0;i < TamexHits;++i){
-//
-//       leadHits = RAW->get_PLASTIC_lead_hits(i);
-//       trailHits = RAW->get_PLASTIC_trail_hits(i);
-//       //cout << "trail " <<trailHits << endl;
-//       MaxHits = (leadHits >= trailHits) ? leadHits : trailHits;
-//
-//       for(int j = 0;j < leadHits;++j){
-//         Phys_Channel[0] = RAW->get_PLASTIC_physical_channel(i,j);
-//         Lead[0] = RAW->get_PLASTIC_lead_T(i,Phys_Channel[0]);
-//
-//         //Leading - Leading
-//         for(int k = 0;k < leadHits;++k){
-//           if(k != j){
-//             Phys_Channel[1] = RAW->get_PLASTIC_physical_channel(i,k);
-//             Lead[1] = RAW->get_PLASTIC_lead_T(i,Phys_Channel[1]);
-//             Diff = Lead[0] - Lead[1];
-//
-//             if(!LEAD_LEAD[i][Phys_Channel[0]][Phys_Channel[1]]){
-//               LEAD_LEAD[i][Phys_Channel[0]][Phys_Channel[1]] = MakeTH1('D',
-//               Form("PLASTIC/lead_minus_lead_all_chans/lead_minus_lead_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),
-//               Form("lead_minus_lead_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),40000, -20000., 20000.);
-//             }
-//             LEAD_LEAD[i][Phys_Channel[0]][Phys_Channel[1]]->Fill(Diff);
-//           }
-//         }
-//       }
-//       for(int j = 0;j < trailHits;++j){
-//
-//         Phys_Channel[0] = RAW->get_PLASTIC_physical_channel(i,j);
-//         Trail[0] = RAW->get_PLASTIC_trail_T(i,Phys_Channel[0]);
-//
-//         //Trailing - Trailing
-//         for(int k = 0;k < trailHits;++k){
-//           if(k != j){
-//             Phys_Channel[1] = RAW->get_PLASTIC_physical_channel(i,k);
-//             Trail[1] = RAW->get_PLASTIC_trail_T(i,Phys_Channel[1]);
-//             Diff = Trail[0] - Trail[1];
-//
-//             if(!TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]]){
-//               TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]] = MakeTH1('D',
-//               Form("PLASTIC/trail_minus_trail/trail_minus_trail_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),
-//               Form("trail_minus_trail_board%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),10000, -500., 500.);
-//             }
-//
-//             TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]]->Fill(Diff);
-//           }
-//         }
-//       }
-//       for(int j = 0;j < MaxHits;++j){
-//
-//         Phys_Channel[0] = RAW->get_PLASTIC_physical_channel(i,j);
-//
-//         leadHitsCh = RAW->get_PLASTIC_physical_lead_hits(i,Phys_Channel[0]);
-//         trailHitsCh = RAW->get_PLASTIC_physical_trail_hits(i,Phys_Channel[0]);
-//
-//         if(leadHitsCh == trailHitsCh){
-//           TOT[0] = RAW->get_PLASTIC_TOT(i,Phys_Channel[0]);
-//           //Trailing - Trailing
-//           for(int k = 0;k < MaxHits;++k){
-//             if(k != j){
-//               Phys_Channel[1] = RAW->get_PLASTIC_physical_channel(i,k);
-//
-//               leadHitsCh = RAW->get_PLASTIC_physical_lead_hits(i,Phys_Channel[1]);
-//               trailHitsCh = RAW->get_PLASTIC_physical_trail_hits(i,Phys_Channel[1]);
-//
-//               if(leadHitsCh == trailHitsCh){
-//                 TOT[1] = RAW->get_PLASTIC_TOT(i,Phys_Channel[1]);
-//                 Diff = TOT[0] - TOT[1];
-//
-//                 if(!TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]]){
-//                   TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]] = MakeTH1('D',
-//                   Form("PLASTIC/TOT/TOT_Diffs/TOT_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),
-//                   Form("TOT_board%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),10000, -500., 500.);
-//                 }
-//
-//                 TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]]->Fill(Diff);
-//               }
-//             }
-//           }
-//           if(!TOT_Single[i][Phys_Channel[0]]){
-//             TOT_Single[i][Phys_Channel[0]] = MakeTH1('D',Form("PLASTIC/TOT/TOTs/TOT_board_%d_ch%d",i,Phys_Channel[0]),
-//             Form("TOT_board%d_ch%d",i,Phys_Channel[0]),10000, -500., 500.);
-//           }
-//           TOT_Single[i][Phys_Channel[0]]->Fill(TOT[0]);
-//         }
-//       }
-//     }
-//   }
+  
+
   /**----------------------------------------------------------------------------------------------**/
   /**--------------------------------------  bPLASTIC VME (+Scalar)  ----------------------------------------**/
   /**----------------------------------------------------------------------------------------------**/
-  void EventUnpackProc::Make_Plastic_VME_Histos(){
-    for (int i = 0; i<32; i++){
-
-  hPLAS_QDCRaw1[i] =  MakeTH1('D', Form("bPlastic/Energy/Raw/QDC1Raw/QDC1_Ch.%2d",i), Form("QDC1 Ch. %2d",i), 2500, 0., 5000.);
-  hPLAS_QDCRaw2[i] =  MakeTH1('D', Form("bPlastic/Energy/Raw/QDC2Raw/QDC2_Ch.%2d",i), Form("QDC2 Ch. %2d",i), 2500, 0., 5000.);
-  hPLAS_TDCRaw[i] =  MakeTH1('D', Form("bPlastic/Timing/Raw/TDCRaw/TDC_Ch.%2d",i), Form("TDC Ch. %2d",i), 1000, 0, 10000);
-    }
-    hScalar_hit_pattern = MakeTH1('D',"Scalar/HitPat","Scalar Hit pattern",32,0,32);
-}
+//   void EventUnpackProc::Make_Plastic_VME_Histos(){
+//     for (int i = 0; i<32; i++){
+// 
+//   hPLAS_QDCRaw1[i] =  MakeTH1('D', Form("bPlastic/Energy/Raw/QDC1Raw/QDC1_Ch.%2d",i), Form("QDC1 Ch. %2d",i), 2500, 0., 5000.);
+//   hPLAS_QDCRaw2[i] =  MakeTH1('D', Form("bPlastic/Energy/Raw/QDC2Raw/QDC2_Ch.%2d",i), Form("QDC2 Ch. %2d",i), 2500, 0., 5000.);
+//   hPLAS_TDCRaw[i] =  MakeTH1('D', Form("bPlastic/Timing/Raw/TDCRaw/TDC_Ch.%2d",i), Form("TDC Ch. %2d",i), 1000, 0, 10000);
+//     }
+//    
+// }
 
 
   //-----------------------------------------------------------------------------------------------------------------------------//
@@ -1864,12 +1731,11 @@ void EventUnpackProc::Fill_AIDA_Histos() {
     int bplasTDCID, bPlasIT;
 
     int bPlasmulti[32];
-    int Scalar_iterator;
-    int Scalar_Chan;
+    
    // double Scalar_Data[32];
 
     //Reset arrays and variables://
-    Scalar_Chan = 0;
+//     Scalar_Chan = 0;
     bplasTDCID=0;
     bPlasIT = 0;
 
@@ -1910,11 +1776,11 @@ void EventUnpackProc::Fill_AIDA_Histos() {
              }
             }
               //Scalar
-        Scalar_iterator = RAW->get_scalar_iterator();
-        for (int g=0; g<Scalar_iterator; g++){
-            Scalar_Chan = RAW->get_scalar_chan(g);
-            hScalar_hit_pattern->Fill(Scalar_Chan);
-            }
+//         Scalar_iterator = RAW->get_scalar_iterator();
+//         for (int g=0; g<Scalar_iterator; g++){
+//             Scalar_Chan = RAW->get_scalar_chan(g);
+//             hScalar_hit_pattern->Fill(Scalar_Chan);
+//             }
          }
 
 /**----------------------------------------------------------------------------------------------**/
@@ -2005,6 +1871,7 @@ void EventUnpackProc::Make_FATIMA_Histos(){
                     Form("LaBr%02d energy", i),5000,0,4E6);
 
             }
+    hScalar_hit_pattern = MakeTH1('D',"Scalar/HitPat","Scalar Hit pattern",32,0,32);
         }
 //-----------------------------------------------------------------------------------------------------------------------------//
 
@@ -2018,6 +1885,8 @@ void EventUnpackProc::Fill_FATIMA_Histos(){
     FAT_T[k] = 0;
     FAT_E[k] = 0;
   }
+  int Scalar_iterator = 0;
+  int Scalar_Chan = 0;
 
 
   /**------------------FATIMA Energy -----------------------------------------**/
@@ -2037,12 +1906,20 @@ void EventUnpackProc::Fill_FATIMA_Histos(){
    
     detTDC = (RAW->get_FAT_TDC_id(i));
      if(detTDC<50){
-    FAT_T[detTDC] = (RAW->get_FAT_TDC_timestamp(i));
-    hFAT_Traw[detTDC]->Fill(FAT_T[detTDC]*25); //in ps
+        FAT_T[detTDC] = (RAW->get_FAT_TDC_timestamp(i));
+        hFAT_Traw[detTDC]->Fill(FAT_T[detTDC]*25); //in ps
     
                 }
          }
-}
+  /**------------------Scaler TIMING -----------------------------------------**/  
+         Scalar_iterator = RAW->get_scalar_iterator();
+         
+          for (int g=0; g<Scalar_iterator; g++){
+              if(RAW->get_scalar_data(g)>0){
+                hScalar_hit_pattern->Fill(g);
+           }
+        }
+    }
 
 
 /**----------------------------------------------------------------------------------------------**/
@@ -2058,12 +1935,13 @@ void EventUnpackProc::Fill_FATIMA_Histos(){
              hFATtrail_Fine[i]= MakeTH1('D', Form("FATIMA/Unpacker/Trail_Fine/Trail-FineCh.%02d", i), Form("Trail Fine %2d", i), 601, -1., 60.);
 
 
-    hFAT_Eraw[i] = MakeTH1('D', Form("FATIMA/Unpacker/Energy/Raw/E_Raw_LaBr%02d", i),
-    Form("LaBr%02d energy (raw)", i),2000,0,40000);
+            hFAT_Eraw[i] = MakeTH1('D', Form("FATIMA/Unpacker/Energy/Raw/E_Raw_LaBr%02d", i),
+            Form("LaBr%02d energy (raw)", i),2000,0,40000);
 
 
 
             }
+         
         }
   //-----------------------------------------------------------------------------------------------------------------------------//
 
@@ -2175,201 +2053,7 @@ void EventUnpackProc::Fill_GALILEO_Histos(){
 
 
 
-//         /**----------------------------------------------------------------------------------------------**/
-//         /**---------------------------  FINGER TAMEX ------------------------ ---------------------------**/
-//         /**----------------------------------------------------------------------------------------------**/
-// void EventUnpackProc::Make_Finger_Histos(){
-//
-//   for( int i=0;i< 48;i++){
-//
-//     // hlead_lead[i] = MakeTH1('D',Form("FINGER/lead-lead/lead-leadCh.%02d",i),Form("lead-leadCh.%02d",i), 200001, -2500., 2500.);
-//
-//     //hFin_PadiCoarse[i] = MakeTH1('D',Form("FINGER/PADI_Coarse/CoarseCh%02d",i),Form("Coarse%2d",i), 1001, -500., 500.);
-//     // hFin_PadiFine[i] = MakeTH1('D',Form("FINGER/PADI_Fine/FineCh%02d",i),Form("Fine%2d",i), 1001, -500., 500.);
-//     //hFin_TimeDiffTrailing[i] = MakeTH1('D',Form("FINGER/TimeDiffTrailing/TrailingDiffCh%02d",i),Form("trailing Ch(%2d)-Ch(%2d)",i,i+1), 20001, -100., 100.);
-//     // hFin_ToT[i] = MakeTH1('D',Form("FINGER/TOT/TOTCh%02d",i),Form("TOT Ch(%2d)-Ch(%2d)",i,i+1), 800, 0., 200.);
-//   }
-//   TOT_TOT = new TH1***[100];
-//   TOT_Single = new TH1**[100];
-//   TRAIL_TRAIL = new TH1***[100];
-//   LEAD_LEAD = new TH1***[100];
-//
-//   for(int i = 0;i < 100;++i){
-//     TOT_Single[i] = new TH1*[100];
-//     TOT_TOT[i] = new TH1**[100];
-//     TRAIL_TRAIL[i] = new TH1**[100];
-//     LEAD_LEAD[i] = new TH1**[100];
-//
-//     for(int j = 0;j < 100;++j){
-//       TOT_TOT[i][j] = new TH1*[100];
-//       TRAIL_TRAIL[i][j] = new TH1*[100];
-//       LEAD_LEAD[i][j] = new TH1*[100];
-//
-//       for(int k = 0;k < 100;++k){
-//         TOT_TOT[i][j][k] = nullptr;
-//         TRAIL_TRAIL[i][j][k] = nullptr;
-//         LEAD_LEAD[i][j][k]   = nullptr;
-//       }
-//
-//       TOT_Single[i][j] = nullptr;
-//
-//     }
-//   }
-// }
-// //-----------------------------------------------------------------------------------------------------------------------------//
-//
-// void EventUnpackProc::Fill_Finger_Histos(){
-//   if(event_number>0){
-//     //get amount of fired Tamex modules
-//     int TamexHits = RAW->get_FINGER_tamex_hits();
-//
-//     //int Physical_hits = 0;
-//     int leadHits[3]={0,0};
-//     int trailHits = 0;
-//     // int Phys_Channel[2] = {0,0};
-//     int Phys_chan[100][100]={0,0};
-//     int chID[100][100]={0,0};
-//     bool TamexLeadisFired;
-//     double Coarse_T_lead[100][100]={0,0};
-//     //     double Lead[2] = {0,0};
-//     //     double Trail[2] = {0,0};
-//     //double TOT[2] = {0,0};
-//     double Fin_ToT[100][100]={0,0};
-//     double LeadDiff[48]={0,0};
-//     int MaxHits = 0;
-//
-//     //  cout << "TamexHits " << TamexHits << endl;
-//     for(int i = 0;i < TamexHits;i++){
-//       //  cout << "Fin Trig " << RAW->get_FINGER_trigger_T(i) << endl;
-//
-//       leadHits[i] = RAW->get_FINGER_lead_hits(i);
-//       if(leadHits[i]>-1)TamexLeadisFired = true;
-//
-//       //  cout << "iterator " <<  RAW->get_FINGER_am_Fired(i) << endl;
-//       trailHits = RAW->get_FINGER_trail_hits(i);
-//       // cout << "0) TamexHits "<< TamexHits << " leadHits " << leadHits <<endl;
-//       //cout << "trail " <<trailHits << endl;
-//       MaxHits = (leadHits[i] >= trailHits) ? leadHits[i] : trailHits;
-//
-//       for(int j = 0;j < RAW->get_FINGER_am_Fired(i);j++){
-//         chID[i][j] = RAW->get_FINGER_CH_ID(i,j);
-//
-//         Phys_chan[i][j] = (RAW->get_FINGER_physical_channel(i,j));
-//
-//
-//
-//         // cout << "4)ev " << event_number << " Phys_chan[i][j] " << Phys_chan[i][j] << "  chID[i][j] " <<  chID[i][j] <<" Coarse_T_lead[i][j] " <<Coarse_T_lead[i][j]<< " i " << i << " j " << j << endl;
-//
-//         //    cout << "a) i " << i << " j " << j << " Phys_chan[i][j] " << Phys_chan[i][j] << "  chID[i][j] " <<  chID[i][j] << " Coarse_T_lead " << Coarse_T_lead[i][j] << endl;
-//
-//         Fin_ToT[i][j] = RAW->get_FINGER_TOT(i,j);
-//         // cout << "1) Phys_chan[i][j] "<< Phys_chan[i][j] << " Coarse_T_lead[i][j] " << Coarse_T_lead[i][j] <<" i " << i << " j " <<  j << " chID[i][j]  " <<chID[i][j] << endl;
-//
-//
-//
-//         // Phys_Channel[0] = RAW->get_FINGER_physical_channel(i,j);
-//
-//         //Lead[0] = RAW->get_FINGER_lead_T(i,Phys_Channel[0]);
-//         //  cout <<  "Phys_chan[i][j] "<<  Phys_chan[i][j] << " Coarse_T_lead[i][j] " << Coarse_T_lead[i][j] <<" i " << i << " j " << j <<  endl;
-//
-//       }
-//     }
-//
-//     ///SET PADI or PADIWA!////
-//     if (PADI_OR_PADIWA == true){
-//       //  if(TamexLeadisFired==true){
-//
-//       for(int i = 0;i < TamexHits;i++){
-//         for(int j = 0;j <  RAW->get_FINGER_am_Fired(i);j++){
-//           Coarse_T_lead[i][j] = RAW->get_FINGER_lead_T(i,j);
-//           //Leading - Leading
-//           if(i==0) Phys_chan[i][j] = Phys_chan[i][j];
-//           if(i==1) Phys_chan[i][j] = Phys_chan[i][j]+16;
-//
-//           if(i==2) Phys_chan[i][j] = Phys_chan[i][j]+32;
-//           if(Coarse_T_lead[i][j]!=0 && Coarse_T_lead[i][j+2]!=0){
-//             LeadDiff[Phys_chan[i][j]] =  Coarse_T_lead[i][j] -  Coarse_T_lead[i][j+2];
-//             // cout<<"i " << i << " j " << j<<" ChID "<<chID[i][j]<<" Phys_chan[i][j] " << Phys_chan[i][j] <<" Coarse_T_lead[i][j] " <<Coarse_T_lead[i][j] <<" Coarse_T_lead[i][j+2] " <<Coarse_T_lead[i][j+2] <<" LeadDiff[r] " << LeadDiff[Phys_chan[i][j]]<<endl;
-//             //for (int l=0; l<16*3;l++){
-//             // cout<<"event " << event_number <<" i " << i << " j " << j<<" ChID "<<chID[i][j]<<" Phys_chan[i][j] " << Phys_chan[i][j] <<endl;
-//             //   cout <<"i " << i << " j " << j << "chID[i][j] " << chID[i][j] <<"  Phys_chan[i][j]  " <<  Phys_chan[i][j]    << " get_FINGER_physical_lead_hits " << RAW->get_FINGER_physical_lead_hits(i,j)<< " leadHits " << leadHits[i] << endl;
-//             //  if (Phys_chan[i][j]==19&& LeadDiff[Phys_chan[i][j]]>120){
-//             // hlead_lead[Phys_chan[i][j]]->Fill(LeadDiff[Phys_chan[i][j]]);
-//             //cout<<"event " << event_number <<" i " << i << " j " << j<<" ChID "<<chID[i][j]<<" Phys_chan[i][j] " << Phys_chan[i][j] <<" Coarse_T_lead[i][j] " <<Coarse_T_lead[i][j] <<" Coarse_T_lead[i][j+2] " <<Coarse_T_lead[i][j+2] <<" LeadDiff[r] " << LeadDiff[Phys_chan[i][j]]<<endl;
-//
-//             //   }
-//
-//             //  hFin_ToT[Phys_chan[i][j]]->Fill(Fin_ToT[i][j]);
-//
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
-//         for(int j = 0;j < trailHits;++j){
-//             Phys_Channel[0] = RAW->get_FINGER_physical_channel(i,j);
-//             Trail[0] = RAW->get_FINGER_trail_T(i,Phys_Channel[0]);
-//
-//             //Trailing - Trailing
-//             for(int k = 0;k < trailHits;++k){
-//                 if(k != j){
-//                     Phys_Channel[1] = RAW->get_FINGER_physical_channel(i,k);
-//                     Trail[1] = RAW->get_FINGER_trail_T(i,Phys_Channel[1]);
-//                     Diff = Trail[0] - Trail[1];
-//
-//                     if(!TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]]){
-//                         TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]] = MakeTH1('D',
-//                                       Form("FINGER/trail_minus_trail/trail_minus_trail_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),
-//                                       Form("trail_minus_trail_board%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),10000, -500., 500.);
-//                     }
-//
-//                     TRAIL_TRAIL[i][Phys_Channel[0]][Phys_Channel[1]]->Fill(Diff);
-//                 }
-//             }
-//         }
-//}
-//         for(int j = 0;j < MaxHits;++j){
-//
-//             Phys_Channel[0] = RAW->get_FINGER_physical_channel(i,j);
-//
-//             leadHitsCh = RAW->get_FINGER_physical_lead_hits(i,Phys_Channel[0]);
-//             trailHitsCh = RAW->get_FINGER_physical_trail_hits(i,Phys_Channel[0]);
-//
-//
-//             if(leadHitsCh == trailHitsCh){
-//                 TOT[0] = RAW->get_FINGER_TOT(i,Phys_Channel[0]);
-//                 //Trailing - Trailing
-//                 for(int k = 0;k < MaxHits;++k){
-//                     if(k != j){
-//                         Phys_Channel[1] = RAW->get_FINGER_physical_channel(i,k);
-//
-//                         leadHitsCh = RAW->get_FINGER_physical_lead_hits(i,Phys_Channel[1]);
-//                         trailHitsCh = RAW->get_FINGER_physical_trail_hits(i,Phys_Channel[1]);
-//
-//                         if(leadHitsCh == trailHitsCh){
-//                             TOT[1] = RAW->get_FINGER_TOT(i,Phys_Channel[1]);
-//                             Diff = TOT[0] - TOT[1];
-//
-//                             if(!TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]]){
-//                                 TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]] = MakeTH1('D',
-//                                       Form("FINGER/TOT/TOT_Diffs/TOT_board_%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),
-//                                       Form("TOT_board%d_from_ch%d_to_%d",i,Phys_Channel[0],Phys_Channel[1]),10000, -500., 500.);
-//                             }
-//
-//                             TOT_TOT[i][Phys_Channel[0]][Phys_Channel[1]]->Fill(Diff);
-//                         }
-//                     }
-//                 }
-//                 if(!TOT_Single[i][Phys_Channel[0]]){
-//                     TOT_Single[i][Phys_Channel[0]] = MakeTH1('D',Form("FINGER/TOT/TOTs/TOT_board_%d_ch%d",i,Phys_Channel[0]),
-//                                                      Form("TOT_board%d_ch%d",i,Phys_Channel[0]),10000, -500., 500.);
-//                 }
-//                 TOT_Single[i][Phys_Channel[0]]->Fill(TOT[0]);
-//             }
-//         }
-//     }
-// }
+
 
 //-----------------------------------------------------------------------------------------------------------------------------//
 

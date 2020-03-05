@@ -174,7 +174,7 @@ double PLASTIC_TAMEX_Calibrator::get_Calibration_val(double value,int tamex_id_t
         //cout << "calib "<<tmp << " " << tmp2 << " " << value << " " << bins_x_arr[i]<<endl;
         if(value >= bins_x_arr[i] && value < bins_x_arr[i+1]){
             
-            return_val = (tmp2 - tmp)/(bins_x_arr[i+1] - bins_x_arr[i])*(value_t - bins_x_arr[i+1]) + tmp;          
+            return_val = (tmp2 - tmp)/(bins_x_arr[i+1] - bins_x_arr[i])*((value_t - bins_x_arr[i+1])+rand()%1000*0.001) + tmp;          
             break;
         }
      }

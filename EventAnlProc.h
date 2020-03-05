@@ -124,6 +124,9 @@ class EventAnlProc : public TGo4EventProcessor {
                  Float_t (*points)[2],
                  const char* HistoName = 0);
 
+         Bool_t Check_PolyCond_Multi_X_Y(Float_t X, Float_t Y, Float_t*** V, int n, int cond_num);
+         Bool_t Check_PolyCond_X_Y(Float_t X, Float_t Y, Float_t** V, int n );
+         void FRS_Gates();
 
       void ProcessAida(EventUnpackStore* pInput, EventAnlStore* pOutput);
 
@@ -152,6 +155,17 @@ class EventAnlProc : public TGo4EventProcessor {
       Float_t  FRS_z, FRS_z2, FRS_z3;
       Float_t  FRS_timestamp, FRS_ts, FRS_ts2;
 
+       // Float_t** cID_x4AoQ_Z;    
+//         Float_t*** cID_x2AoQ;
+//         Float_t*** cID_x4AoQ;
+//         Float_t** cID_Z_AoQ_test;
+//         Float_t*** cID_Z_Z2;
+        
+//         Bool_t       id_g_x2AoQ[5];
+//         Bool_t       id_g_x4AoQ[5];
+//         Bool_t       id_g_x4AoQ_Z[5]; 
+//         Bool_t      id_g_z_AoQ_test;
+//         Bool_t     id_g_z_z2[5];
       int       Aida_Fired;
      // Long64_t WR_Aida_Det_diff[10000];
 
@@ -298,7 +312,13 @@ class EventAnlProc : public TGo4EventProcessor {
 
              std::vector<AidaCluster> EventsToClusters(std::vector<AidaEvent> const&);
             AidaHit ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const&);
+            
+            int      IsData(std::ifstream &f);
 
+             float X_ZAoQ[6],Y_ZAoQ[6];
+             float X_ZZ2[6],Y_ZZ2[6];
+             float XX4_AoQ[6], YX4_AoQ[6];
+             float XX2_AoQ[6], YX2_AoQ[6];
 
 	    //WR histograms
 	    TH1 *hAida_Fat_WRdT;
@@ -315,26 +335,31 @@ class EventAnlProc : public TGo4EventProcessor {
              TH2I *hID_Z_AoQ_zsame;
              TH2I *hID_Z_AoQ_corr;
              TH2I *hID_Z_Z2;
-             TGo4PolyCond  *cID_x2AoQ[3];
-             TGo4PolyCond  *cID_x4AoQ[3];
-             TH2I *hID_x2AoQ_x2AoQgate[3];
-             TH2I *hID_x2AoQ_x4AoQgate[3];
+              
+             TH2I *hID_x2AoQ_x2AoQgate;
+             TH2I *hID_x2AoQ_x4AoQgate;
              
-             TH2I *hID_x4AoQ_x2AoQgate[3];
-             TH2I *hID_x4AoQ_x4AoQgate[3];
+             TH2I *hID_x4AoQ_x2AoQgate;
+             TH2I *hID_x4AoQ_x4AoQgate;
              
-             TH2I *hID_ZAoQ_x2AoQgate[3];
-             TH2I *hID_ZAoQ_x4AoQgate[3];
+             TH2I *hID_ZAoQ_x2AoQgate;
+             TH2I *hID_ZAoQ_x4AoQgate;
              
-             TH2I *hID_x2AoQ_Z1Z2gate[3];
-             TH2I *hID_x4AoQ_Z1Z2gate[3];
-             TH2I *hID_ZAoQ_Z1Z2gate[3];
-             TH2I *hID_SC43Z1_Z1Z2gate[3];
+             TH2I *hID_x2AoQ_Z1Z2gate;
+             TH2I *hID_x4AoQ_Z1Z2gate;
+             TH2I *hID_ZAoQ_Z1Z2gate;
+             TH2I *hID_SC43Z1_Z1Z2gate;
              
-             TGo4PolyCond  *cID_Z_AoQ[3];
+             TGo4PolyCond  *cID_Z_AoQ;
+             TGo4PolyCond  *cID_Z_Z2gate;
+             TGo4PolyCond  *cID_x2AoQ;
+             TGo4PolyCond  *cID_x4AoQ;
+//              TGo4PolyCond  *cID_x2AoQ_polyset;
+//              TGo4PolyCond  *cID_x4AoQ_polyset;
+//              TGo4PolyCond  *cID_Z_Z2_polyset;
              //TH1I *hID_Z3_gate[5];
-             TH2I *hID_Z_AoQgate[3];             
-             TGo4PolyCond  *cID_Z_Z2gate[3];
+             TH2I *hID_Z_AoQgate;             
+            
              
             //bPlast Histograms
 

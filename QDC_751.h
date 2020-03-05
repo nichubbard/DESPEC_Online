@@ -54,8 +54,6 @@ struct QDC_Traces
 
 };
 
-
-
 struct QDC_Extras
 {
 
@@ -74,9 +72,6 @@ struct QDC_Data
 	unsigned int QL		:16;
   
 };
-
-
-
 
 struct QDC_End
 {

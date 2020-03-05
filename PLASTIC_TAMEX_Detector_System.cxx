@@ -297,8 +297,7 @@ void PLASTIC_TAMEX_Detector_System::get_edges(){
         
         else ch_num[tamex_iter][iterator[tamex_iter]] = (ch_ID_edge[tamex_iter][iterator[tamex_iter]]+1)/2-1;
                 
-                //cout<<"1 edge_fine[i][j] " <<edge_fine[tamex_iter][iterator[tamex_iter]] << " tamex_iter " << tamex_iter << " iterator[tamex_iter] " << iterator[tamex_iter] <<" ch num " <<  ch_num[tamex_iter][iterator[tamex_iter]]<< endl;
-       // cout<<"1)  " <<" tamex_iter " << tamex_iter <<" ch_ID_edge  " << ch_ID_edge[tamex_iter][iterator[tamex_iter]]<<" iterator[tamex_iter] " << iterator[tamex_iter] <<" tamex ID " <<tamex_id[tamex_iter] << " ch_num " << ch_num[tamex_iter][iterator[tamex_iter]]  <<endl;
+          // cout<<"1)  " <<" tamex_iter " << tamex_iter <<" ch_ID_edge  " << ch_ID_edge[tamex_iter][iterator[tamex_iter]]<<" iterator[tamex_iter] " << iterator[tamex_iter] <<" tamex ID " <<tamex_id[tamex_iter] << " ch_num " << ch_num[tamex_iter][iterator[tamex_iter]]  <<endl;
  
         //cout <<" lead_arr[tamex_iter][iterator[tamex_iter]] " <<  lead_arr[tamex_iter][iterator[tamex_iter]]<< " ch_ID_edge[tamex_iter][iterator[tamex_iter]] "<<ch_ID_edge[tamex_iter][iterator[tamex_iter]]<<endl;
        //         if(ch_ID_edge[1][iterator[tamex_iter]]==6){

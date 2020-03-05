@@ -365,8 +365,8 @@ if( cInputMain->pFRS_ZAoQ_pass==true ){
 ///Just VME Fatima
 for(int k=0; k<cInputMain->pFat_QDCFired; k++){
 
-    ///Send out fatima energy
-    cOutput->cFatE[cInputMain->pFat_QDCID[k]] = cInputMain->pFat_QDCGainMatch[cInputMain->pFat_QDCID[k]];
+  
+//    cOutput->cFatE[cInputMain->pFat_QDCID[k]] = cInputMain->pFat_QDCGainMatch[cInputMain->pFat_QDCID[k]];
       if(cInputMain->pFat_QDCGainMatch[cInputMain->pFat_QDCID[k]]>0 && FAT_WR>0){
          //for(int j =0; j<50; j++){
           

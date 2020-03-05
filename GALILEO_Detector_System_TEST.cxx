@@ -25,8 +25,8 @@ GALILEO_Detector_System::GALILEO_Detector_System(){
 
   det_ids = new int[max_am_dets];
   crystal_ids = new int[max_am_dets];
-    Chan_Time = new ULong64_t[max_am_dets];
-    Chan_Energy = new double[max_am_dets];
+  Chan_Time = new ULong64_t[max_am_dets];
+  Chan_Energy = new double[max_am_dets];
   Pileup = new bool[max_am_dets];
   Overflow = new bool[max_am_dets];
 

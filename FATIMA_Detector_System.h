@@ -33,6 +33,10 @@ private:
 	int unknown_header_counter;
 
 	int* pdata;
+    
+    int Scalar_iterator;
+    double* Scalar_Data;
+    
 	
     //These are indexed by fired_QDC_amount
     int fired_QDC_amount;
@@ -95,6 +99,7 @@ private:
 	bool dist_corr_used;
 	int num_TDC_modules = 0;  //Set in the constructor
 	int num_TDC_modules_fixed = 0;  //Set in the constructor
+	bool Scaler_Module;
     
 	    //This is used during individual module unpacking
 	int Fired_QDC_Channels[100][2];

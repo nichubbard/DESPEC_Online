@@ -101,9 +101,9 @@ private:
      double* VME_TDC_Data;
      int* VME_TDC_Channels;
      
-     int Scalar_iterator;
-     double* Scalar_Data;
-     int* Scalar_Channels;
+//      int Scalar_iterator;
+//      double* Scalar_Data;
+//      int* Scalar_Channels;
      
      int unknown_header_counter;
      
