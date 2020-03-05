@@ -737,7 +737,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
          for (int i=fOutput->fGal_fired; i<RAW->get_GALILEO_am_Fired() && i < GALILEO_MAX_HITS; i++){
                 fOutput->fGal_Detector[i] =  RAW->get_GALILEO_Det_id(i);
                 fOutput->fGal_Crystal[i] =  RAW->get_GALILEO_Crystal_id(i);
-                fOutput->fGal_E[i] = RAW->get_GALILEO_Chan_E(i)/1000;
+                fOutput->fGal_E[i] = RAW->get_GALILEO_Chan_E(i);
                 fOutput->fGal_T[i] = RAW->get_GALILEO_Chan_T(i);
                 fOutput->fGal_Pileup[i] = RAW->get_GALILEO_Pileup(i);
                 fOutput->fGal_Overflow[i] = RAW->get_GALILEO_Overflow(i);
@@ -2168,7 +2168,7 @@ void EventUnpackProc::Fill_GALILEO_Histos(){
       GALILEO_hits = RAW->get_GALILEO_am_Fired();
          for(int i=0; i<GALILEO_hits; i++){
          GalID = RAW->get_GALILEO_Det_id(i) * 3 + RAW->get_GALILEO_Crystal_id(i);
-        tmpGAL[GalID] = RAW->get_GALILEO_Chan_E(i)/1000;
+        tmpGAL[GalID] = RAW->get_GALILEO_Chan_E(i);
         hGAL_Raw_E[GalID]->Fill(tmpGAL[GalID]);
          }
    }
